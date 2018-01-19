@@ -1,12 +1,16 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -128,9 +132,24 @@ public class InternalExplorerActivity extends AppCompatActivity {
                 if (m_isFile.isDirectory()) {
                     getDirFromRoot(m_isFile.toString());
                 } else {
-                    Toast.makeText(InternalExplorerActivity.this, "This is File", Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(InternalExplorerActivity.this, "" + m_item.get(position), Toast.LENGTH_SHORT).show();
+                    MimeTypeMap map = MimeTypeMap.getSingleton();
+//        String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
+                    String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+                    String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+
+                    if (type == null)
+                        type = "*//*";
+                    Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, type);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
                 }
             }
+
+
         });
     }
 

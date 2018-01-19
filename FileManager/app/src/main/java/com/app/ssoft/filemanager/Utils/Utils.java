@@ -1,5 +1,12 @@
 package com.app.ssoft.filemanager.Utils;
 
+import android.content.ContentResolver;
+import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
+
+import java.io.File;
 import java.text.DecimalFormat;
 
 /**
@@ -7,6 +14,8 @@ import java.text.DecimalFormat;
  */
 
 public class Utils {
+    private static Bitmap thumbnailDrawable;
+
     public static String floatForm (double d)
     {
         return new DecimalFormat("#.##").format(d);
@@ -55,5 +64,46 @@ public class Utils {
 
         if (suffix != null) resultBuffer.append(suffix);
         return resultBuffer.toString();
+    }
+
+    public static Bitmap getThumbnail(ContentResolver cr, String path) throws Exception {
+
+        Cursor ca = cr.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[] { MediaStore.MediaColumns._ID }, MediaStore.MediaColumns.DATA + "=?", new String[] {path}, null);
+        if (ca != null && ca.moveToFirst()) {
+            int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
+            ca.close();
+            return MediaStore.Images.Thumbnails.getThumbnail(cr, id, MediaStore.Images.Thumbnails.MICRO_KIND, null );
+        }
+
+        ca.close();
+        return null;
+
+    }
+    public static Bitmap setFileImageType(Context m_context ,File m_file) {
+        int m_lastIndex = m_file.getAbsolutePath().lastIndexOf(".");
+        String m_filepath = m_file.getAbsolutePath();
+        if (m_file.isDirectory())
+            return null;
+        else {
+            if (m_filepath.substring(m_lastIndex).equalsIgnoreCase(".png")) {
+                try {
+                    thumbnailDrawable = Utils.getThumbnail(m_context.getContentResolver(), m_filepath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return thumbnailDrawable;
+            } else if (m_filepath.substring(m_lastIndex).equalsIgnoreCase(".jpg")) {
+
+                try {
+                    thumbnailDrawable = Utils.getThumbnail(m_context.getContentResolver(), m_filepath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return thumbnailDrawable;
+            } else {
+                return null;
+            }
+        }
     }
 }
