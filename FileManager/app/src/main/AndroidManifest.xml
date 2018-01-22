@@ -22,7 +22,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Views.InternalExplorerActivity"></activity>
+        <activity android:name=".Views.InternalExplorerActivity" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.app.ssoft.filemanager"
@@ -32,6 +33,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <activity
+            android:name=".Views.ImageViewActivity"
+            android:theme="@style/ImageViewTheme"></activity>
     </application>
 
 </manifest>

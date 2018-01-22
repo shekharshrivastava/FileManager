@@ -38,6 +38,7 @@ public class InternalExplorerActivity extends AppCompatActivity {
     private boolean m_isRoot;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,11 +142,20 @@ public class InternalExplorerActivity extends AppCompatActivity {
 
                     if (type == null)
                         type = "*//*";
-                    Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(uri, type);
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(intent);
+                    if (type == "image/jpeg") {
+                        Intent intent = new Intent(InternalExplorerActivity.this, ImageViewActivity.class);
+                        intent.putExtra("imgPath",m_path);
+                        intent.putExtra("position",position);
+                        intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                        intent.putExtra("imageName", m_item.get(position));
+                        startActivity(intent);
+                    } else {
+                        Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(uri, type);
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(intent);
+                    }
                 }
             }
 
