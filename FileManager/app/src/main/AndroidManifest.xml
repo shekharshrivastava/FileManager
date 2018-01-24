@@ -35,8 +35,9 @@
         </provider>
 
         <activity
-            android:name=".Views.ImageViewActivity"
-            android:theme="@style/ImageViewTheme"></activity>
+            android:theme="@style/ImageViewTheme"
+            android:name=".Views.ImageFullScreenActivity"
+            android:label="@string/title_activity_image_full_screen"></activity>
     </application>
 
 </manifest>

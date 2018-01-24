@@ -13,7 +13,6 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 
@@ -133,19 +132,15 @@ public class InternalExplorerActivity extends AppCompatActivity {
                 if (m_isFile.isDirectory()) {
                     getDirFromRoot(m_isFile.toString());
                 } else {
-
-                    Toast.makeText(InternalExplorerActivity.this, "" + m_item.get(position), Toast.LENGTH_SHORT).show();
                     MimeTypeMap map = MimeTypeMap.getSingleton();
-//        String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
                     String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
-
                     if (type == null)
                         type = "*//*";
                     if (type == "image/jpeg") {
-                        Intent intent = new Intent(InternalExplorerActivity.this, ImageViewActivity.class);
-                        intent.putExtra("imgPath",m_path);
-                        intent.putExtra("position",position);
+                        Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
+                        intent.putExtra("imgPath", m_path);
+                        intent.putExtra("position", position);
                         intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                         intent.putExtra("imageName", m_item.get(position));
                         startActivity(intent);
@@ -156,6 +151,7 @@ public class InternalExplorerActivity extends AppCompatActivity {
                         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         startActivity(intent);
                     }
+
                 }
             }
 
