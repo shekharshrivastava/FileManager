@@ -24,6 +24,8 @@ import android.widget.TextView;
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import java.io.File;
 
 import at.grabner.circleprogress.CircleProgressView;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         String[] web = {

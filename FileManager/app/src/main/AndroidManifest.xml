@@ -38,6 +38,10 @@
             android:theme="@style/ImageViewTheme"
             android:name=".Views.ImageFullScreenActivity"
             android:label="@string/title_activity_image_full_screen"></activity>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="a70a2cc6b67d860f81795b637ad1b07304549055" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
