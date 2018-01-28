@@ -13,6 +13,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 
@@ -31,8 +32,8 @@ public class InternalExplorerActivity extends AppCompatActivity {
     private ArrayList<String> m_filesPath;
     private String m_curDir;
     private AdapterView m_RootList;
-    private ListAdapter m_listAdapter;
-    private ListView rl_lvListRoot;
+    public ListAdapter m_listAdapter;
+    public ListView rl_lvListRoot;
     private String internalStorageRoot;
     private boolean m_isRoot;
 
@@ -134,6 +135,9 @@ public class InternalExplorerActivity extends AppCompatActivity {
                 } else {
                     MimeTypeMap map = MimeTypeMap.getSingleton();
                     String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+                    if (extension.equals(".JPG")){
+                        extension = ".jpeg";
+                    }
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                     if (type == null)
                         type = "*//*";
@@ -145,11 +149,15 @@ public class InternalExplorerActivity extends AppCompatActivity {
                         intent.putExtra("imageName", m_item.get(position));
                         startActivity(intent);
                     } else {
-                        Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(uri, type);
-                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        startActivity(intent);
+                        if (type != "*//*") {
+                            Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(uri, type);
+                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }
@@ -169,4 +177,13 @@ public class InternalExplorerActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    @Override
+    protected void onResume() {
+        m_listAdapter.notifyDataSetChanged();
+        super.onResume();
+
+    }
+
+
 }

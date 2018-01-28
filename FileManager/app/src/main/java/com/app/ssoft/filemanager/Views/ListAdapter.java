@@ -158,7 +158,7 @@ public class ListAdapter extends BaseAdapter {
 
     String getLastDate(int p_pos) {
         File m_file = new File(m_path.get(p_pos));
-        SimpleDateFormat m_dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat m_dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:a");
         return m_dateFormat.format(m_file.lastModified());
     }
 }

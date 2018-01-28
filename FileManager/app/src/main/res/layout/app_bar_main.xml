@@ -161,7 +161,6 @@
 
             </ScrollView>
         </android.support.design.widget.AppBarLayout>
-
         <GridView
 
             android:layout_margin="10dp"
