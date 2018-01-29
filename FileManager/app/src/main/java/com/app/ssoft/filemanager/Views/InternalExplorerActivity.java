@@ -1,5 +1,7 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,9 +11,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -21,7 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class InternalExplorerActivity extends AppCompatActivity {
+public class InternalExplorerActivity extends AppCompatActivity{
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Toolbar toolbar;
     private FragmentManager fragmentManager = null;
@@ -36,7 +43,8 @@ public class InternalExplorerActivity extends AppCompatActivity {
     public ListView rl_lvListRoot;
     private String internalStorageRoot;
     private boolean m_isRoot;
-
+    private String rootPath;
+    public static final int RESULT_DELETED = 1;
 
 
     @Override
@@ -96,6 +104,7 @@ public class InternalExplorerActivity extends AppCompatActivity {
         m_path = new ArrayList<String>();
         m_files = new ArrayList<String>();
         m_filesPath = new ArrayList<String>();
+        rootPath = p_rootPath;
         File m_file = new File(p_rootPath);
         File[] m_filesArray = m_file.listFiles();
         if (!p_rootPath.equals(m_root)) {
@@ -135,7 +144,7 @@ public class InternalExplorerActivity extends AppCompatActivity {
                 } else {
                     MimeTypeMap map = MimeTypeMap.getSingleton();
                     String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
-                    if (extension.equals(".JPG")){
+                    if (extension.equals(".JPG")) {
                         extension = ".jpeg";
                     }
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
@@ -147,7 +156,7 @@ public class InternalExplorerActivity extends AppCompatActivity {
                         intent.putExtra("position", position);
                         intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                         intent.putExtra("imageName", m_item.get(position));
-                        startActivity(intent);
+                        startActivityForResult(intent,RESULT_DELETED);
                     } else {
                         if (type != "*//*") {
                             Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
@@ -178,12 +187,72 @@ public class InternalExplorerActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
-    protected void onResume() {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.explorer_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.createFolder:
+                showChangeLangDialog();
+                break;
+            case R.id.refresh:
+                break;
+            case R.id.view:
+                break;
+        }
+        return true;
+    }
+
+    public void showChangeLangDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText edt = (EditText) dialogView.findViewById(R.id.edit1);
+
+        dialogBuilder.setTitle("NEW");
+        dialogBuilder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                createFolder(edt.getText().toString());
+                //do something with edt.getText().toString();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //pass
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
+    }
+
+    public void createFolder(String folderName) {
+        File newDir = new File(rootPath + "/" + folderName);
+        newDir.mkdirs();
+        m_item.add(newDir.getName());
+        m_path.add(newDir.getPath());
         m_listAdapter.notifyDataSetChanged();
-        super.onResume();
 
     }
 
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == RESULT_DELETED){
+            File  file = new File(data.getStringExtra("deletedFile"));
+            m_item.remove(file.getName());
+            m_path.remove(file.getPath());
+            m_listAdapter.notifyDataSetChanged();
+
+        }
+    }
 }

@@ -2,19 +2,16 @@ package com.app.ssoft.filemanager.Views;
 
 import android.content.Intent;
 import android.media.ExifInterface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
 
-import org.w3c.dom.Text;
-
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 
 public class InfoActivity extends AppCompatActivity {
@@ -33,6 +30,8 @@ public class InfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
+        getSupportActionBar().setTitle("Info");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         picDateTV = findViewById(R.id.picDateTV);
         picTimeTV = findViewById(R.id.picTimeTV);
         pathTv = findViewById(R.id.pathTv);
@@ -106,6 +105,5 @@ public class InfoActivity extends AppCompatActivity {
     private String getTagString(String tag, ExifInterface exif) {
         return (tag + " : " + exif.getAttribute(tag) + "\n");
     }
-
 
 }
