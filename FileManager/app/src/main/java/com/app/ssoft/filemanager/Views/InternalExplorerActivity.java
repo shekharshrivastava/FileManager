@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -23,12 +24,14 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Utils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class InternalExplorerActivity extends AppCompatActivity{
+public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Toolbar toolbar;
     private FragmentManager fragmentManager = null;
@@ -45,7 +48,10 @@ public class InternalExplorerActivity extends AppCompatActivity{
     private boolean m_isRoot;
     private String rootPath;
     public static final int RESULT_DELETED = 1;
-
+    public static String copiedFileName;
+    public static int actionID = 0;
+    public static boolean isCutOrCopied = false;
+    private Menu menu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +61,8 @@ public class InternalExplorerActivity extends AppCompatActivity{
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
+//        rl_lvListRoot.setOnItemLongClickListener(this);
+        registerForContextMenu(rl_lvListRoot);
         getDirFromRoot(internalStorageRoot);
 
     /*    fragmentManager = getSupportFragmentManager();
@@ -99,6 +107,7 @@ public class InternalExplorerActivity extends AppCompatActivity{
      }*/
 ///get directories and files from selected path
     public void getDirFromRoot(String p_rootPath) {
+        getSupportActionBar().setSubtitle(p_rootPath);
         m_item = new ArrayList<String>();
         m_isRoot = true;
         m_path = new ArrayList<String>();
@@ -156,7 +165,7 @@ public class InternalExplorerActivity extends AppCompatActivity{
                         intent.putExtra("position", position);
                         intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                         intent.putExtra("imageName", m_item.get(position));
-                        startActivityForResult(intent,RESULT_DELETED);
+                        startActivityForResult(intent, RESULT_DELETED);
                     } else {
                         if (type != "*//*") {
                             Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
@@ -191,6 +200,7 @@ public class InternalExplorerActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
+        this.menu = menu;
         inflater.inflate(R.menu.explorer_menu, menu);
         return true;
     }
@@ -201,7 +211,24 @@ public class InternalExplorerActivity extends AppCompatActivity{
             case R.id.createFolder:
                 showChangeLangDialog();
                 break;
-            case R.id.refresh:
+            case R.id.paste:
+                try {
+                    File destinationFilePath = new File(rootPath + "/" + copiedFileName);
+                    boolean isPasted = Utils.paste(this,destinationFilePath);
+                    if (isPasted == true) {
+                        isCutOrCopied = false;
+                        menu.getItem(1).setVisible(false);
+                        m_item.add(destinationFilePath.getName());
+                        m_path.add(destinationFilePath.getPath());
+                        m_listAdapter.notifyDataSetChanged();
+                    }else{
+                        Toast.makeText(this,"Error performing desired operation",Toast.LENGTH_SHORT).show();
+                        menu.getItem(1).setVisible(false);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
             case R.id.view:
                 break;
@@ -243,16 +270,104 @@ public class InternalExplorerActivity extends AppCompatActivity{
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RESULT_DELETED){
-            File  file = new File(data.getStringExtra("deletedFile"));
+        if (requestCode == RESULT_DELETED && resultCode == RESULT_DELETED) {
+            File file = new File(data.getStringExtra("deletedFile"));
             m_item.remove(file.getName());
             m_path.remove(file.getPath());
             m_listAdapter.notifyDataSetChanged();
 
         }
     }
-}
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+
+        return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.setHeaderTitle("Select The Action");
+        menu.add(0, v.getId(), 0, "Cut");//groupId, itemId, order, title
+        menu.add(0, v.getId(), 0, "Copy");
+        menu.add(0, v.getId(), 0, "Delete");
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        final File file = new File(m_path.get(info.position));
+        copiedFileName = m_item.get(info.position);
+        if (item.getTitle() == "Copy") {
+            actionID = 1;
+            if (file.exists()) {
+                Utils.copyFile(this,file);
+                if(isCutOrCopied) {
+                    menu.getItem(1).setVisible(true);
+                }else{
+                    menu.getItem(1).setVisible(false);
+                }
+
+            }
+        } else if (item.getTitle() == "Cut") {
+            actionID = 2;
+            if (file.exists()) {
+                Utils.cutFile(file);
+                if(isCutOrCopied) {
+                    menu.getItem(1).setVisible(true);
+                }else {
+                    menu.getItem(1).setVisible(false);
+                }
+            }
+        } else if (item.getTitle() == "Delete") {
+            if (file.exists()) {
+                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        InternalExplorerActivity.this);
+                alertDialog.setTitle("Alert");
+                alertDialog.setMessage("Are you sure you want to delete this file ?");
+                alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean isDeleted = Utils.delete(file);
+                        if (isDeleted == true) {
+                            m_item.remove(file.getName());
+                            m_path.remove(file.getPath());
+                            m_listAdapter.notifyDataSetChanged();
+                            Toast.makeText(InternalExplorerActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(InternalExplorerActivity.this, "Error deleting file/folder", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alertDialog.show();
+
+            }
+        }
+        return super.onContextItemSelected(item);
+
+    }
+
+ /*   @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu = menu;
+        menu.getItem(1).setVisible(false);
+        if (isCutOrCopied == true) {
+            menu.getItem(1).setVisible(true);
+        } else {
+            menu.getItem(1).setVisible(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }*/
+
+ }
+

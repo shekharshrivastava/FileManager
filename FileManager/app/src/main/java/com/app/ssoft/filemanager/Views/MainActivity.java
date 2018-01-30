@@ -23,15 +23,15 @@ import android.widget.TextView;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
-
 import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
+
 import java.io.File;
 
 import at.grabner.circleprogress.CircleProgressView;
+import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener,View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener, View.OnClickListener {
 
     private TextView internalStorageSpace;
     private CircleProgressView externalProgressBar;
@@ -247,12 +247,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.internalStorageLinearLayout:
-                Intent intent = new Intent(this,InternalExplorerActivity.class);
+                Intent intent = new Intent(this, InternalExplorerActivity.class);
                 startActivity(intent);
 
         }
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        InternalExplorerActivity.isCutOrCopied = false;
     }
 }

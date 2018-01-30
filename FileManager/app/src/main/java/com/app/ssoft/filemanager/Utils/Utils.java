@@ -12,14 +12,25 @@ import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.app.ssoft.filemanager.Views.InternalExplorerActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static org.apache.commons.io.FileUtils.copyDirectory;
 
 /**
  * Created by Shekahar.Shrivastava on 12-Jan-18.
@@ -27,6 +38,11 @@ import java.util.Date;
 
 public class Utils {
     private static Bitmap thumbnailDrawable;
+    private static InputStream inputStream;
+    private static File cutFile;
+    private static File[] items;
+    private static boolean isDeleted = false;
+
 
     public static String floatForm(double d) {
         return new DecimalFormat("#.##").format(d);
@@ -160,7 +176,19 @@ public class Utils {
     }
 
     public static boolean delete(File file) {
-        return file.delete();
+        if (file.isDirectory())
+        {
+            String[] children = file.list();
+            if(children.length > 0) {
+                for (int i = 0; i < children.length; i++) {
+                    new File(file, children[i]).delete();
+                    isDeleted = file.delete();
+                }
+            }else isDeleted = file.delete();
+        }else {
+            isDeleted =  file.delete();
+        }
+        return isDeleted;
     }
 
     public static void deleteFileFromMediaStore(final ContentResolver contentResolver, final File file) {
@@ -182,13 +210,123 @@ public class Utils {
         }
     }
 
-    public static  String getFormattedDate(String currentDate) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
-        Date newDate = format.parse(currentDate);
-
-        format = new SimpleDateFormat("MMMM dd, yyyy -EEEE hh:mm a");
-        String date = format.format(newDate);
-        return date;
+    public static String getFormattedDate(String currentDate) throws ParseException {
+        if (currentDate != null) {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy:MM:dd hh:mm:ss");
+            Date newDate = format.parse(currentDate);
+            format = new SimpleDateFormat("MMMM dd, yyyy -EEEE hh:mm a");
+            String date = format.format(newDate);
+            return date;
+        }
+        return null;
     }
 
+    public static void copyFile(Context context , File src) {
+        try {
+            if(!src.isDirectory()) {
+                inputStream = new FileInputStream(src);
+                InternalExplorerActivity.isCutOrCopied = true;
+            }else{
+                inputStream = null;
+                items =src.listFiles();
+                InternalExplorerActivity.isCutOrCopied = true;
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(context,"Error copying folder",Toast.LENGTH_SHORT).show();
+            InternalExplorerActivity.isCutOrCopied =false;
+        }
+    }
+
+    public static void cutFile(File src) {
+        cutFile = src;
+        InternalExplorerActivity.isCutOrCopied = true;
+    }
+
+    public static boolean paste(Context context,File destination) throws IOException {
+        boolean isPasted = false;
+        if (InternalExplorerActivity.actionID != 0) {
+            if (InternalExplorerActivity.actionID == 1) {
+                if (inputStream != null) {
+                    try {
+
+                        OutputStream outputStream = new FileOutputStream(destination);
+                        byte[] buf = new byte[1024];
+                        int length;
+                        while ((length = inputStream.read(buf)) > 0) {
+                            outputStream.write(buf, 0, length);
+                        }
+                        isPasted = true;
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        isPasted = false;
+                    }
+                }else {
+                    if (!destination.exists()){
+                        destination.mkdirs();
+                    }
+                    if (items != null && items.length > 0) {
+                        for (File anItem : items) {
+                            if (anItem.isDirectory()) {
+                                // create the directory in the destination
+                                File newDir = new File(destination, anItem.getName());
+                                newDir.mkdir();
+                                // copy the directory (recursive call)
+                                copyDirectory(anItem, newDir);
+                                isPasted = true;
+                            }else{
+                                File destFile = new File(destination, anItem.getName());
+                                copySingleFile(anItem, destFile);
+                            }
+                        }
+
+                  /*  Toast.makeText(context,"Error performing action",Toast.LENGTH_SHORT).show();
+                    isPasted = false;*/
+                    }else{
+                         Toast.makeText(context,"Error performing action",Toast.LENGTH_SHORT).show();
+                    isPasted = false;
+                    }
+                }
+            } else if (InternalExplorerActivity.actionID == 2) {
+                cutFile.renameTo(destination);
+                isPasted = true;
+            }
+        } else {
+            isPasted = false;
+        }
+        return isPasted;
+    }
+    private static void copySingleFile(File sourceFile, File destFile)
+            throws IOException {
+        System.out.println("COPY FILE: " + sourceFile.getAbsolutePath()
+                + " TO: " + destFile.getAbsolutePath());
+        try {
+            if (!destFile.exists()) {
+                destFile.createNewFile();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        FileChannel sourceChannel = null;
+        FileChannel destChannel = null;
+
+        try {
+            sourceChannel = new FileInputStream(sourceFile).getChannel();
+            destChannel = new FileOutputStream(destFile).getChannel();
+            sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
+        finally
+        {
+            if (sourceChannel != null) {
+                sourceChannel.close();
+            }
+            if (destChannel != null) {
+                destChannel.close();
+            }
+        }
+    }
 }

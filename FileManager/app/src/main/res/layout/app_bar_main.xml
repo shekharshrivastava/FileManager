@@ -92,6 +92,13 @@
 
 
                             </LinearLayout>
+                            <ImageView
+                                android:layout_marginLeft="10dp"
+                                android:layout_centerInParent="true"
+                                android:layout_toRightOf="@+id/internalStorageLinearLayout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/right_arrow_small"/>
                         </RelativeLayout>
 
 
@@ -127,6 +134,7 @@
                                 CircleProgressView:cpv_value="10" />
 
                             <LinearLayout
+                                android:id="@+id/external_ll"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
@@ -154,6 +162,13 @@
 
 
                             </LinearLayout>
+                            <ImageView
+                                android:layout_marginLeft="10dp"
+                                android:layout_centerInParent="true"
+                                android:layout_toRightOf="@+id/external_ll"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/right_arrow_small"/>
                         </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>

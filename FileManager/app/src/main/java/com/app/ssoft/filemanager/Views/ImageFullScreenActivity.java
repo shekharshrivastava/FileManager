@@ -1,6 +1,8 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.app.AlertDialog;
 import android.app.WallpaperManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,7 +31,7 @@ public class ImageFullScreenActivity extends AppCompatActivity {
     private ImageView imageView;
     private String imageFile;
     private File image;
-    public  boolean isDeleted = false;
+    public boolean isDeleted = false;
     private String imagePath;
     private Bitmap bitmap;
     private Intent intent;
@@ -41,7 +43,7 @@ public class ImageFullScreenActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         imageView = findViewById(R.id.imageView);
         imageView.setOnTouchListener(new ImageMatrixTouchHandler(this));
-         intent = getIntent();
+        intent = getIntent();
         imageFile = intent.getStringExtra("imgFile");
         String imageName = intent.getStringExtra("imageName");
         getSupportActionBar().setTitle(imageName);
@@ -89,16 +91,34 @@ public class ImageFullScreenActivity extends AppCompatActivity {
                     Utils.shareImage(ImageFullScreenActivity.this, imageFile);
                     return true;
                 case R.id.navigation_delete:
-                    isDeleted = Utils.delete(image);
-                    if (isDeleted) {
-                        intent.putExtra("isDelete" ,isDeleted);
-                        intent.putExtra("deletedFile",imageFile);
-                        setResult(1,intent);
-                        Toast.makeText(ImageFullScreenActivity.this, "File deleted successfully", Toast.LENGTH_SHORT).show();
-                        finish();
-                    } else {
-                        Toast.makeText(ImageFullScreenActivity.this, "Error deleting file", Toast.LENGTH_SHORT).show();
-                    }
+                    final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                            ImageFullScreenActivity.this);
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("Are you sure you want to delete this file ?");
+                    alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            isDeleted = Utils.delete(image);
+                            if (isDeleted) {
+                                intent.putExtra("isDelete", isDeleted);
+                                intent.putExtra("deletedFile", imageFile);
+                                setResult(1, intent);
+                                Toast.makeText(ImageFullScreenActivity.this, "File deleted successfully", Toast.LENGTH_SHORT).show();
+                                finish();
+                            } else {
+                                Toast.makeText(ImageFullScreenActivity.this, "Error deleting file", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                    alertDialog.show();
+
+
                     return true;
                 case R.id.navigation_info:
                     Intent intent = new Intent(ImageFullScreenActivity.this, InfoActivity.class);
@@ -139,12 +159,12 @@ public class ImageFullScreenActivity extends AppCompatActivity {
                 new SetwallpaperAsyncTask().execute();
                 break;
             case R.id.print:
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                    bitmap = BitmapFactory.decodeFile(imageFile, options);
-                    // Change the current system wallpaper
-                    doPhotoPrint(bitmap);
-                    // Show a toast message on successful change
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                bitmap = BitmapFactory.decodeFile(imageFile, options);
+                // Change the current system wallpaper
+                doPhotoPrint(bitmap);
+                // Show a toast message on successful change
 
         }
         return true;
