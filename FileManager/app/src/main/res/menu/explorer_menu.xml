@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.app.ssoft.filemanager.Views.InternalExplorerActivity">
+
+        <item
+            android:id="@+id/createFolder"
+            android:title="New Folder"
+            android:icon="@drawable/new_folder"
+            app:showAsAction="withText"
+            />
+        <item
+            android:id="@+id/paste"
+            android:title="Paste"
+            android:icon="@drawable/paste"
+            android:visible="false"
+            app:showAsAction="always|withText"
+            />
+
+    <item
+        android:id="@+id/view"
+        android:title="View" />
+    </menu>
