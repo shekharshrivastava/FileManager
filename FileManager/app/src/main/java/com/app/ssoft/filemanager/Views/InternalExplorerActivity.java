@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
@@ -55,6 +56,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private boolean isRenameFile;
     private File selectedFile;
     private int position;
+    private boolean hideFolders = true;
 //    private File m_isFile;
 
     @Override
@@ -65,6 +67,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
+
+      /*  int index = rl_lvListRoot.getFirstVisiblePosition();
+        View v = rl_lvListRoot.getChildAt(0);
+        int top = (v == null) ? 0 : (v.getTop() - rl_lvListRoot.getPaddingTop());
+        rl_lvListRoot.setSelectionFromTop(index, top);
+*/
+
 //        rl_lvListRoot.setOnItemLongClickListener(this);
         registerForContextMenu(rl_lvListRoot);
         getDirFromRoot(internalStorageRoot);
@@ -131,11 +140,17 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
             if (file.isDirectory()) {
-                m_item.add(file.getName());
-                m_path.add(file.getPath());
+                // if dont want to show hidden file 
+                    if (!file.getName().startsWith(".")) {
+                        m_item.add(file.getName());
+                        m_path.add(file.getPath());
+                    }
+
             } else {
-                m_files.add(file.getName());
-                m_filesPath.add(file.getPath());
+                if(!file.getName().startsWith(".")) {
+                    m_files.add(file.getName());
+                    m_filesPath.add(file.getPath());
+                }
             }
         }
         for (String m_AddFile : m_files) {
@@ -214,7 +229,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         switch (item.getItemId()) {
             case R.id.createFolder:
                 isRenameFile = false;
-                showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
+//                showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
                 break;
             case R.id.paste:
                 try {
@@ -237,11 +252,18 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 break;
             case R.id.view:
                 break;
+
+            case R.id.hideFolders:
+                if(!hideFolders) {
+                    hideFolders = true;
+                }else{
+                    hideFolders = false;
+                }
         }
         return true;
     }
 
-    public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
+    /*public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
@@ -282,7 +304,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         });
         AlertDialog b = dialogBuilder.create();
         b.show();
-    }
+    }*/
 
     public void createFolder(String folderName) {
         File newDir = new File(rootPath + "/" + folderName);
@@ -384,7 +406,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             }
         } else if (item.getTitle() == "Rename") {
             isRenameFile = true;
-            showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
+//            showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
 
         }
         return super.onContextItemSelected(item);

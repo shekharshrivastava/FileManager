@@ -58,12 +58,12 @@ public class MainActivity extends AppCompatActivity
 
         };
         int[] imageId = {
-                R.drawable.doc_folder,
-                R.drawable.app_folder,
-                R.drawable.picture_folder,
-                R.drawable.music_folder,
-                R.drawable.movie_folder,
-                R.drawable.download_folder,
+                R.drawable.documents,
+                R.drawable.apk,
+                R.drawable.images,
+                R.drawable.audio,
+                R.drawable.movies,
+                R.drawable.downloads,
 
 
         };
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         internalStorageSpace.setText(getAvailableInternalMemorySize() + " / " + getTotalInternalMemorySize());
-        internalProgressBar.setValueAnimated(calculatePercentage(getTotalInternalMemorySize(), getAvailableInternalMemorySize()));
+        internalProgressBar.setValueAnimated(calculatePercentage(getTotalInternalMemorySize(), getUsedInternalSpace()));
 
         quickLinksGV = findViewById(R.id.quickLinksGV);
         CustomQLGridAdapter adapter = new CustomQLGridAdapter(MainActivity.this, web, imageId);
@@ -261,5 +261,18 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         InternalExplorerActivity.isCutOrCopied = false;
+    }
+
+    public static String getUsedInternalSpace (){
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+        long totalBlocks = stat.getBlockCountLong();
+        long totalAvailableBlock = availableBlocks * blockSize;
+        long totalInternalStorageBlock = totalBlocks * blockSize;
+        return Utils.bytesToHuman(totalInternalStorageBlock - totalAvailableBlock);
+
+
     }
 }
