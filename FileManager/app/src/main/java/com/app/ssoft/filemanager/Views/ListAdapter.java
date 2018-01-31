@@ -78,7 +78,7 @@ public class ListAdapter extends BaseAdapter {
         }
 
         m_viewHolder.m_tvFileName.setText(m_item.get(p_position));
-        String m_filepath = new File(m_path.get(p_position)).getAbsolutePath();
+//        String m_filepath = new File(m_path.get(p_position)).getAbsolutePath();
 
      /*   int m_lastIndex = new File(m_path.get(p_position)).getAbsolutePath().lastIndexOf(".");
         String m_filepath = new File(m_path.get(p_position)).getAbsolutePath();

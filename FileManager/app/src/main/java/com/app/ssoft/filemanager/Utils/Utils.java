@@ -42,6 +42,7 @@ public class Utils {
     private static File cutFile;
     private static File[] items;
     private static boolean isDeleted = false;
+    private static String ext;
 
 
     public static String floatForm(double d) {
@@ -176,17 +177,16 @@ public class Utils {
     }
 
     public static boolean delete(File file) {
-        if (file.isDirectory())
-        {
+        if (file.isDirectory()) {
             String[] children = file.list();
-            if(children.length > 0) {
+            if (children.length > 0) {
                 for (int i = 0; i < children.length; i++) {
                     new File(file, children[i]).delete();
                     isDeleted = file.delete();
                 }
-            }else isDeleted = file.delete();
-        }else {
-            isDeleted =  file.delete();
+            } else isDeleted = file.delete();
+        } else {
+            isDeleted = file.delete();
         }
         return isDeleted;
     }
@@ -221,20 +221,20 @@ public class Utils {
         return null;
     }
 
-    public static void copyFile(Context context , File src) {
+    public static void copyFile(Context context, File src) {
         try {
-            if(!src.isDirectory()) {
+            if (!src.isDirectory()) {
                 inputStream = new FileInputStream(src);
                 InternalExplorerActivity.isCutOrCopied = true;
-            }else{
+            } else {
                 inputStream = null;
-                items =src.listFiles();
+                items = src.listFiles();
                 InternalExplorerActivity.isCutOrCopied = true;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            Toast.makeText(context,"Error copying folder",Toast.LENGTH_SHORT).show();
-            InternalExplorerActivity.isCutOrCopied =false;
+            Toast.makeText(context, "Error copying folder", Toast.LENGTH_SHORT).show();
+            InternalExplorerActivity.isCutOrCopied = false;
         }
     }
 
@@ -243,7 +243,7 @@ public class Utils {
         InternalExplorerActivity.isCutOrCopied = true;
     }
 
-    public static boolean paste(Context context,File destination) throws IOException {
+    public static boolean paste(Context context, File destination) throws IOException {
         boolean isPasted = false;
         if (InternalExplorerActivity.actionID != 0) {
             if (InternalExplorerActivity.actionID == 1) {
@@ -261,8 +261,8 @@ public class Utils {
                         e.printStackTrace();
                         isPasted = false;
                     }
-                }else {
-                    if (!destination.exists()){
+                } else {
+                    if (!destination.exists()) {
                         destination.mkdirs();
                     }
                     if (items != null && items.length > 0) {
@@ -274,7 +274,7 @@ public class Utils {
                                 // copy the directory (recursive call)
                                 copyDirectory(anItem, newDir);
                                 isPasted = true;
-                            }else{
+                            } else {
                                 File destFile = new File(destination, anItem.getName());
                                 copySingleFile(anItem, destFile);
                             }
@@ -282,9 +282,9 @@ public class Utils {
 
                   /*  Toast.makeText(context,"Error performing action",Toast.LENGTH_SHORT).show();
                     isPasted = false;*/
-                    }else{
-                         Toast.makeText(context,"Error performing action",Toast.LENGTH_SHORT).show();
-                    isPasted = false;
+                    } else {
+                        Toast.makeText(context, "Error performing action", Toast.LENGTH_SHORT).show();
+                        isPasted = false;
                     }
                 }
             } else if (InternalExplorerActivity.actionID == 2) {
@@ -296,6 +296,7 @@ public class Utils {
         }
         return isPasted;
     }
+
     private static void copySingleFile(File sourceFile, File destFile)
             throws IOException {
         System.out.println("COPY FILE: " + sourceFile.getAbsolutePath()
@@ -304,7 +305,7 @@ public class Utils {
             if (!destFile.exists()) {
                 destFile.createNewFile();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -316,11 +317,9 @@ public class Utils {
             sourceChannel = new FileInputStream(sourceFile).getChannel();
             destChannel = new FileOutputStream(destFile).getChannel();
             sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
-        }
-        finally
-        {
+        } finally {
             if (sourceChannel != null) {
                 sourceChannel.close();
             }
@@ -328,5 +327,75 @@ public class Utils {
                 destChannel.close();
             }
         }
+    }
+
+    public static String renameFile(File file, String newFileName, String originalFileName) {
+        boolean isRenamed = false;
+        String renamedFile = "";
+        String filePath = getParentPath(file);
+        if (!file.isDirectory()) {
+            ext = (file.getAbsolutePath()).substring((file.getAbsolutePath()).lastIndexOf("."));
+            File originalFile = new File(file.getAbsolutePath());
+            if(newFileName.lastIndexOf(".") !=-1) {
+               String  newFileExt = (newFileName.substring(newFileName.lastIndexOf(".")));
+                if(newFileExt.equals(ext)){
+                    ext = "";
+                }
+            }
+
+            File newFile = new File(filePath + "/" + newFileName + ext);
+            isRenamed = originalFile.renameTo(newFile);
+            if (isRenamed) {
+                renamedFile = newFile.getAbsolutePath();
+            } else {
+                renamedFile = "";
+            }
+        } else {
+            File originalFile = new File(file.getAbsolutePath());
+            File newFile = new File(filePath + "/" + newFileName);
+            isRenamed = originalFile.renameTo(newFile);
+            if (isRenamed) {
+                renamedFile = newFile.getAbsolutePath();
+            } else {
+                renamedFile = "";
+            }
+        }
+
+        return renamedFile;
+    }
+ /*   public static void  showChangeLangDialog(Context context ,String title , String positiveButtonText) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
+        dialogBuilder.setView(dialogView);
+
+        final EditText edt = (EditText) dialogView.findViewById(R.id.edit1);
+
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                createFolder(edt.getText().toString());
+                //do something with edt.getText().toString();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                //pass
+            }
+        });
+        AlertDialog b = dialogBuilder.create();
+        b.show();
+    }*/
+
+    public static String getParentPath(File file) {
+        String filePath;
+        String s = file.getAbsolutePath();
+        int pos = s.lastIndexOf("/");
+        if (pos == -1) {
+            filePath = s;
+        } else {
+            filePath = s.substring(0, pos);
+        }
+        return filePath;
     }
 }

@@ -52,6 +52,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     public static int actionID = 0;
     public static boolean isCutOrCopied = false;
     private Menu menu;
+    private boolean isRenameFile;
+    private File selectedFile;
+    private int position;
+//    private File m_isFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -209,20 +213,21 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.createFolder:
-                showChangeLangDialog();
+                isRenameFile = false;
+                showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
                 break;
             case R.id.paste:
                 try {
                     File destinationFilePath = new File(rootPath + "/" + copiedFileName);
-                    boolean isPasted = Utils.paste(this,destinationFilePath);
+                    boolean isPasted = Utils.paste(this, destinationFilePath);
                     if (isPasted == true) {
                         isCutOrCopied = false;
                         menu.getItem(1).setVisible(false);
                         m_item.add(destinationFilePath.getName());
                         m_path.add(destinationFilePath.getPath());
                         m_listAdapter.notifyDataSetChanged();
-                    }else{
-                        Toast.makeText(this,"Error performing desired operation",Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Error performing desired operation", Toast.LENGTH_SHORT).show();
                         menu.getItem(1).setVisible(false);
                     }
 
@@ -236,24 +241,43 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         return true;
     }
 
-    public void showChangeLangDialog() {
+    public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
         dialogBuilder.setView(dialogView);
 
         final EditText edt = (EditText) dialogView.findViewById(R.id.edit1);
+        edt.setText(editTextValue);
 
-        dialogBuilder.setTitle("NEW");
-        dialogBuilder.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setPositiveButton(positiveButtonText, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                createFolder(edt.getText().toString());
+                if (!isRenameFile) {
+                    createFolder(edt.getText().toString());
+                } else {
+                    if (selectedFile != null) {
+                        String renamedFile = Utils.renameFile(selectedFile, edt.getText().toString(), editTextValue);
+                        if (renamedFile != null && !renamedFile.isEmpty()) {
+                            m_item.remove(selectedFile.getName());
+                            m_path.remove(selectedFile.getPath());
+                            m_item.add(edt.getText().toString());
+                            m_path.add(renamedFile);
+                            m_listAdapter.notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(InternalExplorerActivity.this, "Error renaming file/folder", Toast.LENGTH_SHORT).show();
+
+                        }
+                    } else {
+                        Toast.makeText(InternalExplorerActivity.this, "Error renaming file/folder", Toast.LENGTH_SHORT).show();
+                    }
+                }
                 //do something with edt.getText().toString();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                //pass
+                dialog.dismiss();
             }
         });
         AlertDialog b = dialogBuilder.create();
@@ -262,10 +286,14 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
     public void createFolder(String folderName) {
         File newDir = new File(rootPath + "/" + folderName);
-        newDir.mkdirs();
-        m_item.add(newDir.getName());
-        m_path.add(newDir.getPath());
-        m_listAdapter.notifyDataSetChanged();
+        if (!newDir.exists()) {
+            newDir.mkdirs();
+            m_item.add(newDir.getName());
+            m_path.add(newDir.getPath());
+            m_listAdapter.notifyDataSetChanged();
+        } else {
+            Toast.makeText(InternalExplorerActivity.this, "Folder already exist", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -295,36 +323,38 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         menu.add(0, v.getId(), 0, "Cut");//groupId, itemId, order, title
         menu.add(0, v.getId(), 0, "Copy");
         menu.add(0, v.getId(), 0, "Delete");
+        menu.add(0, v.getId(), 0, "Rename");
     }
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        final File file = new File(m_path.get(info.position));
+        position = info.position;
+        selectedFile = new File(m_path.get(info.position));
         copiedFileName = m_item.get(info.position);
         if (item.getTitle() == "Copy") {
             actionID = 1;
-            if (file.exists()) {
-                Utils.copyFile(this,file);
-                if(isCutOrCopied) {
+            if (selectedFile.exists()) {
+                Utils.copyFile(this, selectedFile);
+                if (isCutOrCopied) {
                     menu.getItem(1).setVisible(true);
-                }else{
+                } else {
                     menu.getItem(1).setVisible(false);
                 }
 
             }
         } else if (item.getTitle() == "Cut") {
             actionID = 2;
-            if (file.exists()) {
-                Utils.cutFile(file);
-                if(isCutOrCopied) {
+            if (selectedFile.exists()) {
+                Utils.cutFile(selectedFile);
+                if (isCutOrCopied) {
                     menu.getItem(1).setVisible(true);
-                }else {
+                } else {
                     menu.getItem(1).setVisible(false);
                 }
             }
         } else if (item.getTitle() == "Delete") {
-            if (file.exists()) {
+            if (selectedFile.exists()) {
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
                         InternalExplorerActivity.this);
                 alertDialog.setTitle("Alert");
@@ -332,10 +362,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        boolean isDeleted = Utils.delete(file);
+                        boolean isDeleted = Utils.delete(selectedFile);
                         if (isDeleted == true) {
-                            m_item.remove(file.getName());
-                            m_path.remove(file.getPath());
+                            m_item.remove(selectedFile.getName());
+                            m_path.remove(selectedFile.getPath());
                             m_listAdapter.notifyDataSetChanged();
                             Toast.makeText(InternalExplorerActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
                         } else {
@@ -352,6 +382,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 alertDialog.show();
 
             }
+        } else if (item.getTitle() == "Rename") {
+            isRenameFile = true;
+            showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
+
         }
         return super.onContextItemSelected(item);
 
@@ -369,5 +403,5 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         return super.onPrepareOptionsMenu(menu);
     }*/
 
- }
+}
 
