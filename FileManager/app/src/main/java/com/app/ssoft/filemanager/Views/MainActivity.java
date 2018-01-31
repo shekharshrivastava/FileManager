@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity
         return Utils.bytesToHuman(totalBlocks * blockSize);
     }
 
+//    public static String getUsedInternalStorage (){}
     public static boolean externalMemoryAvailable() {
         Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
         Boolean isSDSupportedDevice = Environment.isExternalStorageRemovable();

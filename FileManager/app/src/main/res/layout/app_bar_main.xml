@@ -37,6 +37,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_weight="0.8"
                         android:background="#349eef"
                         android:orientation="vertical">
 
@@ -65,7 +66,7 @@
 
                             <LinearLayout
                                 android:id="@+id/internalStorageLinearLayout"
-                                android:layout_width="wrap_content"
+                                android:layout_width="200dp"
                                 android:layout_height="wrap_content"
                                 android:layout_centerInParent="true"
                                 android:layout_toRightOf="@+id/internal_progress_bar"
@@ -90,15 +91,40 @@
                                     android:textColor="#000"
                                     android:textStyle="bold" />
 
+                                <ProgressBar
+                                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:progress="50" />
 
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="0.5"
+                                        android:text="Used"
+                                        android:textStyle="bold" />
+
+                                    <TextView
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="0.5"
+                                        android:text="Remaining"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
                             </LinearLayout>
+
                             <ImageView
-                                android:layout_marginLeft="10dp"
-                                android:layout_centerInParent="true"
-                                android:layout_toRightOf="@+id/internalStorageLinearLayout"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@drawable/right_arrow_small"/>
+                                android:layout_centerInParent="true"
+                                android:layout_marginLeft="10dp"
+                                android:layout_toRightOf="@+id/internalStorageLinearLayout"
+                                android:src="@drawable/right_arrow_small" />
                         </RelativeLayout>
 
 
@@ -162,13 +188,14 @@
 
 
                             </LinearLayout>
+
                             <ImageView
-                                android:layout_marginLeft="10dp"
-                                android:layout_centerInParent="true"
-                                android:layout_toRightOf="@+id/external_ll"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:src="@drawable/right_arrow_small"/>
+                                android:layout_centerInParent="true"
+                                android:layout_marginLeft="10dp"
+                                android:layout_toRightOf="@+id/external_ll"
+                                android:src="@drawable/right_arrow_small" />
                         </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -176,12 +203,13 @@
 
             </ScrollView>
         </android.support.design.widget.AppBarLayout>
+
         <GridView
 
-            android:layout_margin="10dp"
             android:id="@+id/quickLinksGV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:numColumns="3" />
     </LinearLayout>
 
