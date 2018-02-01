@@ -127,7 +127,7 @@
                                   android:layout_centerInParent="true"
                                   android:layout_marginLeft="10dp"
                                   android:layout_toRightOf="@+id/internalStorageLinearLayout"
-                                  android:src="@drawable/right_arrow" />
+                                  android:src="@drawable/right_arrow_small" />
                         </RelativeLayout>
 
 
@@ -203,7 +203,7 @@
                                 android:layout_centerInParent="true"
                                 android:layout_marginLeft="10dp"
                                 android:layout_toRightOf="@+id/external_ll"
-                                android:src="@drawable/right_arrow" />
+                                android:src="@drawable/right_arrow_small" />
                         </RelativeLayout>
                     </LinearLayout>
                 </LinearLayout>

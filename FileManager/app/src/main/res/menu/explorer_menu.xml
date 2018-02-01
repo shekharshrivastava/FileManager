@@ -8,23 +8,30 @@
             android:id="@+id/createFolder"
             android:title="New Folder"
             app:showAsAction="withText"
+            android:icon="@drawable/new_folder"
             />
-    <!--android:icon="@drawable/new_folder"-->
+
 
     <item
             android:id="@+id/paste"
             android:title="Paste"
             android:visible="false"
-            app:showAsAction="always|withText"
-            />
-    <!--android:icon="@drawable/paste"-->
+            app:showAsAction="ifRoom"
+        android:icon="@drawable/paste"
+
+        />
 
     <item
         android:id="@+id/view"
         android:title="View" />
 
     <item
-        android:id="@+id/hideFolders"
+        android:id="@+id/showFolders"
         android:title="Show Hidden Folders"
+        />
+    <item
+        android:id="@+id/hideFolders"
+        android:title="Hide Hidden Folders"
+        android:enabled="false"
         />
     </menu>

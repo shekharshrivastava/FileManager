@@ -3,10 +3,10 @@ package com.app.ssoft.filemanager.Views;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
@@ -57,13 +57,19 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private File selectedFile;
     private int position;
     private boolean hideFolders = true;
+    private ArrayList<String> m_hiddenFilesNames;
+    private ArrayList<String> m_hiddenPaths;
+    private boolean isShowingHiddenFolder;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 //    private File m_isFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
-
+        pref = getApplicationContext().getSharedPreferences("menuPref", 0);
+        editor = pref.edit();
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
@@ -121,8 +127,11 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 ///get directories and files from selected path
     public void getDirFromRoot(String p_rootPath) {
         getSupportActionBar().setSubtitle(p_rootPath);
+        isShowingHiddenFolder = pref.getBoolean("isShowingHiddenFiles", false);
         m_item = new ArrayList<String>();
         m_isRoot = true;
+        m_hiddenFilesNames = new ArrayList<String>();
+        m_hiddenPaths = new ArrayList<String>();
         m_path = new ArrayList<String>();
         m_files = new ArrayList<String>();
         m_filesPath = new ArrayList<String>();
@@ -140,28 +149,70 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
             if (file.isDirectory()) {
-                // if dont want to show hidden file 
-                    if (!file.getName().startsWith(".")) {
-                        m_item.add(file.getName());
-                        m_path.add(file.getPath());
+                // if dont want to show hidden file
+                if (!file.getName().startsWith(".")) {
+                    m_item.add(file.getName());
+                    m_path.add(file.getPath());
+                } else {
+                    m_hiddenFilesNames.add(file.getName());
+                    m_hiddenPaths.add(file.getPath());
+                }
+                if (isShowingHiddenFolder) {
+                    if (m_item.containsAll(m_hiddenFilesNames) &&
+                            m_path.containsAll(m_hiddenPaths)) {
+                        m_item.removeAll(m_hiddenFilesNames);
+                        m_path.removeAll(m_hiddenPaths);
+                        m_item.addAll(m_hiddenFilesNames);
+                        m_path.addAll(m_hiddenPaths);
                     }
+                } else {
+                    if (m_item.containsAll(m_hiddenFilesNames) &&
+                            m_path.containsAll(m_hiddenPaths)) {
+                        m_item.removeAll(m_hiddenFilesNames);
+                        m_path.removeAll(m_hiddenPaths);
+                    }
+                }
 
             } else {
-                if(!file.getName().startsWith(".")) {
+                if (!file.getName().startsWith(".")) {
                     m_files.add(file.getName());
                     m_filesPath.add(file.getPath());
+                } else {
+                    m_hiddenFilesNames.add(file.getName());
+                    m_hiddenPaths.add(file.getPath());
+                }
+                if (isShowingHiddenFolder) {
+                    m_item.addAll(m_hiddenFilesNames);
+                    m_path.addAll(m_hiddenPaths);
+                } else {
+                    if (m_item.containsAll(m_hiddenFilesNames) &&
+                            m_path.containsAll(m_hiddenPaths)) {
+                        m_item.removeAll(m_hiddenFilesNames);
+                        m_path.removeAll(m_hiddenPaths);
+                    }
                 }
             }
+
         }
-        for (String m_AddFile : m_files) {
+        for (String m_AddFile : m_files)
+
+        {
             m_item.add(m_AddFile);
         }
-        for (String m_AddPath : m_filesPath) {
+        for (
+                String m_AddPath : m_filesPath)
+
+        {
             m_path.add(m_AddPath);
         }
-        m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
+
+        m_listAdapter = new
+
+                ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
-        rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener()
+
+        {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -212,6 +263,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             getDirFromRoot(m_isFile.toString());
         } else {
             finish();
+            editor.clear();
         }
     }
 
@@ -229,7 +281,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         switch (item.getItemId()) {
             case R.id.createFolder:
                 isRenameFile = false;
-//                showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
+                showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
                 break;
             case R.id.paste:
                 try {
@@ -253,17 +305,17 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             case R.id.view:
                 break;
 
+            case R.id.showFolders:
+                showHiddenFolder();
+                break;
             case R.id.hideFolders:
-                if(!hideFolders) {
-                    hideFolders = true;
-                }else{
-                    hideFolders = false;
-                }
+                hideHiddenFolders();
+                break;
         }
         return true;
     }
 
-    /*public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
+    public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
@@ -304,7 +356,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         });
         AlertDialog b = dialogBuilder.create();
         b.show();
-    }*/
+    }
 
     public void createFolder(String folderName) {
         File newDir = new File(rootPath + "/" + folderName);
@@ -342,7 +394,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         menu.setHeaderTitle("Select The Action");
-        menu.add(0, v.getId(), 0, "Cut");//groupId, itemId, order, title
+        menu.add(0, v.getId(), 0, "Move");//groupId, itemId, order, title
         menu.add(0, v.getId(), 0, "Copy");
         menu.add(0, v.getId(), 0, "Delete");
         menu.add(0, v.getId(), 0, "Rename");
@@ -365,7 +417,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 }
 
             }
-        } else if (item.getTitle() == "Cut") {
+        } else if (item.getTitle() == "Move") {
             actionID = 2;
             if (selectedFile.exists()) {
                 Utils.cutFile(selectedFile);
@@ -406,24 +458,65 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             }
         } else if (item.getTitle() == "Rename") {
             isRenameFile = true;
-//            showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
+            showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
 
         }
         return super.onContextItemSelected(item);
 
     }
 
- /*   @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        this.menu = menu;
-        menu.getItem(1).setVisible(false);
-        if (isCutOrCopied == true) {
-            menu.getItem(1).setVisible(true);
-        } else {
-            menu.getItem(1).setVisible(false);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }*/
 
+    /*   @Override
+       public boolean onPrepareOptionsMenu(Menu menu) {
+           this.menu = menu;
+           menu.getItem(1).setVisible(false);
+           if (isCutOrCopied == true) {
+               menu.getItem(1).setVisible(true);
+           } else {
+               menu.getItem(1).setVisible(false);
+           }
+           return super.onPrepareOptionsMenu(menu);
+       }*/
+    public void showHiddenFolder() {
+        if ((m_hiddenPaths != null && !m_hiddenPaths.isEmpty()) &&
+                ((m_hiddenFilesNames != null && !m_hiddenFilesNames.isEmpty()))) {
+            isShowingHiddenFolder = true;
+            editor.putBoolean("isShowingHiddenFiles", true);
+
+            if (m_item.containsAll(m_hiddenFilesNames) && m_path.containsAll(m_hiddenPaths)) {
+                m_item.removeAll(m_hiddenFilesNames);
+                m_path.removeAll(m_hiddenPaths);
+            }
+            m_item.addAll(m_hiddenFilesNames);
+            m_path.addAll(m_hiddenPaths);
+            m_listAdapter.notifyDataSetChanged();
+            menu.getItem(4).setEnabled(true);
+            menu.getItem(3).setEnabled(false);
+            editor.commit();
+        }
+    }
+
+    public void hideHiddenFolders() {
+        if ((m_hiddenPaths != null && !m_hiddenPaths.isEmpty()) &&
+                ((m_hiddenFilesNames != null && !m_hiddenFilesNames.isEmpty()))) {
+            isShowingHiddenFolder = false;
+            if (m_item.containsAll(m_hiddenFilesNames) && m_path.containsAll(m_hiddenPaths)) {
+                editor.putBoolean("isShowingHiddenFiles", false);
+                menu.getItem(4).setEnabled(false);
+                menu.getItem(3).setEnabled(true);
+                m_item.removeAll(m_hiddenFilesNames);
+                m_path.removeAll(m_hiddenPaths);
+                m_listAdapter.notifyDataSetChanged();
+                editor.commit();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        editor.putBoolean("isShowingHiddenFiles", false);
+        editor.commit();
+        super.onDestroy();
+    }
 }
 
