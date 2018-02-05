@@ -27,6 +27,8 @@ import android.widget.Toast;
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
 
+import org.apache.commons.io.comparator.LastModifiedFileComparator;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,6 +70,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("menuPref", 0);
         editor = pref.edit();
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -145,10 +148,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         }
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
-        Arrays.sort(m_filesArray);
+//        Arrays.sort(m_filesArray);
+        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
             if (file.isDirectory()) {
+                Arrays.sort(m_filesArray);
                 // if dont want to show hidden file
                 if (!file.getName().startsWith(".")) {
                     m_item.add(file.getName());
@@ -206,9 +212,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             m_path.add(m_AddPath);
         }
 
-        m_listAdapter = new
-
-                ListAdapter(this, m_item, m_path, m_isRoot);
+        m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
         rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener()
 

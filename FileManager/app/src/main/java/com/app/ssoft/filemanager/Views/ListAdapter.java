@@ -1,7 +1,10 @@
 package com.app.ssoft.filemanager.Views;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,18 +97,35 @@ public class ListAdapter extends BaseAdapter {
             m_viewHolder.m_ivIcon.setImageResource(R.drawable.doc_folder);
         }*/
         if (!(new File(m_path.get(p_position)).isDirectory())) {
+            if (m_path.get(p_position).endsWith(".apk")) {
+
+                PackageManager pm = m_context.getPackageManager();
+                PackageInfo pi = pm.getPackageArchiveInfo(m_path.get(p_position), 0);
+
+                // the secret are these two lines....
+                if(pi!= null) {
+                    pi.applicationInfo.sourceDir = m_path.get(p_position);
+                    pi.applicationInfo.publicSourceDir = m_path.get(p_position);
+                    //
+                    Drawable APKicon = pi.applicationInfo.loadIcon(pm);
+                    String AppName = (String) pi.applicationInfo.loadLabel(pm);
+                    m_viewHolder.m_ivIcon.setImageDrawable(APKicon);
+                }
+            } else {
 //            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //            setFileImageType(new File(m_path.get(p_position))).compress(Bitmap.CompressFormat.PNG, 50, stream);
-            Glide.with(m_context)
-                    .load(new File(m_path.get(p_position)))
-                    .asBitmap()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.picture_folder)
-                    .error(R.drawable.doc_folder)
-                    .into(m_viewHolder.m_ivIcon);
+                Glide.with(m_context)
+                        .load(new File(m_path.get(p_position)))
+                        .asBitmap()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.drawable.picture_folder)
+                        .error(R.drawable.doc_folder)
+                        .into(m_viewHolder.m_ivIcon);
+            }
         } else {
             m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
         }
+
         m_viewHolder.m_tvDate.setText(getLastDate(p_position));
         m_viewHolder.m_cbCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 

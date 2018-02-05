@@ -55,6 +55,7 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
         transitive = true;
     }
+    compile 'com.felipecsl.asymmetricgridview:library:2.0.1'
 
 
 }

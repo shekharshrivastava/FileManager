@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -45,7 +44,11 @@
             android:name="io.fabric.ApiKey"
             android:value="a70a2cc6b67d860f81795b637ad1b07304549055" />
 
-        <activity android:name=".Views.InfoActivity"></activity>
+        <activity android:name=".Views.InfoActivity" />
+        <activity android:name=".Views.ImageFilterActivity" />
+        <activity android:name=".Views.DownloadFilterActivity" />
+        <activity android:name=".Views.AppsFilterActivity" />
+        <activity android:name=".Views.MusicFilterActivity"></activity>
     </application>
 
 </manifest>

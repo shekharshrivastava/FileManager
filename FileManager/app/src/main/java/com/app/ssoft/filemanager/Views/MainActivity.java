@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity
                 "Images",
                 "Audio",
                 "Video",
-                "Download",
+                "Downloads",
 
         };
         int[] imageId = {
@@ -154,8 +154,12 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
+            Intent intent = new Intent(MainActivity.this, DownloadFilterActivity.class);
+            startActivity(intent);
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
+            Intent intent = new Intent(MainActivity.this, ImageFilterActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -189,7 +193,7 @@ public class MainActivity extends AppCompatActivity
         return Utils.bytesToHuman(totalBlocks * blockSize);
     }
 
-//    public static String getUsedInternalStorage (){}
+    //    public static String getUsedInternalStorage (){}
     public static boolean externalMemoryAvailable() {
         Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
         Boolean isSDSupportedDevice = Environment.isExternalStorageRemovable();
@@ -243,6 +247,21 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch (position) {
+            case 1:
+                Intent appFilterIntent = new Intent(this, AppsFilterActivity.class);
+                startActivity(appFilterIntent);
+                break;
+
+            case 3:
+                Intent musicFilterIntent = new Intent(this,MusicFilterActivity.class);
+                startActivity(musicFilterIntent);
+                break;
+            case 5:
+                Intent intent = new Intent(this, DownloadFilterActivity.class);
+                startActivity(intent);
+                break;
+        }
 
     }
 
@@ -263,7 +282,7 @@ public class MainActivity extends AppCompatActivity
         InternalExplorerActivity.isCutOrCopied = false;
     }
 
-    public static String getUsedInternalSpace (){
+    public static String getUsedInternalSpace() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());
         long blockSize = stat.getBlockSizeLong();
