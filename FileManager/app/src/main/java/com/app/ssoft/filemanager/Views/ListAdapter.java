@@ -109,6 +109,7 @@ public class ListAdapter extends BaseAdapter {
                     //
                     Drawable APKicon = pi.applicationInfo.loadIcon(pm);
                     String AppName = (String) pi.applicationInfo.loadLabel(pm);
+
                     m_viewHolder.m_ivIcon.setImageDrawable(APKicon);
                 }
             } else {

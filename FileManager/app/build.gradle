@@ -56,6 +56,7 @@ dependencies {
         transitive = true;
     }
     compile 'com.felipecsl.asymmetricgridview:library:2.0.1'
+    compile 'com.pkmmte.view:circularimageview:1.1'
 
 
 }

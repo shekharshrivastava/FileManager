@@ -48,7 +48,8 @@
         <activity android:name=".Views.ImageFilterActivity" />
         <activity android:name=".Views.DownloadFilterActivity" />
         <activity android:name=".Views.AppsFilterActivity" />
-        <activity android:name=".Views.MusicFilterActivity"></activity>
+        <activity android:name=".Views.MusicFilterActivity"
+            ></activity>
     </application>
 
 </manifest>

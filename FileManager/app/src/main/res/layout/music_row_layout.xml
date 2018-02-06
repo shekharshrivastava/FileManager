@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <CheckBox
+        android:id="@+id/lr_cbCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/lr_ivFileIcon"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <com.pkmmte.view.CircularImageView
+        android:id="@+id/lr_ivFileIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:border="true"
+        app:border_width="0dp"
+        app:shadow="false"
+        android:src="@drawable/apk" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@+id/lr_tvFileName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/lr_ivFileIcon"
+            android:clickable="false"
+            android:focusable="false"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:textColor="#000"
+            android:text="TextView"
+            android:ellipsize="end"/>
+
+
+        <TextView
+            android:id="@+id/lr_tvdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lr_tvFileName"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/lr_ivFileIcon"
+            android:clickable="false"
+            android:focusable="false"
+            android:text="TextView" />
+    </LinearLayout>
+</LinearLayout>
