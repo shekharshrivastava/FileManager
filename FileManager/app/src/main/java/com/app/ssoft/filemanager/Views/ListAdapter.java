@@ -100,7 +100,7 @@ public class ListAdapter extends BaseAdapter {
             if (m_path.get(p_position).endsWith(".apk")) {
 
                 PackageManager pm = m_context.getPackageManager();
-                PackageInfo pi = pm.getPackageArchiveInfo(m_path.get(p_position), 0);
+                PackageInfo pi = pm.getPackageArchiveInfo(m_path.get(p_position), PackageManager.GET_META_DATA);
 
                 // the secret are these two lines....
                 if(pi!= null) {

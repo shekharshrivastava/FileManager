@@ -78,6 +78,18 @@ public class AppsFilterActivity extends AppCompatActivity {
                     m_files.add(file.getName());
                     m_filesPath.add(file.getPath());
                 }
+            } else {
+                File[] dirFiles = file.listFiles();
+                for(File apkFiles :dirFiles){
+                    if (apkFiles.getName().endsWith(".apk")) {
+                        if (m_files.contains(file.getName()) && m_filesPath.contains(file.getPath())) {
+                            m_files.remove(apkFiles.getName());
+                            m_filesPath.remove(apkFiles.getPath());
+                        }
+                        m_files.add(apkFiles.getName());
+                        m_filesPath.add(apkFiles.getPath());
+                    }
+                }
             }
         }
             for (String m_AddFile : m_files)

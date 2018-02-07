@@ -158,8 +158,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(MainActivity.this, ImageFilterActivity.class);
-            startActivity(intent);
+
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -248,14 +247,31 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
+            case 0:
+                Intent docFilterIntent = new Intent(this,DocumentFIlterActivity.class);
+                startActivity(docFilterIntent);
+                break;
+
             case 1:
                 Intent appFilterIntent = new Intent(this, AppsFilterActivity.class);
                 startActivity(appFilterIntent);
                 break;
 
+            case 2:
+                Intent imageFilterIntent = new Intent(MainActivity.this, ImageFilterActivity.class);
+                imageFilterIntent.putExtra("chooserIntent",2);
+                startActivity(imageFilterIntent);
+                break;
             case 3:
-                Intent musicFilterIntent = new Intent(this,MusicFilterActivity.class);
+                Intent musicFilterIntent = new Intent(this,MediaFilterActivity.class);
+                musicFilterIntent.putExtra("chooserIntent",3);
                 startActivity(musicFilterIntent);
+                break;
+
+            case 4:
+                Intent videoFilterIntent = new Intent(this,MediaFilterActivity.class);
+                videoFilterIntent.putExtra("chooserIntent",4);
+                startActivity(videoFilterIntent);
                 break;
             case 5:
                 Intent intent = new Intent(this, DownloadFilterActivity.class);
