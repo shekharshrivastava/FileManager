@@ -97,13 +97,18 @@ public class ListAdapter extends BaseAdapter {
             m_viewHolder.m_ivIcon.setImageResource(R.drawable.doc_folder);
         }*/
         if (!(new File(m_path.get(p_position)).isDirectory())) {
-            if (m_path.get(p_position).endsWith(".apk")) {
-
+            if (m_path.get(p_position).endsWith(".pdf")) {
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.pdf_icon);
+            } else if (m_path.get(p_position).endsWith(".txt")) {
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.txt_icon);
+            } else if (m_path.get(p_position).endsWith(".doc")) {
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.doc_icon);
+            } else if (m_path.get(p_position).endsWith(".apk")) {
                 PackageManager pm = m_context.getPackageManager();
                 PackageInfo pi = pm.getPackageArchiveInfo(m_path.get(p_position), PackageManager.GET_META_DATA);
 
                 // the secret are these two lines....
-                if(pi!= null) {
+                if (pi != null) {
                     pi.applicationInfo.sourceDir = m_path.get(p_position);
                     pi.applicationInfo.publicSourceDir = m_path.get(p_position);
                     //
@@ -112,15 +117,16 @@ public class ListAdapter extends BaseAdapter {
 
                     m_viewHolder.m_ivIcon.setImageDrawable(APKicon);
                 }
+
             } else {
 //            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //            setFileImageType(new File(m_path.get(p_position))).compress(Bitmap.CompressFormat.PNG, 50, stream);
                 Glide.with(m_context)
                         .load(new File(m_path.get(p_position)))
                         .asBitmap()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .placeholder(R.drawable.picture_folder)
-                        .error(R.drawable.doc_folder)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.empty_doc)
                         .into(m_viewHolder.m_ivIcon);
             }
         } else {

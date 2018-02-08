@@ -283,6 +283,15 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                File m_isFile = new File(m_path.get(0));
+                if (m_isFile.isDirectory() && !m_isRoot) {
+                    getDirFromRoot(m_isFile.toString());
+                } else {
+                    finish();
+                    editor.clear();
+                }
+                break;
             case R.id.createFolder:
                 isRenameFile = false;
                 showChangeLangDialog(isRenameFile, "New Folder", "New", "Create");
@@ -402,6 +411,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         menu.add(0, v.getId(), 0, "Copy");
         menu.add(0, v.getId(), 0, "Delete");
         menu.add(0, v.getId(), 0, "Rename");
+        menu.add(0, v.getId(), 0, "Share");
     }
 
     @Override
@@ -464,13 +474,19 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             isRenameFile = true;
             showChangeLangDialog(isRenameFile, selectedFile.getName(), "Rename", "Rename");
 
+        } else if (item.getTitle() == "Share") {
+            if (selectedFile.exists() && !selectedFile.isDirectory()) {
+                Utils.shareFIle(this, selectedFile);
+            }else{
+                Toast.makeText(this,"Please select files to share",Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onContextItemSelected(item);
 
     }
 
 
-    /*   @Override
+    /*    *//*   @Override
        public boolean onPrepareOptionsMenu(Menu menu) {
            this.menu = menu;
            menu.getItem(1).setVisible(false);
@@ -522,5 +538,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         editor.commit();
         super.onDestroy();
     }
+
+
 }
 

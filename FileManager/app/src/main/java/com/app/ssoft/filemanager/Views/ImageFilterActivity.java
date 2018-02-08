@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
@@ -42,7 +43,7 @@ public class ImageFilterActivity extends AppCompatActivity {
     private PictureFIlterAdapter m_listAdapter;
     private File m_isFile;
 
-
+    public static final int RESULT_DELETED = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +53,7 @@ public class ImageFilterActivity extends AppCompatActivity {
         listView = (StaggeredGridView) findViewById(R.id.grid_view);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getDirFromRoot(internalStorageRoot);
+
 //        getImageList();
 //        AllImageAdapter adapter = new AllImageAdapter(ImageFilterActivity.this,cursor,columnIndex);
         //adapter.notifyDataSetChanged();
@@ -184,16 +186,25 @@ public class ImageFilterActivity extends AppCompatActivity {
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                     if (type == null)
                         type = "*//*";
-
-                    if (type != "*//*") {
-                        Uri uri = FileProvider.getUriForFile(ImageFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(uri, type);
-                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        startActivity(intent);
+                    if (type == "image/jpeg") {
+                        Intent intent = new Intent(ImageFilterActivity.this, ImageFullScreenActivity.class);
+                        intent.putExtra("imgPath", m_path);
+                        intent.putExtra("position", position);
+                        intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                        intent.putExtra("imageName", m_item.get(position));
+                        startActivityForResult(intent, RESULT_DELETED);
                     } else {
-                        Toast.makeText(ImageFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                        if (type != "*//*") {
+                            Uri uri = FileProvider.getUriForFile(ImageFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(uri, type);
+                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(ImageFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                        }
                     }
+
 
 
                 }
@@ -212,4 +223,27 @@ public class ImageFilterActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_DELETED && resultCode == RESULT_DELETED) {
+            File file = new File(data.getStringExtra("deletedFile"));
+            m_item.remove(file.getName());
+            m_path.remove(file.getPath());
+            m_listAdapter.notifyDataSetChanged();
+
+        }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

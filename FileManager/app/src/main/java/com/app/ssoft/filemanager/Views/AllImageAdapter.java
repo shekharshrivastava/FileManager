@@ -56,7 +56,7 @@ public class AllImageAdapter extends BaseAdapter {
         Glide.with(c)
                 .load(Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, "" + imageID))
                 .asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .diskCacheStrategy(DiskCacheStrategy.RESULT)
                 .placeholder(R.drawable.picture_folder)
                 .error(R.drawable.doc_folder)
                 .into(imageView);

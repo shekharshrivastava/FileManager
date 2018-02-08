@@ -12,6 +12,7 @@ import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -351,9 +352,9 @@ public class Utils {
         if (!file.isDirectory()) {
             ext = (file.getAbsolutePath()).substring((file.getAbsolutePath()).lastIndexOf("."));
             File originalFile = new File(file.getAbsolutePath());
-            if(newFileName.lastIndexOf(".") !=-1) {
-               String  newFileExt = (newFileName.substring(newFileName.lastIndexOf(".")));
-                if(newFileExt.equals(ext)){
+            if (newFileName.lastIndexOf(".") != -1) {
+                String newFileExt = (newFileName.substring(newFileName.lastIndexOf(".")));
+                if (newFileExt.equals(ext)) {
                     ext = "";
                 }
             }
@@ -414,7 +415,7 @@ public class Utils {
         return filePath;
     }
 
-    public void getDirFromRoot(final Context context, String p_rootPath, ListAdapter m_listAdapter, ListView rl_lvListRoot ,String filter ) {
+    public void getDirFromRoot(final Context context, String p_rootPath, ListAdapter m_listAdapter, ListView rl_lvListRoot, String filter) {
 //        getSupportActionBar().setSubtitle(p_rootPah);
         m_item = new ArrayList<String>();
         m_isRoot = true;
@@ -538,6 +539,20 @@ public class Utils {
 
             });*/
         }
+    }
+
+    public static void shareFIle(Context context, File filePath) {
+        MimeTypeMap map = MimeTypeMap.getSingleton();
+        String extension = filePath.getAbsolutePath().substring(filePath.getAbsolutePath().lastIndexOf("."));
+
+        String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+        if (type == null)
+            type = "*//*";
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType(type);
+        Uri uri = Uri.fromFile(filePath);
+        share.putExtra(Intent.EXTRA_STREAM, uri);
+        context.startActivity(Intent.createChooser(share, "Share"));
     }
 
 }

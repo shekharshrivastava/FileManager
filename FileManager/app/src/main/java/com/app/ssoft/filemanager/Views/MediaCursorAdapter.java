@@ -71,7 +71,7 @@ public class MediaCursorAdapter extends CursorAdapter {
                 Glide.with(context)
                         .load(albumArtUri)
                         .asBitmap().fitCenter()
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
                         .placeholder(R.drawable.music_default)
                         .error(R.drawable.music_default)
                         .into(imageView);
@@ -125,7 +125,7 @@ public class MediaCursorAdapter extends CursorAdapter {
             Glide.with(context)
                     .load(Uri.withAppendedPath(MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI, "" + id))
                     .asBitmap()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .placeholder(R.drawable.picture_folder)
                     .error(R.drawable.doc_folder)
                     .into(gridIV);

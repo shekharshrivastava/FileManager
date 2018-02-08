@@ -6,14 +6,17 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.FileProvider;
 import android.support.v4.print.PrintHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -44,15 +47,18 @@ public class ImageFullScreenActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         imageView.setOnTouchListener(new ImageMatrixTouchHandler(this));
         intent = getIntent();
-        imageFile = intent.getStringExtra("imgFile");
-        String imageName = intent.getStringExtra("imageName");
-        getSupportActionBar().setTitle(imageName);
-
+        if (getIntent().getData() != null) {
+            imageFile = getIntent().getData().getPath();
+        } else {
+            imageFile = intent.getStringExtra("imgFile");
+            String imageName = intent.getStringExtra("imageName");
+            getSupportActionBar().setTitle(imageName);
+        }
         image = new File(imageFile);
         Glide.with(this)
                 .load(image)
                 .asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.doc_folder)
                 .into(imageView);
@@ -155,6 +161,9 @@ public class ImageFullScreenActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
             case R.id.use_as:
                 new SetwallpaperAsyncTask().execute();
                 break;
@@ -165,6 +174,10 @@ public class ImageFullScreenActivity extends AppCompatActivity {
                 // Change the current system wallpaper
                 doPhotoPrint(bitmap);
                 // Show a toast message on successful change
+                break;
+            case R.id.openWith:
+                openWIth();
+                break;
 
         }
         return true;
@@ -198,5 +211,26 @@ public class ImageFullScreenActivity extends AppCompatActivity {
 
         photoPrinter.printBitmap("droids.jpg - test print", bitmap);
     }
+
+    private void openWIth() {
+        MimeTypeMap map = MimeTypeMap.getSingleton();
+        String extension = image.getAbsolutePath().substring(image.getAbsolutePath().lastIndexOf("."));
+
+        String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+
+        if (type == null)
+            type = "*//*";
+
+        if (type != "*//*") {
+            Uri uri = FileProvider.getUriForFile(ImageFullScreenActivity.this, getApplicationContext().getPackageName(), image);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(uri, type);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(intent);
+        } else {
+            Toast.makeText(ImageFullScreenActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }
 

@@ -96,12 +96,12 @@ public class PictureFIlterAdapter extends BaseAdapter {
             Glide.with(m_context)
                     .load(new File(m_path.get(p_position)))
                     .asBitmap()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.picture_folder)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .placeholder(R.drawable.placeholder)
                     .error(R.drawable.doc_folder)
                     .into(m_viewHolder.m_ivIcon);
         } else {
-            m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
+            m_viewHolder.m_ivIcon.setImageResource(R.drawable.directory);
         }
 
 //        m_viewHolder.m_tvDate.setText(getLastDate(p_position));

@@ -91,7 +91,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             Glide.with(m_context)
                     .load(stream.toByteArray())
                     .asBitmap()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
                     .error(R.drawable.doc_folder)
                     .into(m_viewHolder.m_ivIcon);
         } else {

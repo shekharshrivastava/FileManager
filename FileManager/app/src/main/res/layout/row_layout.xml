@@ -16,9 +16,11 @@
         android:visibility="gone" />
 
     <ImageView
+        android:padding="2dp"
+        android:layout_margin="5dp"
         android:id="@+id/lr_ivFileIcon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/lr_cbCheck"
         android:clickable="false"
