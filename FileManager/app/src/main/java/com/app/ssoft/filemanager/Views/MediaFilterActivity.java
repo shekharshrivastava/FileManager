@@ -14,6 +14,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
@@ -24,11 +25,13 @@ public class MediaFilterActivity extends AppCompatActivity {
     private ListView rl_lvListRoot;
     private Cursor cursor;
     private MediaCursorAdapter musicAdapter;
+    private TextView noMediaText;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_filter);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
+        noMediaText = findViewById(R.id.noMediaText);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         int chooserValue = intent.getIntExtra("chooserIntent", 0);
@@ -88,6 +91,13 @@ public class MediaFilterActivity extends AppCompatActivity {
             public void run() {
                 musicAdapter = new MediaCursorAdapter(MediaFilterActivity.this, cursor, 4);
                 rl_lvListRoot.setAdapter(musicAdapter);
+                if(cursor.getCount() == 0){
+                    noMediaText.setVisibility(View.VISIBLE);
+                    rl_lvListRoot.setVisibility(View.GONE);
+                }else{
+                    noMediaText.setVisibility(View.GONE);
+                    rl_lvListRoot.setVisibility(View.VISIBLE);
+                }
             }
 
         });

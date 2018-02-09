@@ -219,6 +219,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:numColumns="3" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/bs_divider_color" />
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton

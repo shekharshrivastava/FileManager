@@ -44,6 +44,14 @@
             android:name="io.fabric.ApiKey"
             android:value="a70a2cc6b67d860f81795b637ad1b07304549055" />
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDVPTd8BcopeWRLIV19VuClMgTpLBUQ_BY" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity android:name=".Views.InfoActivity" />
         <activity android:name=".Views.ImageFilterActivity" />
         <activity android:name=".Views.DownloadFilterActivity" />
