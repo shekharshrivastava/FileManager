@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,7 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class DocumentFIlterActivity extends AppCompatActivity {
+public class DocumentFIlterActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, ActionMode.Callback, AdapterView.OnItemClickListener {
     private String internalStorageRoot;
     private ListView rl_lvListRoot;
     private ArrayList<String> m_item;
@@ -36,6 +40,8 @@ public class DocumentFIlterActivity extends AppCompatActivity {
     private String m_curDir;
     private ListAdapter m_listAdapter;
     private TextView noMediaText;
+    private int selectedPosition;
+    private android.view.ActionMode cabMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +52,9 @@ public class DocumentFIlterActivity extends AppCompatActivity {
         noMediaText = findViewById(R.id.noMediaText);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
+        rl_lvListRoot.setOnItemClickListener(this);
+        rl_lvListRoot.setOnItemLongClickListener(this);
+        rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
         getDirFromRoot(internalStorageRoot);
     }
@@ -82,7 +91,7 @@ public class DocumentFIlterActivity extends AppCompatActivity {
                 }
             } else {
                 File[] dirFiles = file.listFiles();
-                for(File docFiles :dirFiles){
+                for (File docFiles : dirFiles) {
                     if (docFiles.getName().endsWith(".pdf") || docFiles.getName().endsWith(".doc") ||
                             docFiles.getName().endsWith(".txt") || docFiles.getName().endsWith(".xls")) {
                         if (m_files.contains(file.getName()) && m_filesPath.contains(file.getPath())) {
@@ -109,42 +118,16 @@ public class DocumentFIlterActivity extends AppCompatActivity {
         if (m_path.size() == 0 && m_item.size() == 0) {
             noMediaText.setVisibility(View.VISIBLE);
             rl_lvListRoot.setVisibility(View.GONE);
-        }else{
+        } else {
             noMediaText.setVisibility(View.GONE);
             rl_lvListRoot.setVisibility(View.VISIBLE);
         }
         m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
-        rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                File m_isFile = new File(m_path.get(position));
-                if (m_isFile.isDirectory()) {
-                    getDirFromRoot(m_isFile.toString());
-                } else {
-                    MimeTypeMap map = MimeTypeMap.getSingleton();
-                    String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
-
-                    String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
-                    if (type == null)
-                        type = "*//*";
-                        if (type != "*//*") {
-                            Uri uri = FileProvider.getUriForFile(DocumentFIlterActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(uri, type);
-                            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            startActivity(intent);
-                        } else {
-                            Toast.makeText(DocumentFIlterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                }
-
-        });
+        rl_lvListRoot.setOnItemClickListener(this);
     }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -155,4 +138,76 @@ public class DocumentFIlterActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+/*        if(this.cabMode != null)
+            return false;*/
+        selectedPosition = position;
+        rl_lvListRoot.setItemChecked(position, true);
+        rl_lvListRoot.setOnItemClickListener(null);
+//        cabMode  = startActionMode();
+        return true;
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.cab_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        cabMode = null;
+        rl_lvListRoot.setItemChecked(this.selectedPosition, false);
+        this.selectedPosition = -1;
+        rl_lvListRoot.setOnItemClickListener(this);
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        rl_lvListRoot.setItemChecked(position, false);
+        File m_isFile = new File(m_path.get(position));
+        if (m_isFile.isDirectory()) {
+            getDirFromRoot(m_isFile.toString());
+        } else {
+            MimeTypeMap map = MimeTypeMap.getSingleton();
+            String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+
+            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+            if (type == null)
+                type = "*//*";
+            if (type != "*//*") {
+                Uri uri = FileProvider.getUriForFile(DocumentFIlterActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(uri, type);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(intent);
+            } else {
+                Toast.makeText(DocumentFIlterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (rl_lvListRoot.isItemChecked(selectedPosition)) {
+            rl_lvListRoot.setItemChecked(selectedPosition, false);
+        } else {
+            finish();
+        }
+    }
 }
+
