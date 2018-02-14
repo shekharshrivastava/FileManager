@@ -152,6 +152,13 @@ public class MediaFilterActivity extends AppCompatActivity {
             public void run() {
                 musicAdapter = new MediaCursorAdapter(MediaFilterActivity.this, cursor, 3);
                 rl_lvListRoot.setAdapter(musicAdapter);
+                if(cursor.getCount() == 0){
+                    noMediaText.setVisibility(View.VISIBLE);
+                    rl_lvListRoot.setVisibility(View.GONE);
+                }else{
+                    noMediaText.setVisibility(View.GONE);
+                    rl_lvListRoot.setVisibility(View.VISIBLE);
+                }
             }
 
         });

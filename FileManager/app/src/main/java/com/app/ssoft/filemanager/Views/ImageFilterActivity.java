@@ -12,6 +12,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
@@ -44,12 +45,15 @@ public class ImageFilterActivity extends AppCompatActivity {
     private File m_isFile;
 
     public static final int RESULT_DELETED = 1;
+    private TextView noMediaText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_filter);
         getSupportActionBar().setTitle("Images");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        noMediaText = findViewById(R.id.noMediaText);
         listView = (StaggeredGridView) findViewById(R.id.grid_view);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getDirFromRoot(internalStorageRoot);
@@ -168,7 +172,13 @@ public class ImageFilterActivity extends AppCompatActivity {
         {
             m_path.add(m_AddPath);
         }
-
+        if (m_path.size() == 0 && m_item.size() == 0) {
+            noMediaText.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.GONE);
+        }else{
+            noMediaText.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+        }
         m_listAdapter = new PictureFIlterAdapter(this, m_item, m_path, m_isRoot);
         listView.setAdapter(m_listAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -206,7 +216,6 @@ public class ImageFilterActivity extends AppCompatActivity {
                     }
 
 
-
                 }
             }
 
@@ -216,9 +225,13 @@ public class ImageFilterActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        File m_isFile = new File(m_path.get(0));
-        if (m_isFile.isDirectory() && !m_isRoot) {
-            getDirFromRoot(m_isFile.toString());
+        if (m_path.size() > 0) {
+            File m_isFile = new File(m_path.get(0));
+            if (m_isFile.isDirectory() && !m_isRoot) {
+                getDirFromRoot(m_isFile.toString());
+            } else {
+                finish();
+            }
         } else {
             finish();
         }
@@ -235,6 +248,7 @@ public class ImageFilterActivity extends AppCompatActivity {
 
         }
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

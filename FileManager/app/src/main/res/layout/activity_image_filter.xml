@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.etsy.android.grid.StaggeredGridView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <com.etsy.android.grid.StaggeredGridView
         android:id="@+id/grid_view"
+        app:column_count="2"
+        app:item_margin="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <TextView
+        android:id="@+id/noMediaText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:item_margin="8dp"
-        app:column_count="2" />
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:hint="Nothing to display here"
+        android:textSize="20dp"
+        android:visibility="gone" />
+</LinearLayout>

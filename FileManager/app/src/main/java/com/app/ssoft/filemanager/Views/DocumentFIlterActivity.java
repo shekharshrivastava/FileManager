@@ -11,6 +11,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
@@ -34,6 +35,7 @@ public class DocumentFIlterActivity extends AppCompatActivity {
     private String rootPath;
     private String m_curDir;
     private ListAdapter m_listAdapter;
+    private TextView noMediaText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class DocumentFIlterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_apps_filter);
         getSupportActionBar().setTitle("Documents");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        noMediaText = findViewById(R.id.noMediaText);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
 
@@ -103,7 +106,13 @@ public class DocumentFIlterActivity extends AppCompatActivity {
         {
             m_path.add(m_AddPath);
         }
-
+        if (m_path.size() == 0 && m_item.size() == 0) {
+            noMediaText.setVisibility(View.VISIBLE);
+            rl_lvListRoot.setVisibility(View.GONE);
+        }else{
+            noMediaText.setVisibility(View.GONE);
+            rl_lvListRoot.setVisibility(View.VISIBLE);
+        }
         m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
         rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener() {

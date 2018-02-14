@@ -11,6 +11,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
@@ -37,6 +38,7 @@ public class DownloadFilterActivity extends AppCompatActivity {
     private String rootPath;
     private String m_curDir;
     private ListAdapter m_listAdapter;
+    private TextView noMediaText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class DownloadFilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_download_filter);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Downloads");
+        noMediaText = findViewById(R.id.noMediaText);
         internalStorageRoot = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
 
@@ -128,6 +131,13 @@ public class DownloadFilterActivity extends AppCompatActivity {
         {
             m_path.add(m_AddPath);
         }
+        if (m_path.size() == 0 && m_item.size() == 0) {
+            noMediaText.setVisibility(View.VISIBLE);
+            rl_lvListRoot.setVisibility(View.GONE);
+        }else{
+            noMediaText.setVisibility(View.GONE);
+            rl_lvListRoot.setVisibility(View.VISIBLE);
+        }
 
         m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
@@ -175,6 +185,7 @@ public class DownloadFilterActivity extends AppCompatActivity {
 
         });
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
