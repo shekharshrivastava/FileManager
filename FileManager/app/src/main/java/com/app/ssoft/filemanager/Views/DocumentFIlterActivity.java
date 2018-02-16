@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -47,6 +48,8 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_apps_filter);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Documents");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         noMediaText = findViewById(R.id.noMediaText);
@@ -145,7 +148,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
             return false;*/
         selectedPosition = position;
         rl_lvListRoot.setItemChecked(position, true);
-        rl_lvListRoot.setOnItemClickListener(null);
+        rl_lvListRoot.setOnItemClickListener(this);
 //        cabMode  = startActionMode();
         return true;
     }
@@ -209,5 +212,6 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
             finish();
         }
     }
+
 }
 

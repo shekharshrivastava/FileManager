@@ -156,7 +156,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             if (file.isDirectory()) {
                 Arrays.sort(m_filesArray);
                 // if dont want to show hidden file
-                if (!file.getName().startsWith(".")) {
+//                file.getName().startsWith(".")
+                if (!file.isHidden()) {
                     m_item.add(file.getName());
                     m_path.add(file.getPath());
                 } else {
@@ -180,7 +181,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 }
 
             } else {
-                if (!file.getName().startsWith(".")) {
+//                file.getName().startsWith(".")
+                if (!file.isHidden()) {
                     m_files.add(file.getName());
                     m_filesPath.add(file.getPath());
                 } else {
