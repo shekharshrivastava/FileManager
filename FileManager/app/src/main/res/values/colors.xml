@@ -4,4 +4,10 @@
     <color name="colorPrimaryDark">#000</color>
     <color name="colorAccent">#FF4081</color>
     <color name="bs_divider_color">#24000000</color>
+    <color name="color_picture">#7ce6a7</color>
+    <color name="color_audio">#d9534f</color>
+    <color name="color_video">#4a7ae1</color>
+    <color name="color_doc">#77866f</color>
+    <color name="color_app">#8dd35f</color>
+
 </resources>

@@ -95,14 +95,37 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
             } else {
                 File[] dirFiles = file.listFiles();
                 for (File docFiles : dirFiles) {
-                    if (docFiles.getName().endsWith(".pdf") || docFiles.getName().endsWith(".doc") ||
-                            docFiles.getName().endsWith(".txt") || docFiles.getName().endsWith(".xls")) {
-                        if (m_files.contains(file.getName()) && m_filesPath.contains(file.getPath())) {
-                            m_files.remove(docFiles.getName());
-                            m_filesPath.remove(docFiles.getPath());
+                    if (!docFiles.isDirectory()) {
+                        if (docFiles.getName().endsWith(".pdf") || docFiles.getName().endsWith(".doc") ||
+                                docFiles.getName().endsWith(".txt") || docFiles.getName().endsWith(".xls")) {
+                            if (m_files.contains(file.getName()) && m_filesPath.contains(file.getPath())) {
+                                m_files.remove(docFiles.getName());
+                                m_filesPath.remove(docFiles.getPath());
+                            }
+                            m_files.add(docFiles.getName());
+                            m_filesPath.add(docFiles.getPath());
                         }
-                        m_files.add(docFiles.getName());
-                        m_filesPath.add(docFiles.getPath());
+                    }else {
+                        do {
+                            File[] fileUnderDir = docFiles.listFiles();
+                            for (File docFileSubDir : fileUnderDir) {
+                                if (!docFileSubDir.isDirectory()) {
+                                    if (docFiles.getName().endsWith(".pdf") || docFiles.getName().endsWith(".doc") ||
+                                            docFiles.getName().endsWith(".txt") || docFiles.getName().endsWith(".xls")){
+                                        if (m_files.contains(docFiles.getName()) && m_filesPath.contains(docFiles.getPath())) {
+                                            m_files.remove(docFiles.getName());
+                                            m_filesPath.remove(docFiles.getPath());
+                                        }
+                                        m_files.add(docFiles.getName());
+                                        m_filesPath.add(docFiles.getPath());
+                                    }
+                                }
+                            }
+                        }
+
+                        while (!docFiles.isDirectory());
+
+
                     }
                 }
             }

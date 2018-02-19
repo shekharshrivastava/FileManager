@@ -1,231 +1,231 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.app.ssoft.filemanager.Views.MainActivity">
 
-    <LinearLayout
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+    <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:fillViewport="true">
 
-        <android.support.design.widget.AppBarLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/toolbar"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
+                android:layout_height="wrap_content"
+                android:background="#115d97">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="#115d97">
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:background="#115d97"
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <RelativeLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0.8"
-                        android:background="#115d97"
-                        android:orientation="vertical">
+                        android:layout_height="wrap_content">
 
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                        <at.grabner.circleprogress.CircleProgressView
+                            android:id="@+id/internal_progress_bar"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_margin="10dp"
+                            CircleProgressView:cpv_autoTextSize="true"
+                            CircleProgressView:cpv_barWidth="35dp"
+                            CircleProgressView:cpv_innerContourSize="0dp"
+                            CircleProgressView:cpv_maxValue="100"
+                            CircleProgressView:cpv_outerContourSize="0dp"
+                            CircleProgressView:cpv_rimWidth="35dp"
+                            CircleProgressView:cpv_seekMode="true"
+                            CircleProgressView:cpv_showUnit="true"
+                            CircleProgressView:cpv_textScale="1"
+                            CircleProgressView:cpv_unit="%"
+                            CircleProgressView:cpv_unitPosition="right_top"
+                            CircleProgressView:cpv_unitScale="1" />
 
-                            <at.grabner.circleprogress.CircleProgressView
-                                android:id="@+id/internal_progress_bar"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                android:layout_margin="10dp"
-                                CircleProgressView:cpv_autoTextSize="true"
-                                CircleProgressView:cpv_barWidth="35dp"
-                                CircleProgressView:cpv_innerContourSize="0dp"
-                                CircleProgressView:cpv_maxValue="100"
-                                CircleProgressView:cpv_outerContourSize="0dp"
-                                CircleProgressView:cpv_rimWidth="35dp"
-                                CircleProgressView:cpv_seekMode="true"
-                                CircleProgressView:cpv_showUnit="true"
-                                CircleProgressView:cpv_textScale="1"
-                                CircleProgressView:cpv_unit="%"
-                                CircleProgressView:cpv_unitPosition="right_top"
-                                CircleProgressView:cpv_unitScale="1" />
+                        <LinearLayout
+                            android:id="@+id/internalStorageLinearLayout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_toRightOf="@+id/internal_progress_bar"
+                            android:orientation="vertical">
 
-                            <LinearLayout
-                                android:id="@+id/internalStorageLinearLayout"
+                            <TextView
+                                android:id="@+id/titleInternalStorage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerInParent="true"
-                                android:layout_toRightOf="@+id/internal_progress_bar"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:id="@+id/titleInternalStorage"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="Internal Storage"
-                                    android:textColor="#fff"
-                                    android:textStyle="bold" />
+                                android:text="Internal Storage"
+                                android:textColor="#fff"
+                                android:textStyle="bold" />
 
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="2dp"
-                                    android:text="Available"
-                                    android:textSize="10sp" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="2dp"
+                                android:text="Available"
+                                android:textSize="10sp" />
 
 
-                                <TextView
-                                    android:id="@+id/internalStorageSpace"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_below="@+id/titleInternalStorage"
-                                    android:layout_toEndOf="@+id/progress_bar"
-                                    android:layout_toRightOf="@+id/progress_bar"
-                                    android:text="3.77 GB / 4.36 GB"
-                                    android:textColor="#fff"
-                                    android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/internalStorageSpace"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/titleInternalStorage"
+                                android:layout_toEndOf="@+id/progress_bar"
+                                android:layout_toRightOf="@+id/progress_bar"
+                                android:text="3.77 GB / 4.36 GB"
+                                android:textColor="#fff"
+                                android:textStyle="bold" />
 
 
-                                <!-- <LinearLayout
-                                     android:layout_width="match_parent"
+                            <!-- <LinearLayout
+                                 android:layout_width="match_parent"
+                                 android:layout_height="wrap_content"
+                                 android:orientation="horizontal">
+
+                                 <TextView
+                                     android:layout_width="0dp"
                                      android:layout_height="wrap_content"
-                                     android:orientation="horizontal">
+                                     android:layout_weight="0.5"
+                                     android:text="Used"
+                                     android:textStyle="bold" />
 
-                                     <TextView
-                                         android:layout_width="0dp"
-                                         android:layout_height="wrap_content"
-                                         android:layout_weight="0.5"
-                                         android:text="Used"
-                                         android:textStyle="bold" />
+                                 <TextView
+                                     android:layout_width="0dp"
+                                     android:layout_height="wrap_content"
+                                     android:layout_weight="0.5"
+                                     android:text="Remaining"
+                                     android:textStyle="bold" />
+                             </LinearLayout>-->
+                        </LinearLayout>
 
-                                     <TextView
-                                         android:layout_width="0dp"
-                                         android:layout_height="wrap_content"
-                                         android:layout_weight="0.5"
-                                         android:text="Remaining"
-                                         android:textStyle="bold" />
-                                 </LinearLayout>-->
-                            </LinearLayout>
-
-                              <ImageView
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:layout_centerInParent="true"
-                                  android:layout_marginLeft="10dp"
-                                  android:layout_toRightOf="@+id/internalStorageLinearLayout"
-                                  android:src="@drawable/right_arrow_small" />
-                        </RelativeLayout>
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_toRightOf="@+id/internalStorageLinearLayout"
+                            android:src="@drawable/right_arrow_small" />
+                    </RelativeLayout>
 
 
-                        <RelativeLayout
-                            android:id="@+id/externalStorageLayout"
+                    <RelativeLayout
+                        android:id="@+id/externalStorageLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <View
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="2dp"
+                            android:layout_margin="5dp"
+                            android:layout_marginBottom="5dp"
+                            android:background="@color/bs_divider_color" />
 
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="2dp"
-                                android:layout_margin="5dp"
-                                android:layout_marginBottom="5dp"
-                                android:background="@color/bs_divider_color" />
+                        <at.grabner.circleprogress.CircleProgressView
+                            android:id="@+id/external_progress_bar"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_margin="10dp"
+                            CircleProgressView:cpv_autoTextSize="true"
+                            CircleProgressView:cpv_barWidth="35dp"
+                            CircleProgressView:cpv_innerContourSize="0dp"
+                            CircleProgressView:cpv_maxValue="100"
+                            CircleProgressView:cpv_outerContourSize="0dp"
+                            CircleProgressView:cpv_rimWidth="35dp"
+                            CircleProgressView:cpv_seekMode="true"
+                            CircleProgressView:cpv_showUnit="true"
+                            CircleProgressView:cpv_textScale="1"
+                            CircleProgressView:cpv_unit="%"
+                            CircleProgressView:cpv_unitPosition="right_top"
+                            CircleProgressView:cpv_unitScale="1"
+                            CircleProgressView:cpv_value="10" />
 
-                            <at.grabner.circleprogress.CircleProgressView
-                                android:id="@+id/external_progress_bar"
-                                android:layout_width="64dp"
-                                android:layout_height="64dp"
-                                android:layout_margin="10dp"
-                                CircleProgressView:cpv_autoTextSize="true"
-                                CircleProgressView:cpv_barWidth="35dp"
-                                CircleProgressView:cpv_innerContourSize="0dp"
-                                CircleProgressView:cpv_maxValue="100"
-                                CircleProgressView:cpv_outerContourSize="0dp"
-                                CircleProgressView:cpv_rimWidth="35dp"
-                                CircleProgressView:cpv_seekMode="true"
-                                CircleProgressView:cpv_showUnit="true"
-                                CircleProgressView:cpv_textScale="1"
-                                CircleProgressView:cpv_unit="%"
-                                CircleProgressView:cpv_unitPosition="right_top"
-                                CircleProgressView:cpv_unitScale="1"
-                                CircleProgressView:cpv_value="10" />
+                        <LinearLayout
+                            android:id="@+id/external_ll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_toRightOf="@+id/external_progress_bar"
+                            android:orientation="vertical">
 
-                            <LinearLayout
-                                android:id="@+id/external_ll"
+                            <TextView
+                                android:id="@+id/titleExternalStorage"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerInParent="true"
-                                android:layout_toRightOf="@+id/external_progress_bar"
-                                android:orientation="vertical">
+                                android:text="External Storage"
+                                android:textColor="#fff"
+                                android:textStyle="bold" />
 
-                                <TextView
-                                    android:id="@+id/titleExternalStorage"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="External Storage"
-                                    android:textColor="#fff"
-                                    android:textStyle="bold" />
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="2dp"
-                                    android:text="Available"
-                                    android:textSize="10sp" />
-                                <TextView
-                                    android:id="@+id/externalStorageSpace"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_below="@+id/titleInternalStorage"
-                                    android:layout_toEndOf="@+id/progress_bar"
-                                    android:layout_toRightOf="@+id/progress_bar"
-                                    android:text="3.77 GB / 4.36 GB"
-                                    android:textColor="#fff"
-                                    android:textStyle="bold" />
-
-
-                            </LinearLayout>
-
-                            <ImageView
+                            <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_centerInParent="true"
-                                android:layout_marginLeft="10dp"
-                                android:layout_toRightOf="@+id/external_ll"
-                                android:src="@drawable/right_arrow_small" />
-                        </RelativeLayout>
-                    </LinearLayout>
+                                android:layout_marginLeft="2dp"
+                                android:text="Available"
+                                android:textSize="10sp" />
+
+                            <TextView
+                                android:id="@+id/externalStorageSpace"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/titleInternalStorage"
+                                android:layout_toEndOf="@+id/progress_bar"
+                                android:layout_toRightOf="@+id/progress_bar"
+                                android:text="3.77 GB / 4.36 GB"
+                                android:textColor="#fff"
+                                android:textStyle="bold" />
+
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_toRightOf="@+id/external_ll"
+                            android:src="@drawable/right_arrow_small" />
+                    </RelativeLayout>
                 </LinearLayout>
 
+            </LinearLayout>
 
-            </ScrollView>
-        </android.support.design.widget.AppBarLayout>
+            <GridView
+                android:id="@+id/quickLinksGV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:isScrollContainer="false"
+                android:numColumns="3" />
 
-        <GridView
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@color/bs_divider_color" />
 
-            android:id="@+id/quickLinksGV"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:numColumns="3" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:background="@color/bs_divider_color" />
-    </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
@@ -235,4 +235,4 @@
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
 
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

@@ -7,6 +7,11 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
+    <uses-feature android:name="android.hardware.usb.host" />
+
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -23,6 +28,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
         </activity>
         <activity android:name=".Views.InternalExplorerActivity" />
 
@@ -43,11 +55,9 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a70a2cc6b67d860f81795b637ad1b07304549055" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDVPTd8BcopeWRLIV19VuClMgTpLBUQ_BY" />
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -57,8 +67,10 @@
         <activity android:name=".Views.DownloadFilterActivity" />
         <activity android:name=".Views.AppsFilterActivity" />
         <activity android:name=".Views.MediaFilterActivity" />
-        <activity android:name=".Views.DocumentFIlterActivity"
-            android:theme="@style/myActivityTheme"></activity>
+        <activity
+            android:name=".Views.DocumentFIlterActivity"
+            android:theme="@style/myActivityTheme" />
+        <activity android:name=".Views.StorageInfoActivity"></activity>
     </application>
 
 </manifest>

@@ -2,6 +2,8 @@ package com.app.ssoft.filemanager.Views;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,6 +41,7 @@ import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import at.grabner.circleprogress.CircleProgressView;
 import io.fabric.sdk.android.Fabric;
@@ -60,6 +63,11 @@ public class MainActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private DriveId mFileId;
     private TextView noMediaText;
+    private UsbManager usbManager;
+    private UsbDevice clef;
+    ArrayList<File> images;
+    private int[] bgColors;
+    private int[] mStartColors;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +141,8 @@ public class MainActivity extends AppCompatActivity
         CustomQLGridAdapter adapter = new CustomQLGridAdapter(MainActivity.this, web, imageId);
         quickLinksGV.setAdapter(adapter);
         quickLinksGV.setOnItemClickListener(this);
+
+//        accessUSBDevice();
     }
 
     @Override
@@ -181,7 +191,8 @@ public class MainActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_slideshow) {
-
+            Intent intent = new Intent(this, StorageInfoActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
             Utils.shareApplication(MainActivity.this);
         } else if (id == R.id.nav_drive) {
@@ -506,4 +517,48 @@ public class MainActivity extends AppCompatActivity
         Drive.DriveApi.newDriveContents(mGoogleApiClient)
                 .setResultCallback(driveContentsCallback);
     }
+
+   /* public void accessUSBDevice(){
+        Intent intent = getIntent();
+        UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+        usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+
+
+        if (usbManager != null)
+        {
+            HashMap<String,UsbDevice> deviceList = usbManager.getDeviceList();
+            UsbDevice deviceName = deviceList.get("deviceName");
+            if (deviceList != null)
+            {
+                Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
+                while (deviceIterator.hasNext()) {
+                    clef = deviceIterator.next();
+                }
+            }
+        }
+
+        if (clef != null)
+        {
+            File directory  = new File("/storage/UsbDriveA/");
+            if (directory != null) {
+                if (directory.canRead()) {
+
+                    images = new ArrayList<File>();
+                    String[] imageExtensions = {"jpg","jpeg","png","gif","JPG","JPEG","PNG","GIF"};
+                    Iterator<File> iterateImages = FileUtils.iterateFiles(directory, imageExtensions, true);
+                    while (iterateImages.hasNext()) {
+                        File theImage = iterateImages.next();
+                        if (!theImage.getName().startsWith(".", 0))
+                            images.add(theImage);
+                    }
+
+                    // custom process / methods... not very relevant here :
+              *//*      imageIndex = 0;
+                    scale = 1.0f;
+                    countImgs = images.size();
+                    loadImage(imageIndex);*//*
+                }
+            }
+        }
+    }*/
 }
