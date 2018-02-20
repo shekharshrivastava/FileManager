@@ -7,7 +7,6 @@ import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -48,8 +47,8 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_apps_filter);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+       /* Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);*/
         getSupportActionBar().setTitle("Documents");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         noMediaText = findViewById(R.id.noMediaText);
@@ -63,7 +62,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     }
 
     public void getDirFromRoot(String p_rootPath) {
-//        getSupportActionBar().setSubtitle(p_rootPath);
+        // getSupportActionBar().setSubtitle(p_rootPath);
         m_item = new ArrayList<String>();
         m_isRoot = true;
         m_hiddenFilesNames = new ArrayList<String>();
@@ -105,7 +104,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
                             m_files.add(docFiles.getName());
                             m_filesPath.add(docFiles.getPath());
                         }
-                    }else {
+                    }/*else {
                         do {
                             File[] fileUnderDir = docFiles.listFiles();
                             for (File docFileSubDir : fileUnderDir) {
@@ -126,7 +125,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
                         while (!docFiles.isDirectory());
 
 
-                    }
+                    }*/
                 }
             }
         }

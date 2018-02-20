@@ -67,9 +67,10 @@
         <activity android:name=".Views.DownloadFilterActivity" />
         <activity android:name=".Views.AppsFilterActivity" />
         <activity android:name=".Views.MediaFilterActivity" />
+        <!--android:theme="@style/myActivityTheme"-->
         <activity
             android:name=".Views.DocumentFIlterActivity"
-            android:theme="@style/myActivityTheme" />
+             />
         <activity android:name=".Views.StorageInfoActivity"></activity>
     </application>
 
