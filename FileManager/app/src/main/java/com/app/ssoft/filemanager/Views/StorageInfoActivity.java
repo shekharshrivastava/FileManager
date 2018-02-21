@@ -3,11 +3,13 @@ package com.app.ssoft.filemanager.Views;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
@@ -18,14 +20,15 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.tuyenmonkey.mkloader.MKLoader;
 
 import java.io.File;
 import java.util.ArrayList;
 
 public class StorageInfoActivity extends AppCompatActivity {
 
-    private static long imageFilesSize = 0;
-    private static long docFileSizeActual = 0;
+    private long imageFilesSize = 0;
+    private long docFileSizeActual = 0;
     private PieChart pieChart;
     ArrayList<Entry> entries;
     private ArrayList<String> PieEntryLabels;
@@ -38,18 +41,28 @@ public class StorageInfoActivity extends AppCompatActivity {
     private float videoFileSize;
     private long actualAudioFileSize = 0;
     private long videoFileSizeActual = 0;
+    private MKLoader loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_storage_info);
+        getSupportActionBar().setTitle("Storage Info");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        loadingIndicator = findViewById(R.id.loading_indicator);
         pieChart = (PieChart) findViewById(R.id.chart1);
-        final String p_rootPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        entries = new ArrayList<>();
+
+        PieEntryLabels = new ArrayList<String>();
+
+        new getFileSizeAsyncTask().execute();
+/*
+
         new Handler().post(new Runnable() {
 
             @Override
             public void run() {
-                docFileSize = getDocumentsFileSize(p_rootPath);
+//                docFileSize = getDocumentsFileSize(p_rootPath);
                 imageFileSize = getAllImageSize(p_rootPath);
                 audioFileSize = getAudioFileSize();
                 videoFileSize = getVideoFilesList();
@@ -58,38 +71,22 @@ public class StorageInfoActivity extends AppCompatActivity {
 
                 PieEntryLabels = new ArrayList<String>();
 
-                AddValuesToPIEENTRY();
+//                AddValuesToPIEENTRY();
 
                 AddValuesToPieEntryLabels();
-                pieDataSet = new PieDataSet(entries, "");
-                pieDataSet.setDrawValues(false);
-                pieData = new PieData(PieEntryLabels, pieDataSet);
-                pieData.setDrawValues(false);
 
-                pieDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
-                pieDataSet.setValueTextSize(12f);
-
-
-                pieChart.setData(pieData);
-                pieChart.setDescriptionTextSize(12f);
-                Legend legend = pieChart.getLegend();
-                legend.setTextSize(12f);
-                legend.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
-
-
-
-                pieChart.animateY(3000);
 
             }
 
         });
+*/
 
 
     }
 
     public void AddValuesToPIEENTRY() {
 
-        entries.add(new BarEntry(docFileSizeActual, 0));
+//        entries.add(new BarEntry(docFileSizeActual, 0));
         entries.add(new BarEntry(imageFilesSize, 1));
         entries.add(new BarEntry(actualAudioFileSize, 2));
         entries.add(new BarEntry(videoFileSizeActual, 3));
@@ -109,9 +106,9 @@ public class StorageInfoActivity extends AppCompatActivity {
 
     }
 
-    public static float getDocumentsFileSize(String p_rootPath) {
+    public float getDocumentsFileSize() {
 
-
+        final String p_rootPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File m_file = new File(p_rootPath);
         File[] m_filesArray = m_file.listFiles();
 
@@ -137,7 +134,8 @@ public class StorageInfoActivity extends AppCompatActivity {
         return Float.valueOf((Utils.bytesToHuman(docFileSizeActual)).substring(0, Utils.bytesToHuman(docFileSizeActual).indexOf(' ')));
     }
 
-    public static float getAllImageSize(String p_rootPath) {
+    public float getAllImageSize() {
+        final String p_rootPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         File m_file = new File(p_rootPath);
         File[] m_filesArray = m_file.listFiles();
 
@@ -230,4 +228,69 @@ public class StorageInfoActivity extends AppCompatActivity {
         return Float.valueOf((Utils.bytesToHuman(videoFileSizeActual)).substring(0, Utils.bytesToHuman(videoFileSizeActual).indexOf(' ')));
     }
 
+    public class getFileSizeAsyncTask extends AsyncTask<String, Void, FileSize> {
+        FileSize fileSize = new FileSize();
+
+        @Override
+        protected FileSize doInBackground(String... strings) {
+
+            getDocumentsFileSize();
+            getAllImageSize();
+            getAudioFileSize();
+            getVideoFilesList();
+
+            fileSize.setDocFIleSize(docFileSizeActual);
+            fileSize.setImageFilesSize(imageFilesSize);
+            fileSize.setAudioFileSize(actualAudioFileSize);
+            fileSize.setVideoFilesSize(videoFileSizeActual);
+
+            return fileSize;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            pieChart.setVisibility(View.GONE);
+            loadingIndicator.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(FileSize aFloat) {
+            loadingIndicator.setVisibility(View.GONE);
+            pieChart.setVisibility(View.VISIBLE);
+            entries.add(new BarEntry(aFloat.getDocFIleSize(), 0));
+            entries.add(new BarEntry(aFloat.getImageFilesSize(), 1));
+            entries.add(new BarEntry(aFloat.getAudioFileSize(), 2));
+            entries.add(new BarEntry(aFloat.getVideoFilesSize(), 3));
+            AddValuesToPieEntryLabels();
+            pieDataSet = new PieDataSet(entries, "");
+            pieDataSet.setDrawValues(false);
+            pieData = new PieData(PieEntryLabels, pieDataSet);
+            pieData.setDrawValues(false);
+
+            pieDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
+            pieDataSet.setValueTextSize(12f);
+
+
+            pieChart.setData(pieData);
+            pieChart.setDescriptionTextSize(12f);
+            Legend legend = pieChart.getLegend();
+            legend.setTextSize(12f);
+            legend.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
+
+
+            pieChart.animateY(3000);
+            super.onPostExecute(aFloat);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return true;
+    }
 }

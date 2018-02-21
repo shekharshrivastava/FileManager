@@ -136,6 +136,13 @@ public class MainActivity extends AppCompatActivity
 
         internalStorageSpace.setText(getAvailableInternalMemorySize() + " / " + getTotalInternalMemorySize());
         internalProgressBar.setValueAnimated(calculatePercentage(getTotalInternalMemorySize(), getUsedInternalSpace()));
+        internalProgressBar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, StorageInfoActivity.class);
+                startActivity(intent);
+            }
+        });
 
         quickLinksGV = findViewById(R.id.quickLinksGV);
         CustomQLGridAdapter adapter = new CustomQLGridAdapter(MainActivity.this, web, imageId);

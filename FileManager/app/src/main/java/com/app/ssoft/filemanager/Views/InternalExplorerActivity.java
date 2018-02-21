@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.FragmentManager;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
+import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
@@ -34,7 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
+public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Toolbar toolbar;
     private FragmentManager fragmentManager = null;
@@ -64,12 +66,14 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private boolean isShowingHiddenFolder;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private MKLoader loadingIndicator;
 //    private File m_isFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
+        loadingIndicator = findViewById(R.id.loading_indicator);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("menuPref", 0);
         editor = pref.edit();
@@ -85,7 +89,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
 //        rl_lvListRoot.setOnItemLongClickListener(this);
         registerForContextMenu(rl_lvListRoot);
-        getDirFromRoot(internalStorageRoot);
+        new getAllFilesFromInternalStorageTask().execute(internalStorageRoot);
+//        getDirFromRoot(internalStorageRoot);
 
     /*    fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -128,8 +133,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
          }
      }*/
 ///get directories and files from selected path
-    public void getDirFromRoot(String p_rootPath) {
-        getSupportActionBar().setSubtitle(p_rootPath);
+    public void getDirFromRoot(final String p_rootPath) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getSupportActionBar().setSubtitle(p_rootPath);
+            }
+        });
         isShowingHiddenFolder = pref.getBoolean("isShowingHiddenFiles", false);
         m_item = new ArrayList<String>();
         m_isRoot = true;
@@ -214,9 +224,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             m_path.add(m_AddPath);
         }
 
-        m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
-        rl_lvListRoot.setAdapter(m_listAdapter);
-        rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener()
+      /*  m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
+        rl_lvListRoot.setAdapter(m_listAdapter);*/
+     /*   rl_lvListRoot.setOnItemClickListener(new AdapterView.OnItemClickListener()
 
         {
 
@@ -234,7 +244,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     }
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                     if (type == null)
-                        type = "*//*";
+                        type = "*//**//*";
                     if (type == "image/jpeg") {
                         Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
                         intent.putExtra("imgPath", m_path);
@@ -243,7 +253,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                         intent.putExtra("imageName", m_item.get(position));
                         startActivityForResult(intent, RESULT_DELETED);
                     } else {
-                        if (type != "*//*") {
+                        if (type != "*//**//*") {
                             Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setDataAndType(uri, type);
@@ -258,7 +268,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             }
 
 
-        });
+        });*/
     }
 
 
@@ -266,7 +276,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     public void onBackPressed() {
         File m_isFile = new File(m_path.get(0));
         if (m_isFile.isDirectory() && !m_isRoot) {
-            getDirFromRoot(m_isFile.toString());
+            new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
+//            getDirFromRoot(m_isFile.toString());
         } else {
             finish();
             editor.clear();
@@ -288,7 +299,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             case android.R.id.home:
                 File m_isFile = new File(m_path.get(0));
                 if (m_isFile.isDirectory() && !m_isRoot) {
-                    getDirFromRoot(m_isFile.toString());
+                    new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
+//                    getDirFromRoot(m_isFile.toString());
                 } else {
                     finish();
                     editor.clear();
@@ -401,7 +413,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-
         return true;
     }
 
@@ -479,8 +490,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         } else if (item.getTitle() == "Share") {
             if (selectedFile.exists() && !selectedFile.isDirectory()) {
                 Utils.shareFIle(this, selectedFile);
-            }else{
-                Toast.makeText(this,"Please select files to share",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Please select files to share", Toast.LENGTH_SHORT).show();
             }
         }
         return super.onContextItemSelected(item);
@@ -541,6 +552,67 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         super.onDestroy();
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        File m_isFile = new File(m_path.get(position));
+        if (m_isFile.isDirectory()) {
+            new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
+//            getDirFromRoot(m_isFile.toString());
+        } else {
+            MimeTypeMap map = MimeTypeMap.getSingleton();
+            String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+            if (extension.equals(".JPG")) {
+                extension = ".jpeg";
+            }
+            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+            if (type == null)
+                type = "*//**//*";
+            if (type == "image/jpeg") {
+                Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
+                intent.putExtra("imgPath", m_path);
+                intent.putExtra("position", position);
+                intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                intent.putExtra("imageName", m_item.get(position));
+                startActivityForResult(intent, RESULT_DELETED);
+            } else {
+                if (type != "*//**//*") {
+                    Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, type);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                }
+            }
 
+        }
+
+    }
+
+    public class getAllFilesFromInternalStorageTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            getDirFromRoot(strings[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            loadingIndicator.setVisibility(View.VISIBLE);
+            rl_lvListRoot.setOnItemClickListener(null);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            loadingIndicator.setVisibility(View.GONE);
+            m_listAdapter = new ListAdapter(InternalExplorerActivity.this, m_item, m_path, m_isRoot);
+            rl_lvListRoot.setAdapter(m_listAdapter);
+            rl_lvListRoot.setOnItemClickListener(InternalExplorerActivity.this);
+            super.onPostExecute(aVoid);
+        }
+    }
 }
 

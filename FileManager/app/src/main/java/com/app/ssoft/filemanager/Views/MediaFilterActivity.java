@@ -31,6 +31,7 @@ public class MediaFilterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_filter);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
+
         noMediaText = findViewById(R.id.noMediaText);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();

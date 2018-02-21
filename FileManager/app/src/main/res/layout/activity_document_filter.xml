@@ -1,9 +1,29 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.app.ssoft.filemanager.Views.DocumentFIlterActivity">
+    android:orientation="vertical">
 
-</android.support.constraint.ConstraintLayout>
+    <!--    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@color/colorPrimary"
+            android:minHeight="?attr/actionBarSize"/>-->
+
+    <ListView
+        android:id="@+id/rl_lvListRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+    <TextView
+        android:id="@+id/noMediaText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:hint="Nothing to display here"
+        android:textSize="20dp"
+        android:visibility="gone" />
+</LinearLayout>

@@ -1,6 +1,22 @@
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rl_lvListRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-</ListView>
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.app.ssoft.filemanager.Views.StorageInfoActivity">
+
+
+    <ListView
+        android:id="@+id/rl_lvListRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.tuyenmonkey.mkloader.MKLoader
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:mk_color="@color/colorPrimary"
+        app:mk_type="ClassicSpinner" />
+</RelativeLayout>

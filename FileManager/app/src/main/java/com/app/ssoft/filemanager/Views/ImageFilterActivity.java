@@ -3,6 +3,7 @@ package com.app.ssoft.filemanager.Views;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 import com.etsy.android.grid.StaggeredGridView;
+import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
@@ -24,7 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ImageFilterActivity extends AppCompatActivity {
+public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Cursor cursor;
     private int columnIndex;
@@ -46,6 +48,7 @@ public class ImageFilterActivity extends AppCompatActivity {
 
     public static final int RESULT_DELETED = 1;
     private TextView noMediaText;
+    private MKLoader loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +56,12 @@ public class ImageFilterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_image_filter);
         getSupportActionBar().setTitle("Images");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        loadingIndicator = findViewById(R.id.loading_indicator);
         noMediaText = findViewById(R.id.noMediaText);
         listView = (StaggeredGridView) findViewById(R.id.grid_view);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
-        getDirFromRoot(internalStorageRoot);
+        new displayImageListTask().execute(internalStorageRoot);
+//        getDirFromRoot(internalStorageRoot);
 
 //        getImageList();
 //        AllImageAdapter adapter = new AllImageAdapter(ImageFilterActivity.this,cursor,columnIndex);
@@ -175,27 +180,27 @@ public class ImageFilterActivity extends AppCompatActivity {
         if (m_path.size() == 0 && m_item.size() == 0) {
             noMediaText.setVisibility(View.VISIBLE);
             listView.setVisibility(View.GONE);
-        }else{
+        } else {
             noMediaText.setVisibility(View.GONE);
             listView.setVisibility(View.VISIBLE);
         }
-        m_listAdapter = new PictureFIlterAdapter(this, m_item, m_path, m_isRoot);
-        listView.setAdapter(m_listAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+   /*     m_listAdapter = new PictureFIlterAdapter(this, m_item, m_path, m_isRoot);
+        listView.setAdapter(m_listAdapter);*/
+        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
                 m_isFile = new File(m_path.get(position));
                 if (m_isFile.isDirectory()) {
-                    getDirFromRoot(m_isFile.toString());
+                    new displayImageListTask().execute(m_isFile.toString());
                 } else {
                     MimeTypeMap map = MimeTypeMap.getSingleton();
                     String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
 
                     String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                     if (type == null)
-                        type = "*//*";
+                        type = "*//**//*";
                     if (type == "image/jpeg") {
                         Intent intent = new Intent(ImageFilterActivity.this, ImageFullScreenActivity.class);
                         intent.putExtra("imgPath", m_path);
@@ -204,7 +209,7 @@ public class ImageFilterActivity extends AppCompatActivity {
                         intent.putExtra("imageName", m_item.get(position));
                         startActivityForResult(intent, RESULT_DELETED);
                     } else {
-                        if (type != "*//*") {
+                        if (type != "*//**//*") {
                             Uri uri = FileProvider.getUriForFile(ImageFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setDataAndType(uri, type);
@@ -220,7 +225,7 @@ public class ImageFilterActivity extends AppCompatActivity {
             }
 
 
-        });
+        });*/
     }
 
     @Override
@@ -228,7 +233,7 @@ public class ImageFilterActivity extends AppCompatActivity {
         if (m_path.size() > 0) {
             File m_isFile = new File(m_path.get(0));
             if (m_isFile.isDirectory() && !m_isRoot) {
-                getDirFromRoot(m_isFile.toString());
+                new displayImageListTask().execute(m_isFile.toString());
             } else {
                 finish();
             }
@@ -260,4 +265,65 @@ public class ImageFilterActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        m_isFile = new File(m_path.get(position));
+        if (m_isFile.isDirectory()) {
+            new displayImageListTask().execute(m_isFile.toString());
+        } else {
+            MimeTypeMap map = MimeTypeMap.getSingleton();
+            String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+
+            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+            if (type == null)
+                type = "*//*";
+            if (type == "image/jpeg") {
+                Intent intent = new Intent(ImageFilterActivity.this, ImageFullScreenActivity.class);
+                intent.putExtra("imgPath", m_path);
+                intent.putExtra("position", position);
+                intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                intent.putExtra("imageName", m_item.get(position));
+                startActivityForResult(intent, RESULT_DELETED);
+            } else {
+                if (type != "*//*") {
+                    Uri uri = FileProvider.getUriForFile(ImageFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, type);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(ImageFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+
+        }
+    }
+
+
+
+public class displayImageListTask extends AsyncTask<String, Void, Void> {
+
+    @Override
+    protected Void doInBackground(String... strings) {
+        getDirFromRoot(strings[0]);
+        return null;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        loadingIndicator.setVisibility(View.VISIBLE);
+        listView.setOnItemClickListener(null);
+        super.onPreExecute();
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        loadingIndicator.setVisibility(View.GONE);
+        m_listAdapter = new PictureFIlterAdapter(ImageFilterActivity.this, m_item, m_path, m_isRoot);
+        listView.setAdapter(m_listAdapter);
+        listView.setOnItemClickListener(ImageFilterActivity.this);
+        super.onPostExecute(aVoid);
+    }
+}
 }
