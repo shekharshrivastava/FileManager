@@ -70,7 +70,7 @@
         <!--android:theme="@style/myActivityTheme"-->
         <activity
             android:name=".Views.DocumentFIlterActivity"
-             />
+            android:theme="@style/myActivityTheme" />
         <activity android:name=".Views.StorageInfoActivity"></activity>
     </application>
 

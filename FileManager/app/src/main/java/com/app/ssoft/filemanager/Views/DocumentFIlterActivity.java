@@ -2,6 +2,7 @@ package com.app.ssoft.filemanager.Views;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
@@ -19,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Utils;
+import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
@@ -26,7 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class DocumentFIlterActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class DocumentFIlterActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String internalStorageRoot;
     private ListView rl_lvListRoot;
     private ArrayList<String> m_item;
@@ -44,25 +47,32 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     private android.view.ActionMode cabMode;
     private ActionMode.Callback mCallback;
     private ActionMode mMode;
+    private ArrayList<String> toShare;
+    private MKLoader loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_document_filter);
-       /* Toolbar toolbar = findViewById(R.id.toolbar);
+/*      Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);*/
         getSupportActionBar().setTitle("Documents");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        loadingIndicator = findViewById(R.id.loading_indicator);
+        toShare = new ArrayList<>();
         noMediaText = findViewById(R.id.noMediaText);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
         rl_lvListRoot.setOnItemClickListener(this);
         rl_lvListRoot.setOnItemLongClickListener(this);
-        rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+        rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        rl_lvListRoot.setMultiChoiceModeListener(this);
 
-        getDirFromRoot(internalStorageRoot);
+        new displayDocList().execute(internalStorageRoot);
 
-        mCallback = new ActionMode.Callback() {
+//        getDirFromRoot(internalStorageRoot);
+
+      /*  mCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuInflater menuInflater = getMenuInflater();
@@ -88,7 +98,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
                 rl_lvListRoot.setOnItemClickListener(DocumentFIlterActivity.this);
             }
 
-        };
+        };*/
     }
 
 
@@ -178,9 +188,9 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
             noMediaText.setVisibility(View.GONE);
             rl_lvListRoot.setVisibility(View.VISIBLE);
         }
-        m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
+      /*  m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);
-        rl_lvListRoot.setOnItemClickListener(this);
+        rl_lvListRoot.setOnItemClickListener(this);*/
     }
 
 
@@ -215,12 +225,13 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         rl_lvListRoot.setItemChecked(position, false);
-            if(mMode !=null){
-                mMode.finish();
+        if (mMode != null) {
+            mMode.finish();
         } else {
             File m_isFile = new File(m_path.get(position));
             if (m_isFile.isDirectory()) {
-                getDirFromRoot(m_isFile.toString());
+//                getDirFromRoot(m_isFile.toString());
+                new displayDocList().execute(internalStorageRoot);
             } else {
                 MimeTypeMap map = MimeTypeMap.getSingleton();
                 String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
@@ -255,6 +266,75 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     public boolean onCreateOptionsMenu(Menu menu) {
 //        getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    @Override
+    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        if (checked) {
+            toShare.add((String) m_path.get(position));
+        } else {
+            toShare.remove((String) m_path.get(position));
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.cab_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_share:
+                Utils.shareMultipleFiles(DocumentFIlterActivity.this, toShare);
+                mode.finish();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        mMode = null;
+        if (rl_lvListRoot.isItemChecked(selectedPosition)) {
+            rl_lvListRoot.setItemChecked(selectedPosition, false);
+            selectedPosition = -1;
+        }
+        rl_lvListRoot.setOnItemClickListener(DocumentFIlterActivity.this);
+    }
+    public class displayDocList extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            getDirFromRoot(strings[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            loadingIndicator.setVisibility(View.VISIBLE);
+            rl_lvListRoot.setOnItemClickListener(null);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            loadingIndicator.setVisibility(View.GONE);
+            m_listAdapter = new ListAdapter(DocumentFIlterActivity.this, m_item, m_path, m_isRoot);
+            rl_lvListRoot.setAdapter(m_listAdapter);
+            rl_lvListRoot.setOnItemClickListener(DocumentFIlterActivity.this);
+            super.onPostExecute(aVoid);
+        }
     }
 }
 

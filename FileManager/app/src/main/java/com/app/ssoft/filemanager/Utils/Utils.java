@@ -51,6 +51,7 @@ public class Utils {
     private static File[] items;
     private static boolean isDeleted = false;
     private static String ext;
+    private static ArrayList<Uri> files;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -555,6 +556,28 @@ public class Utils {
         share.putExtra(Intent.EXTRA_STREAM, uri);
         context.startActivity(Intent.createChooser(share, "Share"));
     }
+
+    public static void shareMultipleFiles(Context context, ArrayList<String> filePath) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.");
+        files = new ArrayList<Uri>();
+        for (String path : filePath /* List of the files you want to send */) {
+            File file = new File(path);
+            String extension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("."));
+            MimeTypeMap map = MimeTypeMap.getSingleton();
+            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+            if (type == null)
+                type = "*//*";
+            intent.setType(type); /* This example is sharing jpeg images. */
+            Uri uri = Uri.fromFile(file);
+            files.add(uri);
+        }
+
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+        context.startActivity(Intent.createChooser(intent, "Share"));
+    }
+
     public static void shareApplication(Context context) {
         ApplicationInfo app = context.getApplicationInfo();
         String filePath = app.sourceDir;
@@ -576,7 +599,7 @@ public class Utils {
                 if (!tempFile.mkdirs())
                     return;
             //Get application's name and convert to lowercase
-            tempFile = new File(tempFile.getPath() + "/" + context.getResources().getString(app.labelRes).replace(" ","").toLowerCase() + ".apk");
+            tempFile = new File(tempFile.getPath() + "/" + context.getResources().getString(app.labelRes).replace(" ", "").toLowerCase() + ".apk");
             //If file doesn't exists create new
             if (!tempFile.exists()) {
                 if (!tempFile.createNewFile()) {

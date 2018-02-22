@@ -9,5 +9,6 @@
     <color name="color_video">#4a7ae1</color>
     <color name="color_doc">#77866f</color>
     <color name="color_app">#8dd35f</color>
+    <color name="selection_color">#bd9ccded</color>
 
 </resources>
