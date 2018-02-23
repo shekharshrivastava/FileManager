@@ -63,8 +63,7 @@ public class MediaCursorAdapter extends CursorAdapter {
 
             String title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
 
-            Uri sArtworkUri = Uri
-                    .parse("content://media/external/audio/albumart");
+            Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
             Uri albumArtUri = ContentUris.withAppendedId(sArtworkUri, albumId);
 
             try {

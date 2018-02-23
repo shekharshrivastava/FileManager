@@ -8,16 +8,20 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
-import com.etsy.android.grid.StaggeredGridView;
+import com.app.ssoft.filemanager.Utils.Utils;
 import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
@@ -25,15 +29,15 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Cursor cursor;
     private int columnIndex;
-    private StaggeredGridView listView;
+    private GridView listView;
     private MediaCursorAdapter musicAdapter;
     private String internalStorageRoot;
-    private ListView rl_lvListRoot;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -49,6 +53,9 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
     public static final int RESULT_DELETED = 1;
     private TextView noMediaText;
     private MKLoader loadingIndicator;
+    private ArrayList<String> toShare;
+    private int selectedPosition;
+    private ActionMode mMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +64,11 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
         getSupportActionBar().setTitle("Images");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         loadingIndicator = findViewById(R.id.loading_indicator);
+        toShare = new ArrayList<>();
         noMediaText = findViewById(R.id.noMediaText);
-        listView = (StaggeredGridView) findViewById(R.id.grid_view);
+        listView = (GridView) findViewById(R.id.grid_view);
+        listView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        listView.setMultiChoiceModeListener(this);
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         new displayImageListTask().execute(internalStorageRoot);
 //        getDirFromRoot(internalStorageRoot);
@@ -300,30 +310,87 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
         }
     }
 
-
-
-public class displayImageListTask extends AsyncTask<String, Void, Void> {
-
     @Override
-    protected Void doInBackground(String... strings) {
-        getDirFromRoot(strings[0]);
-        return null;
+    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        if (checked) {
+            toShare.add((String) m_path.get(position));
+        } else {
+            toShare.remove((String) m_path.get(position));
+        }
     }
 
     @Override
-    protected void onPreExecute() {
-        loadingIndicator.setVisibility(View.VISIBLE);
-        listView.setOnItemClickListener(null);
-        super.onPreExecute();
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.cab_menu, menu);
+        return true;
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        loadingIndicator.setVisibility(View.GONE);
-        m_listAdapter = new PictureFIlterAdapter(ImageFilterActivity.this, m_item, m_path, m_isRoot);
-        listView.setAdapter(m_listAdapter);
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_share:
+                List<File> fileSharingList = new ArrayList<>();
+                for (String shareFiles : toShare) {
+                    File fileList = new File(shareFiles);
+                    fileSharingList.add(fileList);
+                }
+                for (File allFiles : fileSharingList) {
+                    if (allFiles.isDirectory()) {
+                        Toast.makeText(ImageFilterActivity.this, "Please select only files for sharing", Toast.LENGTH_SHORT).show();
+                        return false;
+                    } else {
+                        Utils.shareMultipleFiles(ImageFilterActivity.this, toShare);
+                        mode.finish();
+                    }
+                }
+
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        mMode = null;
+        if (listView.isItemChecked(selectedPosition)) {
+            listView.setItemChecked(selectedPosition, false);
+            selectedPosition = -1;
+        }
         listView.setOnItemClickListener(ImageFilterActivity.this);
-        super.onPostExecute(aVoid);
     }
-}
+
+
+    public class displayImageListTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            getDirFromRoot(strings[0]);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            loadingIndicator.setVisibility(View.VISIBLE);
+            listView.setOnItemClickListener(null);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            loadingIndicator.setVisibility(View.GONE);
+            m_listAdapter = new PictureFIlterAdapter(ImageFilterActivity.this, m_item, m_path, m_isRoot);
+            listView.setAdapter(m_listAdapter);
+            listView.setOnItemClickListener(ImageFilterActivity.this);
+            super.onPostExecute(aVoid);
+        }
+    }
 }

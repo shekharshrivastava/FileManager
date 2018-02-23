@@ -203,7 +203,11 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_share) {
             Utils.shareApplication(MainActivity.this);
         } else if (id == R.id.nav_drive) {
-            OpenFileFromGoogleDrive();
+            mGoogleApiClient.connect();
+
+            if (mGoogleApiClient.isConnected()) {
+                OpenFileFromGoogleDrive();
+            }
 
         }
 
@@ -350,7 +354,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onResume() {
-        super.onResume();
+
         if (mGoogleApiClient == null) {
 
             /**
@@ -366,25 +370,11 @@ public class MainActivity extends AppCompatActivity
                     .build();
         }
 
-        mGoogleApiClient.connect();
+
+        super.onResume();
     }
 
 
-    /**
-     * Create the API client and bind it to an instance variable.
-     * We use this instance as the callback for connection and connection failures.
-     * Since no account name is passed, the user is prompted to choose.
-     *//*
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(Drive.API)
-                    .addScope(Drive.SCOPE_FILE)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
-        }
-
-        mGoogleApiClient.connect();
-    }*/
     @Override
     protected void onStop() {
         super.onStop();
@@ -398,6 +388,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        OpenFileFromGoogleDrive();
 
 
     }
@@ -414,7 +405,6 @@ public class MainActivity extends AppCompatActivity
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         Log.i("MainActivity", "GoogleApiClient connection failed:" + connectionResult.toString());
         if (!connectionResult.hasResolution()) {
-
             // show the localized error dialog.
             GoogleApiAvailability.getInstance().getErrorDialog(this, connectionResult.getErrorCode(), 0).show();
             return;
@@ -478,20 +468,24 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case REQUEST_CODE_RESOLUTION:
-                if (mGoogleApiClient.isConnected()) {
-                    IntentSender intentSender = Drive.DriveApi
-                            .newOpenFileActivityBuilder()
-                            .setMimeType(new String[]{"image/jpeg"})
-                            .build(mGoogleApiClient);
-                    try {
-                        startIntentSenderForResult(
+                if (mGoogleApiClient != null) {
+                    if (mGoogleApiClient.isConnected()) {
+                        IntentSender intentSender = Drive.DriveApi
+                                .newOpenFileActivityBuilder()
+                                .setMimeType(new String[]{"image/jpeg"})
+                                .build(mGoogleApiClient);
+                        try {
+                            startIntentSenderForResult(
 
-                                intentSender, REQUEST_CODE_OPENER, null, 0, 0, 0);
+                                    intentSender, REQUEST_CODE_OPENER, null, 0, 0, 0);
 
-                    } catch (IntentSender.SendIntentException e) {
+                        } catch (IntentSender.SendIntentException e) {
 
-                        Log.w("MainActivtity", "Unable to send intent", e);
-                    }
+                            Log.w("MainActivtity", "Unable to send intent", e);
+                        }
+                    }/*else{
+                        mGoogleApiClient.connect();
+                    }*/
                 }
                 break;
             default:

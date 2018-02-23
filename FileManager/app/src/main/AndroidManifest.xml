@@ -63,10 +63,16 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".Views.InfoActivity" />
-        <activity android:name=".Views.ImageFilterActivity" />
-        <activity android:name=".Views.DownloadFilterActivity" />
+        <activity
+            android:name=".Views.ImageFilterActivity"
+            android:theme="@style/myActivityTheme" />
+        <activity
+            android:name=".Views.DownloadFilterActivity"
+            android:theme="@style/myActivityTheme" />
         <activity android:name=".Views.AppsFilterActivity" />
-        <activity android:name=".Views.MediaFilterActivity" />
+        <activity
+            android:name=".Views.MediaFilterActivity"
+            android:theme="@style/myActivityTheme" />
         <!--android:theme="@style/myActivityTheme"-->
         <activity
             android:name=".Views.DocumentFIlterActivity"
