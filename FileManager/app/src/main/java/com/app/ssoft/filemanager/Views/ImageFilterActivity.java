@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,AbsListView.MultiChoiceModeListener {
+public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Cursor cursor;
     private int columnIndex;
@@ -344,18 +344,15 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
                     if (allFiles.isDirectory()) {
                         Toast.makeText(ImageFilterActivity.this, "Please select only files for sharing", Toast.LENGTH_SHORT).show();
                         return false;
-                    } else {
-                        Utils.shareMultipleFiles(ImageFilterActivity.this, toShare);
-                        mode.finish();
                     }
                 }
-
+                Utils.shareMultipleFiles(ImageFilterActivity.this, toShare);
+                mode.finish();
                 return true;
             default:
                 return false;
         }
     }
-
 
 
     @Override
