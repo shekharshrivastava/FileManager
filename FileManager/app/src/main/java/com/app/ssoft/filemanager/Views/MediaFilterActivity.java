@@ -36,6 +36,7 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
     private int selectedPosition;
     private ArrayList<String> mediaList;
     private ActionMode mMode;
+    private int nr = 0;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,12 +75,13 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
                 MediaStore.Video.Media.DATE_ADDED,
                 MediaStore.Video.Media.SIZE
         };
+        String orderBy = MediaStore.Audio.Media.DATE_ADDED + " DESC ";
         cursor = contentResolver.query(
                 uri, // Uri
                 mProjection, // Projection
                 null, // Selection
                 null, // Selection args
-                null // Sor order
+                orderBy // Sor order
         );
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             mediaList.add(cursor.getString(cursor
@@ -116,12 +118,13 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
                 MediaStore.Audio.Media.DATE_ADDED,
                 MediaStore.Audio.Media.SIZE
         };
+        String orderBy = MediaStore.Audio.Media.DATE_ADDED + " DESC ";
         cursor = contentResolver.query(
                 uri, // Uri
                 mProjection, // Projection
                 null, // Selection
                 null, // Selection args
-                null // Sor order
+                orderBy // Sor order
         );
         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
             mediaList.add(cursor.getString(cursor
@@ -160,14 +163,18 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
     @Override
     public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
         if (checked) {
+            nr++;
             toShare.add(mediaList.get(position));
         } else {
+            nr++;
             toShare.remove(mediaList.get(position));
         }
+        mode.setTitle(nr + " selected");
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        nr = 0;
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.cab_menu, menu);
         return true;
@@ -182,6 +189,7 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
     public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_share:
+                nr = 0;
                 Utils.shareMultipleFiles(MediaFilterActivity.this, toShare);
                 mode.finish();
                 return true;

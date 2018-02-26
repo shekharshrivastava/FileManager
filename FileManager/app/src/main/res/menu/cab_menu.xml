@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_share"
-        android:icon="@drawable/ic_menu_share"
+        android:icon="@drawable/share_white"
         android:title="Share"
         app:showAsAction="ifRoom" />
 </menu>

@@ -56,7 +56,7 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
     private ArrayList<String> toShare;
     private int selectedPosition;
     private ActionMode mMode;
-
+    private int nr = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -313,14 +313,18 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
     @Override
     public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
         if (checked) {
+            nr++;
             toShare.add((String) m_path.get(position));
         } else {
+            nr--;
             toShare.remove((String) m_path.get(position));
         }
+        mode.setTitle(nr + " selected");
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        nr = 0;
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.cab_menu, menu);
         return true;
@@ -335,6 +339,7 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
     public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_share:
+                nr = 0;
                 List<File> fileSharingList = new ArrayList<>();
                 for (String shareFiles : toShare) {
                     File fileList = new File(shareFiles);

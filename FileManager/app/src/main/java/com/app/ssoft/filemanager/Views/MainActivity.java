@@ -1,5 +1,6 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.hardware.usb.UsbDevice;
@@ -40,8 +41,12 @@ import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import at.grabner.circleprogress.CircleProgressView;
 import io.fabric.sdk.android.Fabric;
@@ -68,6 +73,9 @@ public class MainActivity extends AppCompatActivity
     ArrayList<File> images;
     private int[] bgColors;
     private int[] mStartColors;
+    private int imageIndex;
+    private float scale;
+    private int countImgs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         quickLinksGV.setAdapter(adapter);
         quickLinksGV.setOnItemClickListener(this);
 
-//        accessUSBDevice();
+        accessUSBDevice();
     }
 
     @Override
@@ -519,7 +527,7 @@ public class MainActivity extends AppCompatActivity
                 .setResultCallback(driveContentsCallback);
     }
 
-   /* public void accessUSBDevice(){
+    public void accessUSBDevice(){
         Intent intent = getIntent();
         UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
@@ -554,12 +562,12 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     // custom process / methods... not very relevant here :
-              *//*      imageIndex = 0;
+                    imageIndex = 0;
                     scale = 1.0f;
                     countImgs = images.size();
-                    loadImage(imageIndex);*//*
+//                    loadImage(imageIndex);
                 }
             }
         }
-    }*/
+    }
 }

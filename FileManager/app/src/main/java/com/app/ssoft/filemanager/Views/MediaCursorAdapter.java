@@ -38,7 +38,7 @@ public class MediaCursorAdapter extends CursorAdapter {
         chooserFlags = flags;
         cursorInflater = (LayoutInflater) context.getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-         mVideoThumbLoader = new VideoThumbLoader();
+        mVideoThumbLoader = new VideoThumbLoader();
 
     }
 
@@ -55,7 +55,7 @@ public class MediaCursorAdapter extends CursorAdapter {
 
             int duration = cursor.getInt(cursor
                     .getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION));
-            int date = cursor.getInt(cursor
+            String date = cursor.getString(cursor
                     .getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED));
             int size = cursor.getInt(cursor
                     .getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE));
@@ -83,7 +83,7 @@ public class MediaCursorAdapter extends CursorAdapter {
             }
 
             textViewTitle.setText(title);
-            textViewDate.setText(Utils.bytesToHuman(size) + "   " + date);
+            textViewDate.setText(Utils.bytesToHuman(size) + "   " + Utils.getConvertedDate(date));
 
 
         } else if (chooserFlags == 4) {
@@ -91,7 +91,7 @@ public class MediaCursorAdapter extends CursorAdapter {
                     .getColumnIndexOrThrow(MediaStore.Video.Media._ID));
             int duration = cursor.getInt(cursor
                     .getColumnIndexOrThrow(MediaStore.Video.Media.DURATION));
-            int date = cursor.getInt(cursor
+            String date = cursor.getString(cursor
                     .getColumnIndexOrThrow(MediaStore.Video.Media.DATE_ADDED));
             int size = cursor.getInt(cursor
                     .getColumnIndexOrThrow(MediaStore.Video.Media.SIZE));
@@ -101,7 +101,7 @@ public class MediaCursorAdapter extends CursorAdapter {
             String thumbnailData = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Thumbnails.DATA));
 
             textViewTitle.setText(title);
-            textViewDate.setText(Utils.bytesToHuman(size) + "   " + date);
+            textViewDate.setText(Utils.bytesToHuman(size) + "   " + Utils.getConvertedDate(date));
 
             File filePath = new File(thumbnailData);
 
@@ -109,7 +109,7 @@ public class MediaCursorAdapter extends CursorAdapter {
             imageView.setImageResource(R.drawable.video_default); //default image
             mVideoThumbLoader.showThumbByAsynctack(filePath.getAbsolutePath(), imageView);
 
-        }else if (chooserFlags == 2){
+        } else if (chooserFlags == 2) {
             final ImageView gridIV = (ImageView) view.findViewById(R.id.grid_image);
             TextView imageTitle = (TextView) view.findViewById(R.id.grid_text);
             int id = cursor.getInt(cursor
@@ -134,7 +134,7 @@ public class MediaCursorAdapter extends CursorAdapter {
 
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         // R.layout.list_row is your xml layout for each row
-        if(chooserFlags != 2) {
+        if (chooserFlags != 2) {
             return cursorInflater.inflate(R.layout.music_row_layout, parent, false);
         }
         return cursorInflater.inflate(R.layout.quicklink_layout, parent, false);

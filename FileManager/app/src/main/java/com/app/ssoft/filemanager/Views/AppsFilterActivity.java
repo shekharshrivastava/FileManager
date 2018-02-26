@@ -68,7 +68,7 @@ public class AppsFilterActivity extends AppCompatActivity {
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
 
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];

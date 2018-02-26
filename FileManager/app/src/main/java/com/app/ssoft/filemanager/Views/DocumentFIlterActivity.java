@@ -49,6 +49,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     private ActionMode mMode;
     private ArrayList<String> toShare;
     private MKLoader loadingIndicator;
+    private int nr = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +118,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
 
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
@@ -271,14 +272,18 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     @Override
     public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
         if (checked) {
+            nr++;
             toShare.add((String) m_path.get(position));
         } else {
+            nr--;
             toShare.remove((String) m_path.get(position));
         }
+        mode.setTitle(nr + " selected");
     }
 
     @Override
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        nr = 0;
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.cab_menu, menu);
         return true;
@@ -293,6 +298,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
     public boolean onActionItemClicked(ActionMode mode, MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.action_share:
+                nr = 0;
                 Utils.shareMultipleFiles(DocumentFIlterActivity.this, toShare);
                 mode.finish();
                 return true;
@@ -300,7 +306,6 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
                 return false;
         }
     }
-
 
 
     @Override
@@ -312,6 +317,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
         }
         rl_lvListRoot.setOnItemClickListener(DocumentFIlterActivity.this);
     }
+
     public class displayDocList extends AsyncTask<String, Void, Void> {
 
         @Override

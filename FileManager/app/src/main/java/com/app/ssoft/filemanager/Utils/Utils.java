@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.TimeZone;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
 
@@ -625,5 +626,14 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getConvertedDate(String date) {
+        long dateValue = Long.valueOf(date + "000");
+        Date addedDate = new Date(dateValue);
+        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/YY hh:mm a");
+        df2.setTimeZone(TimeZone.getDefault());
+        String dateText = df2.format(addedDate);
+        return dateText;
     }
 }
