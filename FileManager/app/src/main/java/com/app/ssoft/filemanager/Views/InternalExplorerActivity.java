@@ -67,6 +67,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private MKLoader loadingIndicator;
+    private String type;
 //    private File m_isFile;
 
     @Override
@@ -560,13 +561,15 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 //            getDirFromRoot(m_isFile.toString());
         } else {
             MimeTypeMap map = MimeTypeMap.getSingleton();
-            String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
-            if (extension.equals(".JPG")) {
-                extension = ".jpeg";
+            if(m_isFile.getAbsolutePath().contains(".")) {
+                String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+                if (extension.equals(".JPG")) {
+                    extension = ".jpeg";
+                }
+                 type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             }
-            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             if (type == null)
-                type = "*//**//*";
+                type = "*//*";
             if (type == "image/jpeg") {
                 Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
                 intent.putExtra("imgPath", m_path);
@@ -575,7 +578,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 intent.putExtra("imageName", m_item.get(position));
                 startActivityForResult(intent, RESULT_DELETED);
             } else {
-                if (type != "*//**//*") {
+                if (type != "*//*") {
                     Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(uri, type);
