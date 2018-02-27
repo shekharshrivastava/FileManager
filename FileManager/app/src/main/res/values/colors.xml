@@ -10,5 +10,7 @@
     <color name="color_doc">#77866f</color>
     <color name="color_app">#8dd35f</color>
     <color name="selection_color">#bd9ccded</color>
+    <color name="yourTranslucentColor">#29000000</color>
+
 
 </resources>

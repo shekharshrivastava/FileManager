@@ -166,7 +166,7 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
             nr++;
             toShare.add(mediaList.get(position));
         } else {
-            nr++;
+            nr--;
             toShare.remove(mediaList.get(position));
         }
         mode.setTitle(nr + " selected");
@@ -215,17 +215,24 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
             mMode.finish();
         } else {
             Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+            String title = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE));
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
             MimeTypeMap map = MimeTypeMap.getSingleton();
             String extension = path.substring(path.lastIndexOf("."));
             String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             File m_musicFile = new File(path);
-            if (type != "*//*") {
+            if (type == "video/mp4") {
+                Intent intent = new Intent(this, VideoPlayerActivity.class);
+                intent.putExtra("path", path);
+                intent.putExtra("title", title);
+                startActivity(intent);
+            } else if (type != "*//*") {
                 Uri uri = FileProvider.getUriForFile(MediaFilterActivity.this, getApplicationContext().getPackageName(), m_musicFile);
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(uri, type);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
+//                Toast.makeText(MediaFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MediaFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
             }
