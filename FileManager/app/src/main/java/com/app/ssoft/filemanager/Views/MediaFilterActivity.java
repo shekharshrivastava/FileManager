@@ -215,6 +215,7 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
             mMode.finish();
         } else {
             Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+            String audioTitle = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
             String title = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.TITLE));
             String path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
             MimeTypeMap map = MimeTypeMap.getSingleton();
@@ -232,6 +233,10 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
                 intent.setDataAndType(uri, type);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
+               /* Intent intent = new Intent(this, AudioPlayerActivity.class);
+                intent.putExtra("path", path);
+                intent.putExtra("title", audioTitle);
+                startActivity(intent);*/
 //                Toast.makeText(MediaFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(MediaFilterActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();

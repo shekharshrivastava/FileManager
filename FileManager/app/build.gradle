@@ -65,5 +65,6 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile 'com.tuyenmonkey:mkloader:1.4.0'
     compile 'com.google.firebase:firebase-messaging:10.2.1'
+    compile 'com.github.jeancsanchez:JcPlayer:2.6.10'
 }
 

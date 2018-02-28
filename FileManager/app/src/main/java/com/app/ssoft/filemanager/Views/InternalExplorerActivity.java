@@ -426,6 +426,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         menu.add(0, v.getId(), 0, "Delete");
         menu.add(0, v.getId(), 0, "Rename");
         menu.add(0, v.getId(), 0, "Share");
+        menu.add(0, v.getId(), 0, "Open with");
     }
 
     @Override
@@ -494,6 +495,24 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             } else {
                 Toast.makeText(this, "Please select files to share", Toast.LENGTH_SHORT).show();
             }
+        } else if (item.getTitle() == "Open with") {
+            if (selectedFile.exists() && !selectedFile.isDirectory()) {
+                MimeTypeMap map = MimeTypeMap.getSingleton();
+                if (selectedFile.getAbsolutePath().contains(".")) {
+                    String extension = selectedFile.getAbsolutePath().substring(selectedFile.getAbsolutePath().lastIndexOf("."));
+                    if (extension.equals(".JPG")) {
+                        extension = ".jpeg";
+                    }
+                    type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                    Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), selectedFile);
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setDataAndType(uri, type);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(intent);
+                }
+            }else{
+                Toast.makeText(this, "Please click folder to open", Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onContextItemSelected(item);
 
@@ -561,12 +580,12 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 //            getDirFromRoot(m_isFile.toString());
         } else {
             MimeTypeMap map = MimeTypeMap.getSingleton();
-            if(m_isFile.getAbsolutePath().contains(".")) {
+            if (m_isFile.getAbsolutePath().contains(".")) {
                 String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
                 if (extension.equals(".JPG")) {
                     extension = ".jpeg";
                 }
-                 type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             }
             if (type == null)
                 type = "*//*";
@@ -577,6 +596,11 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                 intent.putExtra("imageName", m_item.get(position));
                 startActivityForResult(intent, RESULT_DELETED);
+            } else if (type == "video/mp4") {
+                Intent intent = new Intent(this, VideoPlayerActivity.class);
+                intent.putExtra("path", m_path.get(position));
+                intent.putExtra("title", m_item.get(position));
+                startActivity(intent);
             } else {
                 if (type != "*//*") {
                     Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);

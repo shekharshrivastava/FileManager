@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.VideoView;
@@ -107,4 +108,15 @@ public class VideoPlayerActivity extends AppCompatActivity {
         }
         super.onRestoreInstanceState(savedInstanceState);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                finish();
+        }
+        return super.onOptionsItemSelected(item);
+
+    }
 }
+
