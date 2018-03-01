@@ -27,6 +27,9 @@ import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
@@ -68,6 +71,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private SharedPreferences.Editor editor;
     private MKLoader loadingIndicator;
     private String type;
+    private AdView mAdView;
 //    private File m_isFile;
 
     @Override
@@ -75,6 +79,11 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
         loadingIndicator = findViewById(R.id.loading_indicator);
+        MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("menuPref", 0);
         editor = pref.edit();

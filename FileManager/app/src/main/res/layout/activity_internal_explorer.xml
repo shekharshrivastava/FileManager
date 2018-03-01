@@ -10,7 +10,9 @@
     <ListView
         android:id="@+id/rl_lvListRoot"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:paddingBottom="50dp"
+        />
 
     <com.tuyenmonkey.mkloader.MKLoader
         android:id="@+id/loading_indicator"
@@ -19,4 +21,14 @@
         android:layout_centerInParent="true"
         app:mk_color="@color/colorPrimary"
         app:mk_type="ClassicSpinner" />
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="bottom"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
 </RelativeLayout>

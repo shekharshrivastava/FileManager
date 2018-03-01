@@ -20,7 +20,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,6 +31,9 @@ import android.widget.TextView;
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -76,6 +78,7 @@ public class MainActivity extends AppCompatActivity
     private int imageIndex;
     private float scale;
     private int countImgs;
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,12 +173,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
+ /*   @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -203,7 +206,8 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-
+            Intent intent = new Intent(this, ImageFilterActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_slideshow) {
             Intent intent = new Intent(this, StorageInfoActivity.class);
@@ -439,7 +443,6 @@ public class MainActivity extends AppCompatActivity
 
         IntentSender intentSender = Drive.DriveApi
                 .newOpenFileActivityBuilder()
-                .setMimeType(new String[]{"image/jpeg"})
                 .build(mGoogleApiClient);
         try {
             startIntentSenderForResult(
@@ -480,7 +483,6 @@ public class MainActivity extends AppCompatActivity
                     if (mGoogleApiClient.isConnected()) {
                         IntentSender intentSender = Drive.DriveApi
                                 .newOpenFileActivityBuilder()
-                                .setMimeType(new String[]{"image/jpeg"})
                                 .build(mGoogleApiClient);
                         try {
                             startIntentSenderForResult(
@@ -527,18 +529,16 @@ public class MainActivity extends AppCompatActivity
                 .setResultCallback(driveContentsCallback);
     }
 
-    public void accessUSBDevice(){
+    public void accessUSBDevice() {
         Intent intent = getIntent();
         UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
         usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
 
 
-        if (usbManager != null)
-        {
-            HashMap<String,UsbDevice> deviceList = usbManager.getDeviceList();
+        if (usbManager != null) {
+            HashMap<String, UsbDevice> deviceList = usbManager.getDeviceList();
             UsbDevice deviceName = deviceList.get("deviceName");
-            if (deviceList != null)
-            {
+            if (deviceList != null) {
                 Iterator<UsbDevice> deviceIterator = deviceList.values().iterator();
                 while (deviceIterator.hasNext()) {
                     clef = deviceIterator.next();
@@ -546,14 +546,13 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        if (clef != null)
-        {
-            File directory  = new File("/storage/UsbDriveA/");
+        if (clef != null) {
+            File directory = new File("/storage/UsbDriveA/");
             if (directory != null) {
                 if (directory.canRead()) {
 
                     images = new ArrayList<File>();
-                    String[] imageExtensions = {"jpg","jpeg","png","gif","JPG","JPEG","PNG","GIF"};
+                    String[] imageExtensions = {"jpg", "jpeg", "png", "gif", "JPG", "JPEG", "PNG", "GIF"};
                     Iterator<File> iterateImages = FileUtils.iterateFiles(directory, imageExtensions, true);
                     while (iterateImages.hasNext()) {
                         File theImage = iterateImages.next();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:CircleProgressView="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -15,10 +15,12 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:popupTheme="@style/AppTheme.PopupOverlay" />
+
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
         android:fillViewport="true">
 
         <LinearLayout
@@ -134,6 +136,7 @@
                         android:layout_height="wrap_content">
 
                         <View
+                            android:id="@+id/view2"
                             android:layout_width="match_parent"
                             android:layout_height="2dp"
                             android:layout_margin="5dp"
@@ -197,12 +200,15 @@
                         </LinearLayout>
 
                         <ImageView
+                            android:id="@+id/imageView2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerInParent="true"
                             android:layout_marginLeft="10dp"
                             android:layout_toRightOf="@+id/external_ll"
                             android:src="@drawable/right_arrow_small" />
+
+
                     </RelativeLayout>
                 </LinearLayout>
 
@@ -212,7 +218,8 @@
                 android:id="@+id/quickLinksGV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
                 android:isScrollContainer="false"
                 android:numColumns="3" />
 
@@ -223,16 +230,20 @@
                 android:layout_marginRight="20dp"
                 android:background="@color/bs_divider_color" />
 
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="bottom|end"
+                android:visibility="gone"
+                app:srcCompat="@android:drawable/ic_dialog_email" />
+
 
         </LinearLayout>
     </ScrollView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
 
-</LinearLayout>
+
+
+</RelativeLayout>

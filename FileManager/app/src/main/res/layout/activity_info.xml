@@ -47,7 +47,7 @@
                     android:id="@+id/picDateTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sample date "
+                    android:text="Not available "
                     android:textColor="#000"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -56,7 +56,7 @@
                     android:id="@+id/picTimeTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sample Time "
+                    android:text=" "
                     android:textColor="#000" />
             </LinearLayout>
         </LinearLayout>
@@ -87,7 +87,7 @@
                     android:id="@+id/pathTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sample path "
+                    android:text="Not available"
                     android:textColor="#000"
                     android:textSize="18sp"
                     />
@@ -121,7 +121,7 @@
                     android:id="@+id/useCameraTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sample path "
+                    android:text="Not available "
                     android:textColor="#000"
                     android:textSize="18sp"
                     />
@@ -132,7 +132,7 @@
                     android:id="@+id/aperture"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:hint="sample path "
+                    android:hint=""
                     android:textColor="#000"
                     android:textSize="18sp"
                     />
@@ -140,7 +140,7 @@
                         android:id="@+id/isoTV"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="sample path "
+                        android:hint=""
                         android:layout_marginLeft="10dp"
                         android:textColor="#000"
                         android:textSize="18sp"
@@ -176,7 +176,7 @@
                     android:id="@+id/dimensionTV"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="sample path "
+                    android:text="Not available "
                     android:textColor="#000"
                     android:textSize="18sp"
                      />
@@ -187,7 +187,7 @@
                         android:id="@+id/fileSize"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="sample path "
+                        android:hint=" "
                         android:textColor="#000"
                         android:textSize="18sp"
                         />
@@ -195,7 +195,7 @@
                         android:id="@+id/cameraMP"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:hint="sample path "
+                        android:hint=" "
                         android:layout_marginLeft="10dp"
                         android:textColor="#000"
                         android:textSize="18sp"

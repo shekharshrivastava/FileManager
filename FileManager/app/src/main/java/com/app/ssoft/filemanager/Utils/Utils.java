@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -580,6 +581,7 @@ public class Utils {
     }
 
     public static void shareApplication(Context context) {
+       String internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         ApplicationInfo app = context.getApplicationInfo();
         String filePath = app.sourceDir;
 
@@ -594,19 +596,23 @@ public class Utils {
 
         try {
             //Make new directory in new location
-            File tempFile = new File(context + "/ExtractedApk");
+            File tempFile = new File(internalStorageRoot + "/FileManagerApk");
             //If directory doesn't exists create new
-            if (!tempFile.isDirectory())
-                if (!tempFile.mkdirs())
-                    return;
+
+                if (!tempFile.exists()) {
+                    tempFile.mkdirs();
+                }
             //Get application's name and convert to lowercase
             tempFile = new File(tempFile.getPath() + "/" + context.getResources().getString(app.labelRes).replace(" ", "").toLowerCase() + ".apk");
             //If file doesn't exists create new
             if (!tempFile.exists()) {
-                if (!tempFile.createNewFile()) {
-                    return;
+                    try {
+                        tempFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
+
             //Copy file to new location
             InputStream in = new FileInputStream(originalApk);
             OutputStream out = new FileOutputStream(tempFile);
