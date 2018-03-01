@@ -1,5 +1,6 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -27,8 +28,10 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
@@ -42,6 +45,8 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
+import com.intentfilter.androidpermissions.PermissionManager;
+
 
 import org.apache.commons.io.FileUtils;
 
@@ -52,6 +57,8 @@ import java.util.Iterator;
 
 import at.grabner.circleprogress.CircleProgressView;
 import io.fabric.sdk.android.Fabric;
+
+import static java.util.Collections.singleton;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener, View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
@@ -79,13 +86,25 @@ public class MainActivity extends AppCompatActivity
     private float scale;
     private int countImgs;
     private AdView mAdView;
+    private TextView versionTV;
+    private PermissionManager permissionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
+        permissionManager = PermissionManager.getInstance(this);
+        permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                @Override
+                public void onPermissionGranted() {
+                }
 
+            @Override
+            public void onPermissionDenied() {
+                Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+            }
+        });
         String[] web = {
                 "Documents",
                 "App",
@@ -116,6 +135,7 @@ public class MainActivity extends AppCompatActivity
         externalStorageLayout = findViewById(R.id.externalStorageLayout);
         externalStorageSpace = findViewById(R.id.externalStorageSpace);
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,6 +155,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setItemIconTintList(null);
 
         navigationView.setNavigationItemSelectedListener(this);
+        View headerLayout =
+                navigationView.inflateHeaderView(R.layout.nav_header_main);
+        versionTV = headerLayout.findViewById(R.id.version);
+        versionTV.setText("v"+Constants.getVersionName(this));
 
         if (externalMemoryAvailable()) {
             externalStorageLayout.setVisibility(View.VISIBLE);
@@ -202,12 +226,37 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            Intent intent = new Intent(MainActivity.this, DownloadFilterActivity.class);
-            startActivity(intent);
+            permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                @Override
+                public void onPermissionGranted() {
+                    Intent intent = new Intent(MainActivity.this, DownloadFilterActivity.class);
+                    startActivity(intent);
+
+                }
+
+                @Override
+                public void onPermissionDenied() {
+                    Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                }
+            });
+
             // Handle the camera action
         } else if (id == R.id.nav_gallery) {
-            Intent intent = new Intent(this, ImageFilterActivity.class);
-            startActivity(intent);
+            permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                @Override
+                public void onPermissionGranted() {
+                    Intent imageFilterIntent = new Intent(MainActivity.this, ImageFilterActivity.class);
+                    imageFilterIntent.putExtra("chooserIntent", 2);
+                    startActivity(imageFilterIntent);
+
+                }
+
+                @Override
+                public void onPermissionDenied() {
+                    Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                }
+            });
+
 
         } else if (id == R.id.nav_slideshow) {
             Intent intent = new Intent(this, StorageInfoActivity.class);
@@ -301,34 +350,101 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch (position) {
             case 0:
-                Intent docFilterIntent = new Intent(this, DocumentFIlterActivity.class);
-                startActivity(docFilterIntent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent docFilterIntent = new Intent(MainActivity.this, DocumentFIlterActivity.class);
+                        startActivity(docFilterIntent);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
 
             case 1:
-                Intent appFilterIntent = new Intent(this, AppsFilterActivity.class);
-                startActivity(appFilterIntent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent appFilterIntent = new Intent(MainActivity.this, AppsFilterActivity.class);
+                        startActivity(appFilterIntent);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
 
             case 2:
-                Intent imageFilterIntent = new Intent(MainActivity.this, ImageFilterActivity.class);
-                imageFilterIntent.putExtra("chooserIntent", 2);
-                startActivity(imageFilterIntent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent imageFilterIntent = new Intent(MainActivity.this, ImageFilterActivity.class);
+                        imageFilterIntent.putExtra("chooserIntent", 2);
+                        startActivity(imageFilterIntent);
+
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
             case 3:
-                Intent musicFilterIntent = new Intent(this, MediaFilterActivity.class);
-                musicFilterIntent.putExtra("chooserIntent", 3);
-                startActivity(musicFilterIntent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent musicFilterIntent = new Intent(MainActivity.this, MediaFilterActivity.class);
+                        musicFilterIntent.putExtra("chooserIntent", 3);
+                        startActivity(musicFilterIntent);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
 
             case 4:
-                Intent videoFilterIntent = new Intent(this, MediaFilterActivity.class);
-                videoFilterIntent.putExtra("chooserIntent", 4);
-                startActivity(videoFilterIntent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent videoFilterIntent = new Intent(MainActivity.this, MediaFilterActivity.class);
+                        videoFilterIntent.putExtra("chooserIntent", 4);
+                        startActivity(videoFilterIntent);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
             case 5:
-                Intent intent = new Intent(this, DownloadFilterActivity.class);
-                startActivity(intent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent intent = new Intent(MainActivity.this, DownloadFilterActivity.class);
+                        startActivity(intent);
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 break;
         }
 
@@ -338,8 +454,18 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.internalStorageLinearLayout:
-                Intent intent = new Intent(this, InternalExplorerActivity.class);
-                startActivity(intent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        Intent intent = new Intent(MainActivity.this, InternalExplorerActivity.class);
+                        startActivity(intent);                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
         }
 
