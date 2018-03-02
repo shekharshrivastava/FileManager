@@ -79,7 +79,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
         loadingIndicator = findViewById(R.id.loading_indicator);
-        MobileAds.initialize(this, "ca-app-pub-3940256099942544/6300978111");
+        MobileAds.initialize(this, getString(R.string.ad_mob_app_id));
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -519,7 +519,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
                 }
-            }else{
+            } else {
                 Toast.makeText(this, "Please click folder to open", Toast.LENGTH_SHORT).show();
             }
         }
