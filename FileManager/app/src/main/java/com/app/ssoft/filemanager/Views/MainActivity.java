@@ -34,7 +34,6 @@ import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
@@ -46,7 +45,6 @@ import com.google.android.gms.drive.DriveApi;
 import com.google.android.gms.drive.DriveId;
 import com.google.android.gms.drive.OpenFileActivityBuilder;
 import com.intentfilter.androidpermissions.PermissionManager;
-
 
 import org.apache.commons.io.FileUtils;
 
@@ -93,12 +91,14 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
+
         setContentView(R.layout.activity_main);
+        MobileAds.initialize(this, getString(R.string.ad_mob_app_id));
         permissionManager = PermissionManager.getInstance(this);
         permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
-                @Override
-                public void onPermissionGranted() {
-                }
+            @Override
+            public void onPermissionGranted() {
+            }
 
             @Override
             public void onPermissionDenied() {
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity
         View headerLayout =
                 navigationView.inflateHeaderView(R.layout.nav_header_main);
         versionTV = headerLayout.findViewById(R.id.version);
-        versionTV.setText("v"+Constants.getVersionName(this));
+        versionTV.setText("v" + Constants.getVersionName(this));
 
         if (externalMemoryAvailable()) {
             externalStorageLayout.setVisibility(View.VISIBLE);
@@ -458,7 +458,8 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onPermissionGranted() {
                         Intent intent = new Intent(MainActivity.this, InternalExplorerActivity.class);
-                        startActivity(intent);                    }
+                        startActivity(intent);
+                    }
 
                     @Override
                     public void onPermissionDenied() {

@@ -11,7 +11,7 @@
         android:id="@+id/rl_lvListRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="50dp"
+        android:paddingBottom="90dp"
         />
 
     <com.tuyenmonkey.mkloader.MKLoader
@@ -29,6 +29,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/ad_mob_app_id" />
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/ad_unit_id" />
 </RelativeLayout>

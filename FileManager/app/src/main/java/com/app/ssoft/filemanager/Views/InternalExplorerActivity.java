@@ -29,7 +29,6 @@ import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
 import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
@@ -79,7 +78,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_internal_explorer);
         loadingIndicator = findViewById(R.id.loading_indicator);
-        MobileAds.initialize(this, getString(R.string.ad_mob_app_id));
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
