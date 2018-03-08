@@ -80,7 +80,9 @@ public class VideoThumbLoader {
                 // imageView, this address
                 // Listview loading the image
                 // dislocation solution
-                imgView.setImageBitmap(bitmap);
+                if(bitmap!=null) {
+                    imgView.setImageBitmap(bitmap);
+                }
             }
         }
     }

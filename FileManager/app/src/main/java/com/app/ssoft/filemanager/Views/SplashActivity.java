@@ -39,8 +39,22 @@ public class SplashActivity extends AppCompatActivity {
                 permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
                     @Override
                     public void onPermissionGranted() {
-                        startActivity(myintent);
-                        finish();
+                        permissionManager.checkPermissions(singleton(Manifest.permission.READ_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                            @Override
+                            public void onPermissionGranted() {
+                                startActivity(myintent);
+                                finish();
+                            }
+
+                            @Override
+                            public void onPermissionDenied() {
+                                Toast.makeText(SplashActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                                startActivity(myintent);
+                                finish();
+                            }
+
+
+                        });
                     }
 
                     @Override
