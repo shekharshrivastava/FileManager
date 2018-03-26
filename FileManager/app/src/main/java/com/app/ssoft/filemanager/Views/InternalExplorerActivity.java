@@ -6,13 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -37,8 +41,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
-public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
     private Toolbar toolbar;
     private FragmentManager fragmentManager = null;
@@ -71,7 +76,11 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private MKLoader loadingIndicator;
     private String type;
     private AdView mAdView;
-//    private File m_isFile;
+    //    private File m_isFile;
+    private ActionMode mMode;
+    private ArrayList<String> selectedFiles;
+    private int nr = 0;
+    private int selectedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,14 +90,14 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("menuPref", 0);
         editor = pref.edit();
         internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
-
+        rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
+        rl_lvListRoot.setMultiChoiceModeListener(this);
       /*  int index = rl_lvListRoot.getFirstVisiblePosition();
         View v = rl_lvListRoot.getChildAt(0);
         int top = (v == null) ? 0 : (v.getTop() - rl_lvListRoot.getPaddingTop());
@@ -150,6 +159,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         });
         isShowingHiddenFolder = pref.getBoolean("isShowingHiddenFiles", false);
         m_item = new ArrayList<String>();
+        selectedFiles = new ArrayList<>();
         m_isRoot = true;
         m_hiddenFilesNames = new ArrayList<String>();
         m_hiddenPaths = new ArrayList<String>();
@@ -320,7 +330,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 break;
             case R.id.paste:
                 try {
-                    File destinationFilePath = new File(rootPath + "/" + copiedFileName);
+                    File destinationFilePath = new File(rootPath + "/" );
                     boolean isPasted = Utils.paste(this, destinationFilePath);
                     if (isPasted == true) {
                         isCutOrCopied = false;
@@ -579,6 +589,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         super.onDestroy();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         File m_isFile = new File(m_path.get(position));
@@ -596,20 +607,20 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             }
             if (type == null)
                 type = "*//*";
-            if (type == "image/jpeg") {
+            if (Objects.equals(type, "image/jpeg")) {
                 Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
                 intent.putExtra("imgPath", m_path);
                 intent.putExtra("position", position);
                 intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                 intent.putExtra("imageName", m_item.get(position));
                 startActivityForResult(intent, RESULT_DELETED);
-            } else if (type == "video/mp4") {
+            } else if (Objects.equals(type, "video/mp4")) {
                 Intent intent = new Intent(this, VideoPlayerActivity.class);
                 intent.putExtra("path", m_path.get(position));
                 intent.putExtra("title", m_item.get(position));
                 startActivity(intent);
             } else {
-                if (type != "*//*") {
+                if (!Objects.equals(type, "*//*")) {
                     Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(uri, type);
@@ -622,6 +633,132 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
         }
 
+    }
+
+    @Override
+    public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        if (checked) {
+            nr++;
+            selectedFiles.add((String) m_path.get(position));
+        } else {
+            nr--;
+            selectedFiles.remove((String) m_path.get(position));
+        }
+        mode.setTitle(nr + " selected");
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        nr = 0;
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.cab_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(final ActionMode mode, MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.action_share:
+                nr = 0;
+                Utils.shareMultipleFiles(InternalExplorerActivity.this, selectedFiles);
+                mode.finish();
+                return true;
+
+            case R.id.action_delete:
+//                if (selectedFile.exists()) {
+                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        InternalExplorerActivity.this);
+                alertDialog.setTitle("Alert");
+                alertDialog.setMessage("Are you sure you want to delete this file ?");
+                alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        boolean isDeleted = Utils.deleteMultipleFiles(selectedFiles);
+                        if (isDeleted == true) {
+                            for (String deletedSelectedFiles : selectedFiles) {
+                                File file = new File(deletedSelectedFiles);
+                                m_item.remove(file.getName());
+                                m_path.remove(file.getPath());
+                                selectedFiles = new ArrayList<>();
+                                mode.finish();
+                            }
+
+                            m_listAdapter.notifyDataSetChanged();
+                            Toast.makeText(InternalExplorerActivity.this, "Deleted successfully", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(InternalExplorerActivity.this, "Error deleting file/folder", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                alertDialog.show();
+                break;
+//                }
+            case R.id.action_copy:
+                actionID = 1;
+//                if (selectedFile.exists()) {
+                Utils.copyMultipleFile(this, selectedFiles);
+                if (isCutOrCopied) {
+                    menu.getItem(1).setVisible(true);
+                } else {
+                    menu.getItem(1).setVisible(false);
+                }
+
+//                }
+                break;
+            case R.id.action_cut:
+                try {
+                    File destinationFilePath = new File(rootPath + "/" + copiedFileName);
+                    boolean isPasted = Utils.paste(this, destinationFilePath);
+                    if (isPasted == true) {
+                        isCutOrCopied = false;
+                        menu.getItem(1).setVisible(false);
+                        m_item.add(destinationFilePath.getName());
+                        m_path.add(destinationFilePath.getPath());
+                        m_listAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(this, "Error performing desired operation", Toast.LENGTH_SHORT).show();
+                        menu.getItem(1).setVisible(false);
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+               /* actionID = 2;
+//                if (selectedFile.exists()) {
+                Utils.cutMultipleFiles(selectedFiles);
+                    if (isCutOrCopied) {
+                        menu.getItem(1).setVisible(true);
+                    } else {
+                        menu.getItem(1).setVisible(false);
+                    }*/
+//                }
+                break;
+            default:
+        }
+        return false;
+    }
+
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        mMode = null;
+        if (rl_lvListRoot.isItemChecked(selectedPosition)) {
+            rl_lvListRoot.setItemChecked(selectedPosition, false);
+            selectedPosition = -1;
+        }
+        rl_lvListRoot.setOnItemClickListener(InternalExplorerActivity.this);
     }
 
     public class getAllFilesFromInternalStorageTask extends AsyncTask<String, Void, Void> {

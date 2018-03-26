@@ -54,6 +54,11 @@ public class Utils {
     private static boolean isDeleted = false;
     private static String ext;
     private static ArrayList<Uri> files;
+    private static ArrayList<InputStream> inputStreamsList;
+    private static ArrayList<File> cutFileList;
+    private static ArrayList<File[]> folderItemList;
+    private static ArrayList<String> fileNameList;
+    private static File destinationFileName;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -211,6 +216,27 @@ public class Utils {
         return isDeleted;
     }
 
+
+    public static boolean deleteMultipleFiles(ArrayList<String> file) {
+        for (String f : file) {
+            File file1 = new File(f);
+
+            if (file1.isDirectory()) {
+                String[] children = file1.list();
+                if (children.length > 0) {
+                    for (int i = 0; i < children.length; i++) {
+                        new File(f, children[i]).delete();
+                        isDeleted = file1.delete();
+                    }
+                } else isDeleted = file1.delete();
+            } else {
+                isDeleted = file1.delete();
+            }
+
+        }
+        return isDeleted;
+    }
+
     public static void deleteFileFromMediaStore(final ContentResolver contentResolver, final File file) {
         String canonicalPath;
         try {
@@ -258,6 +284,42 @@ public class Utils {
         }
     }
 
+    public static void cutMultipleFiles(ArrayList<String> src) {
+        cutFileList = new ArrayList<>();
+        for (String fileList : src) {
+            File file = new File(fileList);
+            cutFileList.add(file);
+        }
+        InternalExplorerActivity.isCutOrCopied = true;
+    }
+
+
+    public static void copyMultipleFile(Context context, ArrayList<String> file) {
+        inputStreamsList = new ArrayList<>();
+        folderItemList = new ArrayList<>();
+        fileNameList = new ArrayList<>();
+        try {
+            for (String filePath : file) {
+                File src = new File(filePath);
+                if (!src.isDirectory()) {
+                    inputStream = new FileInputStream(src);
+                    fileNameList.add(src.getName());
+                    inputStreamsList.add(inputStream);
+                    InternalExplorerActivity.isCutOrCopied = true;
+                } else {
+                    inputStream = null;
+                    items = src.listFiles();
+                    folderItemList.add(items);
+                    InternalExplorerActivity.isCutOrCopied = true;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Error copying folder", Toast.LENGTH_SHORT).show();
+            InternalExplorerActivity.isCutOrCopied = false;
+        }
+    }
+
     public static void cutFile(File src) {
         cutFile = src;
         InternalExplorerActivity.isCutOrCopied = true;
@@ -267,36 +329,43 @@ public class Utils {
         boolean isPasted = false;
         if (InternalExplorerActivity.actionID != 0) {
             if (InternalExplorerActivity.actionID == 1) {
-                if (inputStream != null) {
+                if (inputStreamsList != null) {
                     try {
 
-                        OutputStream outputStream = new FileOutputStream(destination);
                         byte[] buf = new byte[1024];
                         int length;
-                        while ((length = inputStream.read(buf)) > 0) {
-                            outputStream.write(buf, 0, length);
+                        for (InputStream inputStream : inputStreamsList) {
+                            for (String fileName : fileNameList) {
+                                destinationFileName = new File(destination + "/" + fileName);
+                                OutputStream outputStream = new FileOutputStream( destinationFileName);
+                                while ((length = inputStream.read(buf)) > 0) {
+                                    outputStream.write(buf, 0, length);
+                                }
+                                isPasted = true;
+                            }
                         }
-                        isPasted = true;
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                         isPasted = false;
                     }
                 } else {
-                    if (!destination.exists()) {
-                        destination.mkdirs();
+                    if (!destinationFileName.exists()) {
+                        destinationFileName.mkdirs();
                     }
-                    if (items != null && items.length > 0) {
-                        for (File anItem : items) {
-                            if (anItem.isDirectory()) {
-                                // create the directory in the destination
-                                File newDir = new File(destination, anItem.getName());
-                                newDir.mkdir();
-                                // copy the directory (recursive call)
-                                copyDirectory(anItem, newDir);
-                                isPasted = true;
-                            } else {
-                                File destFile = new File(destination, anItem.getName());
-                                copySingleFile(anItem, destFile);
+                    if (folderItemList != null && folderItemList.size() > 0) {
+                        for (File[] anItem : folderItemList) {
+                            for (File fileItems : anItem) {
+                                if (fileItems.isDirectory()) {
+                                    // create the directory in the destination
+                                    File newDir = new File(destinationFileName, fileItems.getName());
+                                    newDir.mkdir();
+                                    // copy the directory (recursive call)
+                                    copyDirectory(fileItems, newDir);
+                                    isPasted = true;
+                                } else {
+                                    File destFile = new File(destinationFileName, fileItems.getName());
+                                    copySingleFile(fileItems, destFile);
+                                }
                             }
                         }
 
@@ -308,7 +377,10 @@ public class Utils {
                     }
                 }
             } else if (InternalExplorerActivity.actionID == 2) {
-                cutFile.renameTo(destination);
+                for (File fileList : cutFileList) {
+                    fileList.renameTo(destinationFileName);
+                }
+//                cutFile.renameTo(destination);
                 isPasted = true;
             }
         } else {
@@ -581,7 +653,7 @@ public class Utils {
     }
 
     public static void shareApplication(Context context) {
-       String internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
+        String internalStorageRoot = Environment.getExternalStorageDirectory().getAbsolutePath();
         ApplicationInfo app = context.getApplicationInfo();
         String filePath = app.sourceDir;
 
@@ -599,19 +671,19 @@ public class Utils {
             File tempFile = new File(internalStorageRoot + "/FileManagerApk");
             //If directory doesn't exists create new
 
-                if (!tempFile.exists()) {
-                    tempFile.mkdirs();
-                }
+            if (!tempFile.exists()) {
+                tempFile.mkdirs();
+            }
             //Get application's name and convert to lowercase
             tempFile = new File(tempFile.getPath() + "/" + context.getResources().getString(app.labelRes).replace(" ", "").toLowerCase() + ".apk");
             //If file doesn't exists create new
             if (!tempFile.exists()) {
-                    try {
-                        tempFile.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    tempFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
             //Copy file to new location
             InputStream in = new FileInputStream(originalApk);
@@ -637,9 +709,10 @@ public class Utils {
     public static String getConvertedDate(String date) {
         long dateValue = Long.valueOf(date + "000");
         Date addedDate = new Date(dateValue);
-        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/YY hh:mm a");
+        SimpleDateFormat df2 = new SimpleDateFormat("dd/MM/yy hh:mm a");
         df2.setTimeZone(TimeZone.getDefault());
         String dateText = df2.format(addedDate);
         return dateText;
     }
+
 }
