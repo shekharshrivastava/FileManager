@@ -34,8 +34,11 @@ import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.NativeExpressAdView;
+import com.google.android.gms.ads.formats.NativeAdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     private int imageIndex;
     private float scale;
     private int countImgs;
-    private AdView mAdView;
+    private NativeExpressAdView mAdView;
     private TextView versionTV;
     private PermissionManager permissionManager;
 
@@ -93,6 +96,9 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
 
         setContentView(R.layout.activity_main);
+        mAdView = findViewById(R.id.nativeAdView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
         MobileAds.initialize(this, getString(R.string.ad_mob_app_id));
         permissionManager = PermissionManager.getInstance(this);
         permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
@@ -174,8 +180,33 @@ public class MainActivity extends AppCompatActivity
         internalProgressBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, StorageInfoActivity.class);
-                startActivity(intent);
+                permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        permissionManager.checkPermissions(singleton(Manifest.permission.READ_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                            @Override
+                            public void onPermissionGranted() {
+                                Intent intent = new Intent(MainActivity.this, StorageInfoActivity.class);
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onPermissionDenied() {
+                                Toast.makeText(MainActivity.this, "Required storage permission to access file manager", Toast.LENGTH_SHORT).show();
+
+                            }
+
+
+                        });
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        Toast.makeText(MainActivity.this, "Required storage permission to access file manager", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
             }
         });
 
@@ -262,7 +293,31 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, StorageInfoActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
-            Utils.shareApplication(MainActivity.this);
+            permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                @Override
+                public void onPermissionGranted() {
+                    permissionManager.checkPermissions(singleton(Manifest.permission.READ_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+                        @Override
+                        public void onPermissionGranted() {
+                            Utils.shareApplication(MainActivity.this);
+                        }
+
+                        @Override
+                        public void onPermissionDenied() {
+                            Toast.makeText(MainActivity.this, "Required storage permission for sharing apk", Toast.LENGTH_SHORT).show();
+
+                        }
+
+
+                    });
+                }
+
+                @Override
+                public void onPermissionDenied() {
+                    Toast.makeText(MainActivity.this, "Required storage permission for sharing apk", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         } else if (id == R.id.nav_drive) {
             mGoogleApiClient.connect();
 
@@ -270,6 +325,9 @@ public class MainActivity extends AppCompatActivity
                 OpenFileFromGoogleDrive();
             }
 
+        }else if (id == R.id.nav_about){
+            Intent intent = new Intent(this,AboutActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -550,7 +608,7 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onPermissionDenied() {
-                                Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Please grant Storage permission", Toast.LENGTH_SHORT).show();
 
                             }
                         });
@@ -560,7 +618,7 @@ public class MainActivity extends AppCompatActivity
 
                     @Override
                     public void onPermissionDenied() {
-                        Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Please grant Storage permission", Toast.LENGTH_SHORT).show();
                     }
                 });
 

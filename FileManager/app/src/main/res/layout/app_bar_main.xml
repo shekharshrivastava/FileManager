@@ -215,6 +215,7 @@
             </LinearLayout>
 
             <GridView
+                android:visibility="visible"
                 android:id="@+id/quickLinksGV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -230,6 +231,14 @@
                 android:layout_marginRight="20dp"
                 android:background="@color/bs_divider_color" />
 
+            <com.google.android.gms.ads.NativeExpressAdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/nativeAdView"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                ads:adSize="320x150"
+                ads:adUnitId="@string/ad_unit_id" />
+
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab"
                 android:layout_width="match_parent"
@@ -242,8 +251,6 @@
 
         </LinearLayout>
     </ScrollView>
-
-
 
 
 </RelativeLayout>

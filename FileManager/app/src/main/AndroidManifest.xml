@@ -25,10 +25,8 @@
         <activity
             android:name=".Views.MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"
-            >
-
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
             </intent-filter>
@@ -37,8 +35,10 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-        <activity android:name=".Views.InternalExplorerActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".Views.InternalExplorerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/myActivityTheme" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -53,7 +53,7 @@
         <activity
             android:name=".Views.ImageFullScreenActivity"
             android:label="@string/title_activity_image_full_screen"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -65,29 +65,32 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".Views.InfoActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".Views.InfoActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Views.ImageFilterActivity"
-            android:theme="@style/myActivityTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/myActivityTheme" />
         <activity
             android:name=".Views.DownloadFilterActivity"
-            android:theme="@style/myActivityTheme"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Views.AppsFilterActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/myActivityTheme" />
+        <activity
+            android:name=".Views.AppsFilterActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Views.MediaFilterActivity"
-            android:theme="@style/myActivityTheme"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/myActivityTheme" />
         <!-- android:theme="@style/myActivityTheme" -->
         <activity
             android:name=".Views.DocumentFIlterActivity"
-            android:theme="@style/myActivityTheme"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Views.StorageInfoActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/myActivityTheme" />
+        <activity
+            android:name=".Views.StorageInfoActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".Utils.Notifications.MyAndroidFirebaseMessagingService">
             <intent-filter>
@@ -131,9 +134,11 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".Views.AudioPlayerActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".Views.SplashActivity"
+        <activity
+            android:name=".Views.AudioPlayerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Views.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -141,6 +146,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".Views.AboutActivity"></activity>
     </application>
 
 </manifest>
