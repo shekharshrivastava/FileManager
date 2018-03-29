@@ -2,8 +2,7 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
-
+    android:orientation="vertical">
     <CheckBox
         android:id="@+id/lr_cbCheck"
         android:layout_width="wrap_content"
@@ -11,52 +10,62 @@
         android:layout_alignBaseline="@+id/lr_ivFileIcon"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:focusable="false"
         android:layout_gravity="center"
-        android:visibility="gone" />
-
-    <ImageView
-        android:padding="2dp"
-        android:layout_margin="5dp"
-        android:id="@+id/lr_ivFileIcon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/lr_cbCheck"
-        android:clickable="false"
         android:focusable="false"
-        android:src="@drawable/ic_launcher" />
-
+        android:visibility="gone" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/lr_tvFileName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/lr_ivFileIcon"
+        <ImageView
+            android:id="@+id/lr_ivFileIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@+id/lr_cbCheck"
             android:clickable="false"
             android:focusable="false"
-            android:maxLines="1"
-            android:textSize="16sp"
-            android:textColor="#000"
-            android:text="TextView"
-            android:ellipsize="end"/>
+            android:padding="2dp"
+            android:src="@drawable/ic_launcher" />
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+
+                android:id="@+id/lr_tvFileName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/lr_ivFileIcon"
+                android:clickable="false"
+                android:ellipsize="end"
+                android:focusable="false"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="TextView"
+                android:textColor="#000"
+                android:textSize="16sp" />
 
 
-        <TextView
-            android:id="@+id/lr_tvdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/lr_tvFileName"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@+id/lr_ivFileIcon"
-            android:clickable="false"
-            android:focusable="false"
-            android:text="TextView" />
+            <TextView
+                android:id="@+id/lr_tvdate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/lr_tvFileName"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/lr_ivFileIcon"
+                android:clickable="false"
+                android:focusable="false"
+                android:text="TextView" />
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

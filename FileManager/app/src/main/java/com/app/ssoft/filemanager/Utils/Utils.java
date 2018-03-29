@@ -18,6 +18,8 @@ import android.webkit.MimeTypeMap;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.app.ssoft.filemanager.Model.PasteFile;
+import com.app.ssoft.filemanager.Model.PastedDetails;
 import com.app.ssoft.filemanager.Views.InternalExplorerActivity;
 import com.app.ssoft.filemanager.Views.ListAdapter;
 
@@ -48,7 +50,7 @@ import static org.apache.commons.io.FileUtils.copyDirectory;
 
 public class Utils {
     private static Bitmap thumbnailDrawable;
-    private static InputStream inputStream;
+    private static InputStream inputStream = null;
     private static File cutFile;
     private static File[] items;
     private static boolean isDeleted = false;
@@ -57,8 +59,10 @@ public class Utils {
     private static ArrayList<InputStream> inputStreamsList;
     private static ArrayList<File> cutFileList;
     private static ArrayList<File[]> folderItemList;
-    private static ArrayList<String> fileNameList;
+    private static ArrayList<PasteFile> fileNameList;
     private static File destinationFileName;
+    private static FileOutputStream outputStream = null;
+    private static ArrayList<PastedDetails> pastedDetailsList;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -300,11 +304,14 @@ public class Utils {
         fileNameList = new ArrayList<>();
         try {
             for (String filePath : file) {
+                PasteFile pasteFile = new PasteFile();
                 File src = new File(filePath);
                 if (!src.isDirectory()) {
                     inputStream = new FileInputStream(src);
-                    fileNameList.add(src.getName());
-                    inputStreamsList.add(inputStream);
+                    pasteFile.setInputStream(inputStream);
+                    pasteFile.setFileName(src.getName());
+                    pasteFile.setSrcPath(src.getAbsoluteFile());
+                    fileNameList.add(pasteFile);
                     InternalExplorerActivity.isCutOrCopied = true;
                 } else {
                     inputStream = null;
@@ -325,68 +332,90 @@ public class Utils {
         InternalExplorerActivity.isCutOrCopied = true;
     }
 
-    public static boolean paste(Context context, File destination) throws IOException {
+    public static ArrayList<PastedDetails> paste(Context context, File destination) throws IOException {
         boolean isPasted = false;
+        pastedDetailsList = new ArrayList<>();
         if (InternalExplorerActivity.actionID != 0) {
             if (InternalExplorerActivity.actionID == 1) {
-                if (inputStreamsList != null) {
-                    try {
 
+                try {
+                    for (PasteFile pasteFile : fileNameList) {
                         byte[] buf = new byte[1024];
-                        int length;
-                        for (InputStream inputStream : inputStreamsList) {
-                            for (String fileName : fileNameList) {
-                                destinationFileName = new File(destination + "/" + fileName);
-                                OutputStream outputStream = new FileOutputStream( destinationFileName);
-                                while ((length = inputStream.read(buf)) > 0) {
-                                    outputStream.write(buf, 0, length);
-                                }
-                                isPasted = true;
+                        if (pasteFile.getInputStream() != null) {
+                            PastedDetails pastedDetails = new PastedDetails();
+                            destinationFileName = new File(destination + "/" + pasteFile.getFileName());
+                            inputStream = new FileInputStream(pasteFile.getSrcPath());
+                            outputStream = new FileOutputStream(destinationFileName);
+                            int length;
+                            while ((length = inputStream.read(buf)) > 0) {
+                                outputStream.write(buf, 0, length);
                             }
-                        }
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                        isPasted = false;
-                    }
-                } else {
-                    if (!destinationFileName.exists()) {
-                        destinationFileName.mkdirs();
-                    }
-                    if (folderItemList != null && folderItemList.size() > 0) {
-                        for (File[] anItem : folderItemList) {
-                            for (File fileItems : anItem) {
-                                if (fileItems.isDirectory()) {
-                                    // create the directory in the destination
-                                    File newDir = new File(destinationFileName, fileItems.getName());
-                                    newDir.mkdir();
-                                    // copy the directory (recursive call)
-                                    copyDirectory(fileItems, newDir);
-                                    isPasted = true;
-                                } else {
-                                    File destFile = new File(destinationFileName, fileItems.getName());
-                                    copySingleFile(fileItems, destFile);
+                            isPasted = true;
+                            pastedDetails.setDestinationFile(destinationFileName);
+                            pastedDetails.setPasted(isPasted);
+                            pastedDetailsList.add(pastedDetails);
+//                            copySingleFile(destinationFileName, pasteFile.getSrcPath());
+
+
+                        } else {
+                          /*  if (!destinationFileName.exists()) {
+                                destinationFileName.mkdirs();
+                            }*/
+                            if (folderItemList != null && folderItemList.size() > 0) {
+                                for (File[] anItem : folderItemList) {
+                                    for (File fileItems : anItem) {
+
+                                        if (fileItems.isDirectory()) {
+                                            // create the directory in the destination
+                                            File newDir = new File(destinationFileName, fileItems.getName());
+                                            newDir.mkdir();
+                                            // copy the directory (recursive call)
+                                            copyDirectory(fileItems, newDir);
+                                            isPasted = true;
+                                        } else {
+                                            File destFile = new File(destinationFileName, fileItems.getName());
+                                            copySingleFile(fileItems, destFile);
+                                        }
+                                    }
                                 }
+                            } else {
+                                Toast.makeText(context, "Error performing action", Toast.LENGTH_SHORT).show();
+                                isPasted = false;
+
                             }
                         }
 
-                  /*  Toast.makeText(context,"Error performing action",Toast.LENGTH_SHORT).show();
-                    isPasted = false;*/
-                    } else {
-                        Toast.makeText(context, "Error performing action", Toast.LENGTH_SHORT).show();
-                        isPasted = false;
                     }
+                    return pastedDetailsList;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                } finally {
+                    inputStream.close();
+                    outputStream.close();
                 }
+
             } else if (InternalExplorerActivity.actionID == 2) {
-                for (File fileList : cutFileList) {
-                    fileList.renameTo(destinationFileName);
+
+                for (File cutFiles : cutFileList) {
+                    PastedDetails pastedDetails = new PastedDetails();
+                    destinationFileName = new File(destination + "/" + cutFiles.getName());
+                    (cutFiles.getAbsoluteFile()).renameTo(destinationFileName);
+                    isPasted = true;
+                    pastedDetails.setPasted(isPasted);
+                    pastedDetails.setDestinationFile(destinationFileName);
+                    pastedDetailsList.add(pastedDetails);
+
+
                 }
 //                cutFile.renameTo(destination);
-                isPasted = true;
+
+
+            } else {
+                isPasted = false;
             }
-        } else {
-            isPasted = false;
         }
-        return isPasted;
+        return pastedDetailsList;
     }
 
     private static void copySingleFile(File sourceFile, File destFile)
