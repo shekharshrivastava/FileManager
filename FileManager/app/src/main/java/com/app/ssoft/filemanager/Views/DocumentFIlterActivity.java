@@ -28,6 +28,7 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class DocumentFIlterActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String internalStorageRoot;
@@ -118,7 +119,9 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+        if(m_filesArray!=null) {
+            Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+        }
 
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
@@ -240,7 +243,7 @@ public class DocumentFIlterActivity extends AppCompatActivity implements Adapter
                 String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                 if (type == null)
                     type = "*//*";
-                if (type != "*//*") {
+                if (!Objects.equals(type, "*//*")) {
                     Uri uri = FileProvider.getUriForFile(DocumentFIlterActivity.this, getApplicationContext().getPackageName(), m_isFile);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(uri, type);

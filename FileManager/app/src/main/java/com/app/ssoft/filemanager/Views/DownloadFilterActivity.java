@@ -29,6 +29,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class DownloadFilterActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener, AdapterView.OnItemClickListener {
 
@@ -84,20 +85,20 @@ public class DownloadFilterActivity extends AppCompatActivity implements AbsList
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-
-        for (int i = 0; i < m_filesArray.length; i++) {
-            File file = m_filesArray[i];
-            if (file.isDirectory()) {
-                Arrays.sort(m_filesArray);
-                // if dont want to show hidden file
-                if (!file.getName().startsWith(".")) {
-                    m_item.add(file.getName());
-                    m_path.add(file.getPath());
-                } else {
-                    m_hiddenFilesNames.add(file.getName());
-                    m_hiddenPaths.add(file.getPath());
-                }
+        if (m_filesArray != null) {
+            Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+            for (int i = 0; i < m_filesArray.length; i++) {
+                File file = m_filesArray[i];
+                if (file.isDirectory()) {
+                    Arrays.sort(m_filesArray);
+                    // if dont want to show hidden file
+                    if (!file.getName().startsWith(".")) {
+                        m_item.add(file.getName());
+                        m_path.add(file.getPath());
+                    } else {
+                        m_hiddenFilesNames.add(file.getName());
+                        m_hiddenPaths.add(file.getPath());
+                    }
            /*     if (isShowingHiddenFolder) {
                     if (m_item.containsAll(m_hiddenFilesNames) &&
                             m_path.containsAll(m_hiddenPaths)) {
@@ -114,14 +115,14 @@ public class DownloadFilterActivity extends AppCompatActivity implements AbsList
                     }
                 }*/
 
-            } else {
-                if (!file.getName().startsWith(".")) {
-                    m_files.add(file.getName());
-                    m_filesPath.add(file.getPath());
                 } else {
-                    m_hiddenFilesNames.add(file.getName());
-                    m_hiddenPaths.add(file.getPath());
-                }
+                    if (!file.getName().startsWith(".")) {
+                        m_files.add(file.getName());
+                        m_filesPath.add(file.getPath());
+                    } else {
+                        m_hiddenFilesNames.add(file.getName());
+                        m_hiddenPaths.add(file.getPath());
+                    }
                /* if (isShowingHiddenFolder) {
                     m_item.addAll(m_hiddenFilesNames);
                     m_path.addAll(m_hiddenPaths);
@@ -134,26 +135,20 @@ public class DownloadFilterActivity extends AppCompatActivity implements AbsList
                 }
             }*/
 
+                }
             }
-        }
-        for (String m_AddFile : m_files)
+            for (String m_AddFile : m_files)
 
-        {
-            m_item.add(m_AddFile);
-        }
-        for (
-                String m_AddPath : m_filesPath)
+            {
+                m_item.add(m_AddFile);
+            }
+            for (
+                    String m_AddPath : m_filesPath)
 
-        {
-            m_path.add(m_AddPath);
-        }
-        if (m_path.size() == 0 && m_item.size() == 0) {
-            noMediaText.setVisibility(View.VISIBLE);
-            rl_lvListRoot.setVisibility(View.GONE);
-        } else {
-            noMediaText.setVisibility(View.GONE);
-            rl_lvListRoot.setVisibility(View.VISIBLE);
-        }
+            {
+                m_path.add(m_AddPath);
+            }
+
 
      /*   m_listAdapter = new ListAdapter(this, m_item, m_path, m_isRoot);
         rl_lvListRoot.setAdapter(m_listAdapter);*/
@@ -200,6 +195,14 @@ public class DownloadFilterActivity extends AppCompatActivity implements AbsList
 
 
         });*/
+        }
+        if (m_path.size() == 0 && m_item.size() == 0) {
+            noMediaText.setVisibility(View.VISIBLE);
+            rl_lvListRoot.setVisibility(View.GONE);
+        } else {
+            noMediaText.setVisibility(View.GONE);
+            rl_lvListRoot.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -294,7 +297,7 @@ public class DownloadFilterActivity extends AppCompatActivity implements AbsList
                 String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                 if (type == null)
                     type = "*//*";
-                if (type != "*//*") {
+                if (!Objects.equals(type, "*//*")) {
                     Uri uri = FileProvider.getUriForFile(DownloadFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(uri, type);

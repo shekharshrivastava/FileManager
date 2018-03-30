@@ -141,7 +141,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 // if dont want to show hidden file
 //                file.getName().startsWith(".")
                 if (!file.isHidden()) {
+                    m_item.remove(file.getName());
                     m_item.add(file.getName());
+
+                    m_path.remove(file.getPath());
                     m_path.add(file.getPath());
                 } else {
                     m_hiddenFilesNames.add(file.getName());
@@ -166,7 +169,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             } else {
 //                file.getName().startsWith(".")
                 if (!file.isHidden()) {
+                    m_files.remove(file.getName());
                     m_files.add(file.getName());
+
+                    m_filesPath.remove(file.getPath());
                     m_filesPath.add(file.getPath());
                 } else {
                     m_hiddenFilesNames.add(file.getName());
@@ -517,7 +523,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         nr = 0;
         this.cabMenu = menu;
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.cab_menu, menu);
+        menuInflater.inflate(R.menu.cab_menu_internal, menu);
         return true;
     }
 

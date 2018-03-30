@@ -189,4 +189,8 @@ public class ListAdapter extends BaseAdapter {
         return m_dateFormat.format(m_file.lastModified());
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 }

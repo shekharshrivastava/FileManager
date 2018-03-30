@@ -35,10 +35,8 @@ import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.NativeExpressAdView;
-import com.google.android.gms.ads.formats.NativeAdView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -180,6 +178,7 @@ public class MainActivity extends AppCompatActivity
         internalProgressBar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
                     @Override
                     public void onPermissionGranted() {
@@ -284,7 +283,7 @@ public class MainActivity extends AppCompatActivity
 
                 @Override
                 public void onPermissionDenied() {
-                    Toast.makeText(MainActivity.this, "Required permission to access file manager", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Required permission to access gallery", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -293,6 +292,7 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, StorageInfoActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_share) {
+
             permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
                 @Override
                 public void onPermissionGranted() {
@@ -357,11 +357,7 @@ public class MainActivity extends AppCompatActivity
         Boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
         Boolean isSDSupportedDevice = Environment.isExternalStorageRemovable();
 
-        if (isSDSupportedDevice && isSDPresent) {
-            return true;
-        } else {
-            return false;
-        }
+        return isSDSupportedDevice && isSDPresent;
     }
 
     public static String getAvailableExternalMemorySize() {

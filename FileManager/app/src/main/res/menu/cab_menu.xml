@@ -7,28 +7,4 @@
         android:title="Share"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/action_copy"
-        android:icon="@drawable/copy_icon"
-        android:title="Copy"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_cut"
-        android:title="Move To"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_rename"
-        android:title="Rename"
-        app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_delete"
-        android:title="Delete"
-        app:showAsAction="ifRoom" />
-
-    <item
-        android:id="@+id/action_open"
-        android:title="Open With"
-        app:showAsAction="ifRoom" />
 </menu>

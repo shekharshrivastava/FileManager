@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ActionMode;
@@ -30,6 +32,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ImageFilterActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
@@ -126,8 +129,9 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
-
+        if(m_filesArray!=null) {
+            Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+        }
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
             if (!file.isDirectory()) {
@@ -275,6 +279,7 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
         return super.onOptionsItemSelected(item);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         m_isFile = new File(m_path.get(position));
@@ -287,7 +292,7 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
             String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             if (type == null)
                 type = "*//*";
-            if (type == "image/jpeg") {
+            if (Objects.equals(type, "image/jpeg")) {
                 Intent intent = new Intent(ImageFilterActivity.this, ImageFullScreenActivity.class);
                 intent.putExtra("imgPath", m_path);
                 intent.putExtra("position", position);
@@ -295,7 +300,7 @@ public class ImageFilterActivity extends AppCompatActivity implements AdapterVie
                 intent.putExtra("imageName", m_item.get(position));
                 startActivityForResult(intent, RESULT_DELETED);
             } else {
-                if (type != "*//*") {
+                if (!Objects.equals(type, "*//*")) {
                     Uri uri = FileProvider.getUriForFile(ImageFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setDataAndType(uri, type);

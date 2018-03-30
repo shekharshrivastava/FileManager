@@ -23,6 +23,7 @@ import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class AppsFilterActivity extends AppCompatActivity {
 
@@ -68,7 +69,9 @@ public class AppsFilterActivity extends AppCompatActivity {
         m_curDir = p_rootPath;
         //sorting file list in alphabetical order
 //        Arrays.sort(m_filesArray);
-        Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+        if(m_filesArray!=null) {
+            Arrays.sort(m_filesArray, LastModifiedFileComparator.LASTMODIFIED_REVERSE);
+        }
 
         for (int i = 0; i < m_filesArray.length; i++) {
             File file = m_filesArray[i];
@@ -131,7 +134,7 @@ public class AppsFilterActivity extends AppCompatActivity {
                         String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
                         if (type == null)
                             type = "*//*";
-                        if (type == "application/vnd.android.package-archive") {
+                        if (Objects.equals(type, "application/vnd.android.package-archive")) {
                             PackageManager pm = getPackageManager();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                 Uri apkUri = FileProvider.getUriForFile(AppsFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
@@ -147,7 +150,7 @@ public class AppsFilterActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                         } else {
-                            if (type != "*//*") {
+                            if (!Objects.equals(type, "*//*")) {
                                 Uri uri = FileProvider.getUriForFile(AppsFilterActivity.this, getApplicationContext().getPackageName(), m_isFile);
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setDataAndType(uri, type);
