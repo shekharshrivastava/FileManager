@@ -503,10 +503,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             selectedFiles.remove((String) m_path.get(position));
         }
         if (selectedFiles.size() > 1) {
-            cabMenu.getItem(4).setEnabled(false);
+            cabMenu.getItem(3).setEnabled(false);
             cabMenu.getItem(5).setEnabled(false);
         } else {
-            cabMenu.getItem(4).setEnabled(true);
+            cabMenu.getItem(3).setEnabled(true);
             cabMenu.getItem(5).setEnabled(true);
         }
         mode.setTitle(nr + " Selected");
