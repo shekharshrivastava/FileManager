@@ -291,9 +291,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_slideshow) {
             Intent intent = new Intent(this, StorageInfoActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.nav_setting) {
 
-            permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
+            /*permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
                 @Override
                 public void onPermissionGranted() {
                     permissionManager.checkPermissions(singleton(Manifest.permission.READ_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
@@ -316,7 +316,9 @@ public class MainActivity extends AppCompatActivity
                 public void onPermissionDenied() {
                     Toast.makeText(MainActivity.this, "Required storage permission for sharing apk", Toast.LENGTH_SHORT).show();
                 }
-            });
+            });*/
+            Intent intent = new Intent(this, SettingActivity.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_drive) {
             mGoogleApiClient.connect();
@@ -325,8 +327,8 @@ public class MainActivity extends AppCompatActivity
                 OpenFileFromGoogleDrive();
             }
 
-        }else if (id == R.id.nav_about){
-            Intent intent = new Intent(this,AboutActivity.class);
+        } else if (id == R.id.nav_about) {
+            Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
         }
 

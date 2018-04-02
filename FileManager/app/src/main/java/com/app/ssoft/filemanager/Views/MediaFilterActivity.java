@@ -26,6 +26,7 @@ import com.app.ssoft.filemanager.Utils.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MediaFilterActivity extends AppCompatActivity implements AbsListView.MultiChoiceModeListener, AdapterView.OnItemClickListener {
     private ListView rl_lvListRoot;
@@ -222,12 +223,12 @@ public class MediaFilterActivity extends AppCompatActivity implements AbsListVie
             String extension = path.substring(path.lastIndexOf("."));
             String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
             File m_musicFile = new File(path);
-            if (type == "video/mp4") {
+            if (Objects.equals(type, "video/mp4")) {
                 Intent intent = new Intent(this, VideoPlayerActivity.class);
                 intent.putExtra("path", path);
                 intent.putExtra("title", title);
                 startActivity(intent);
-            } else if (type != "*//*") {
+            } else if (!Objects.equals(type, "*//*")) {
                 Uri uri = FileProvider.getUriForFile(MediaFilterActivity.this, getApplicationContext().getPackageName(), m_musicFile);
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setDataAndType(uri, type);

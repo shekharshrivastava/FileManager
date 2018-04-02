@@ -35,7 +35,6 @@
                 android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
         </activity>
-
         <activity
             android:name=".Views.InternalExplorerActivity"
             android:screenOrientation="portrait"
@@ -147,7 +146,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Views.AboutActivity"></activity>
+        <activity android:name=".Views.AboutActivity" />
+        <activity android:name=".Views.LockScreenActivity">
+
+        </activity>
+        <activity android:name=".Views.SettingActivity"></activity>
     </application>
 
 </manifest>

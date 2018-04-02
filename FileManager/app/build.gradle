@@ -68,6 +68,7 @@ dependencies {
     compile 'com.tuyenmonkey:mkloader:1.4.0'
     compile 'com.github.jeancsanchez:JcPlayer:2.6.10'
     implementation 'com.intentfilter:android-permissions:0.1.5'
+    compile 'com.andrognito.pinlockview:pinlockview:2.1.0'
 
 }
 
