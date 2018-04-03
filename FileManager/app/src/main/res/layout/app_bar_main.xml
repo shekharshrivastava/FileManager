@@ -14,7 +14,8 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:popupTheme="@style/AppTheme.PopupOverlay" />
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:titleTextColor="@color/white" />
 
     <ScrollView
         android:id="@+id/scrollView1"
@@ -36,6 +37,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:layout_weight="0.8"
                     android:background="#115d97"
                     android:orientation="vertical">
@@ -44,39 +46,22 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <at.grabner.circleprogress.CircleProgressView
-                            android:id="@+id/internal_progress_bar"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="10dp"
-                            CircleProgressView:cpv_autoTextSize="true"
-                            CircleProgressView:cpv_barWidth="35dp"
-                            CircleProgressView:cpv_innerContourSize="0dp"
-                            CircleProgressView:cpv_maxValue="100"
-                            CircleProgressView:cpv_outerContourSize="0dp"
-                            CircleProgressView:cpv_rimWidth="35dp"
-                            CircleProgressView:cpv_seekMode="false"
-                            CircleProgressView:cpv_showUnit="true"
-                            CircleProgressView:cpv_textScale="1"
-                            CircleProgressView:cpv_unit="%"
-                            CircleProgressView:cpv_unitPosition="right_top"
-                            CircleProgressView:cpv_unitScale="1" />
 
                         <LinearLayout
                             android:id="@+id/internalStorageLinearLayout"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:layout_toRightOf="@+id/internal_progress_bar"
-                            android:orientation="vertical">
+                            android:layout_centerVertical="true"
+                            android:orientation="vertical"
+                            android:padding="15dp">
 
                             <TextView
                                 android:id="@+id/titleInternalStorage"
-                                android:layout_width="wrap_content"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Internal Storage"
                                 android:textColor="#fff"
-                                android:textStyle="bold" />
+                                android:textSize="18sp" />
 
 
                             <TextView
@@ -84,40 +69,31 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginLeft="2dp"
                                 android:text="Available"
-                                android:textSize="10sp" />
+                                android:textSize="10sp"
+                                android:visibility="gone" />
 
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
 
-                            <TextView
-                                android:id="@+id/internalStorageSpace"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_below="@+id/titleInternalStorage"
-                                android:layout_toEndOf="@+id/progress_bar"
-                                android:layout_toRightOf="@+id/progress_bar"
-                                android:text="3.77 GB / 4.36 GB"
-                                android:textColor="#fff"
-                                android:textStyle="bold" />
+                                <TextView
+                                    android:id="@+id/internalStorageSpace"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="3.77 GB "
+                                    android:textColor="#fff"
+                                    android:textSize="15sp" />
 
-
-                            <!-- <LinearLayout
-                                 android:layout_width="match_parent"
-                                 android:layout_height="wrap_content"
-                                 android:orientation="horizontal">
-
-                                 <TextView
-                                     android:layout_width="0dp"
-                                     android:layout_height="wrap_content"
-                                     android:layout_weight="0.5"
-                                     android:text="Used"
-                                     android:textStyle="bold" />
-
-                                 <TextView
-                                     android:layout_width="0dp"
-                                     android:layout_height="wrap_content"
-                                     android:layout_weight="0.5"
-                                     android:text="Remaining"
-                                     android:textStyle="bold" />
-                             </LinearLayout>-->
+                                <TextView
+                                    android:id="@+id/internalTotalSpace"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginLeft="5dp"
+                                    android:layout_toRightOf="@+id/internalStorageSpace"
+                                    android:text="/ 4.36 GB"
+                                    android:textColor="#89fafafa"
+                                    android:textSize="15sp" />
+                            </RelativeLayout>
                         </LinearLayout>
 
                         <ImageView
@@ -126,14 +102,18 @@
                             android:layout_centerInParent="true"
                             android:layout_marginLeft="10dp"
                             android:layout_toRightOf="@+id/internalStorageLinearLayout"
-                            android:src="@drawable/right_arrow_small" />
+                            android:src="@drawable/right_arrow_small"
+                            android:visibility="gone" />
+
+
                     </RelativeLayout>
 
 
                     <RelativeLayout
                         android:id="@+id/externalStorageLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
 
                         <View
                             android:id="@+id/view2"
@@ -143,24 +123,6 @@
                             android:layout_marginBottom="5dp"
                             android:background="@color/bs_divider_color" />
 
-                        <at.grabner.circleprogress.CircleProgressView
-                            android:id="@+id/external_progress_bar"
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
-                            android:layout_margin="10dp"
-                            CircleProgressView:cpv_autoTextSize="true"
-                            CircleProgressView:cpv_barWidth="35dp"
-                            CircleProgressView:cpv_innerContourSize="0dp"
-                            CircleProgressView:cpv_maxValue="100"
-                            CircleProgressView:cpv_outerContourSize="0dp"
-                            CircleProgressView:cpv_rimWidth="35dp"
-                            CircleProgressView:cpv_seekMode="false"
-                            CircleProgressView:cpv_showUnit="true"
-                            CircleProgressView:cpv_textScale="1"
-                            CircleProgressView:cpv_unit="%"
-                            CircleProgressView:cpv_unitPosition="right_top"
-                            CircleProgressView:cpv_unitScale="1"
-                            CircleProgressView:cpv_value="10" />
 
                         <LinearLayout
                             android:id="@+id/external_ll"
@@ -208,21 +170,62 @@
                             android:layout_toRightOf="@+id/external_ll"
                             android:src="@drawable/right_arrow_small" />
 
+                        <at.grabner.circleprogress.CircleProgressView
+                            android:id="@+id/external_progress_bar"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_margin="10dp"
+                            android:visibility="visible"
+                            CircleProgressView:cpv_autoTextSize="true"
+                            CircleProgressView:cpv_barWidth="35dp"
+                            CircleProgressView:cpv_innerContourSize="0dp"
+                            CircleProgressView:cpv_maxValue="100"
+                            CircleProgressView:cpv_outerContourSize="0dp"
+                            CircleProgressView:cpv_rimWidth="35dp"
+                            CircleProgressView:cpv_seekMode="false"
+                            CircleProgressView:cpv_showUnit="true"
+                            CircleProgressView:cpv_textScale="1"
+                            CircleProgressView:cpv_unit="%"
+                            CircleProgressView:cpv_unitPosition="right_top"
+                            CircleProgressView:cpv_unitScale="1" />
 
                     </RelativeLayout>
                 </LinearLayout>
 
+                <at.grabner.circleprogress.CircleProgressView
+                    android:id="@+id/internal_progress_bar"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_margin="10dp"
+                    android:layout_toRightOf="@+id/internalStorageLinearLayout"
+                    android:visibility="visible"
+                    CircleProgressView:cpv_rimColor="#ef6ba7d6"
+                    CircleProgressView:cpv_autoTextSize="true"
+                    CircleProgressView:cpv_barWidth="35dp"
+                    CircleProgressView:cpv_barColor="#f5487ca4"
+                    CircleProgressView:cpv_innerContourSize="0dp"
+                    CircleProgressView:cpv_maxValue="100"
+                    CircleProgressView:cpv_outerContourSize="0dp"
+                    CircleProgressView:cpv_rimWidth="35dp"
+                    CircleProgressView:cpv_seekMode="false"
+                    CircleProgressView:cpv_showUnit="true"
+                    CircleProgressView:cpv_textScale="1"
+                    CircleProgressView:cpv_unit="%"
+                    CircleProgressView:cpv_unitPosition="right_top"
+                    CircleProgressView:cpv_unitScale="1" />
             </LinearLayout>
 
             <GridView
-                android:visibility="visible"
                 android:id="@+id/quickLinksGV"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true"
                 android:isScrollContainer="false"
-                android:numColumns="3" />
+                android:numColumns="3"
+                android:visibility="visible" />
 
             <View
                 android:layout_width="match_parent"
@@ -233,9 +236,9 @@
 
             <com.google.android.gms.ads.NativeExpressAdView xmlns:ads="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/nativeAdView"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_gravity="center"
                 ads:adSize="320x150"
                 ads:adUnitId="@string/ad_unit_id" />
 

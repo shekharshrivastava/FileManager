@@ -48,6 +48,7 @@ import com.google.android.gms.drive.OpenFileActivityBuilder;
 import com.intentfilter.androidpermissions.PermissionManager;
 
 import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -87,6 +88,7 @@ public class MainActivity extends AppCompatActivity
     private NativeExpressAdView mAdView;
     private TextView versionTV;
     private PermissionManager permissionManager;
+    private TextView internalTotalSpace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +136,7 @@ public class MainActivity extends AppCompatActivity
         internalStorageLinearLayout = findViewById(R.id.internalStorageLinearLayout);
         internalStorageLinearLayout.setOnClickListener(this);
         internalStorageSpace = findViewById(R.id.internalStorageSpace);
+        internalTotalSpace = findViewById(R.id.internalTotalSpace);
         internalProgressBar = findViewById(R.id.internal_progress_bar);
         externalProgressBar = findViewById(R.id.external_progress_bar);
         externalStorageLayout = findViewById(R.id.externalStorageLayout);
@@ -173,7 +176,8 @@ public class MainActivity extends AppCompatActivity
             externalStorageLayout.setVisibility(View.GONE);
         }
 
-        internalStorageSpace.setText(getAvailableInternalMemorySize() + " / " + getTotalInternalMemorySize());
+        internalStorageSpace.setText(getAvailableInternalMemorySize());
+        internalTotalSpace.setText(" / " + getTotalInternalMemorySize());
         internalProgressBar.setValueAnimated(calculatePercentage(getTotalInternalMemorySize(), getUsedInternalSpace()));
         internalProgressBar.setOnClickListener(new View.OnClickListener() {
             @Override
