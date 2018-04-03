@@ -17,26 +17,48 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             tools:context="com.app.ssoft.filemanager.Views.SettingActivity">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Security"
                 android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:text="Security" />
+
             <Switch
                 android:id="@+id/appLockSwitch"
-                android:textSize="18dp"
-                android:checked="false"
-                android:drawableLeft="@drawable/password_lock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
                 android:layout_margin="5dp"
-                android:padding="12dp"
+                android:checked="false"
+                android:drawableLeft="@drawable/password_lock"
                 android:foregroundTint="@color/colorPrimary"
-                android:text="  Set App Lock" />
+                android:padding="12dp"
+                android:text="   Set App Lock"
+                android:textSize="18dp" />
 
+            <TextView
+                android:id="@+id/tvChangePwd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_margin="5dp"
+                android:drawableLeft="@drawable/reset_pwd"
+                android:padding="12dp"
+                android:text="   Reset Password"
+                android:textColor="#000"
+                android:textSize="18dp" />
+
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="5dp"
+                android:background="#c0c0c0"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

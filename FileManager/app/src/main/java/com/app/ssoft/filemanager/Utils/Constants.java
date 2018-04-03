@@ -16,6 +16,7 @@ public  class Constants {
     public static String SHARED_PREF_LOCK_MODE = "app_lock_mode";
     public static String is_locked_enabled = "lockEnabled";
     public static String SHARED_PREF_SET_PASSWORD = "set_password";
+    public static String password_input = "input_password";
 
 
     public static String getVersionName (Context context) {

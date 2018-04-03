@@ -1,6 +1,7 @@
 package com.app.ssoft.filemanager.Views;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,11 +14,13 @@ import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Constants;
 
 
 public class LockScreenActivity extends AppCompatActivity {
     private PinLockView mPinLockView;
     private IndicatorDots mIndicatorDots;
+    private SharedPreferences pwdSharedPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,7 @@ public class LockScreenActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_lock_screen);
+         pwdSharedPrefs = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE);
         getSupportActionBar().hide();
         mPinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
         mIndicatorDots = (IndicatorDots) findViewById(R.id.indicator_dots);
@@ -47,13 +51,16 @@ public class LockScreenActivity extends AppCompatActivity {
         @Override
         public void onComplete(String pin) {
             Log.d(TAG, "Pin complete: " + pin);
-            if (pin.equalsIgnoreCase("1234")) {
-                Intent intent = new Intent(LockScreenActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
-            }else{
-                Toast.makeText(LockScreenActivity.this,"Incorrect Pin",Toast.LENGTH_SHORT).show();
+            if(pwdSharedPrefs.getString(Constants.password_input, null)!=null){
+                if (pin.equals(pwdSharedPrefs.getString(Constants.password_input, null))) {
+                    Intent intent = new Intent(LockScreenActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    Toast.makeText(LockScreenActivity.this,"Incorrect Pin",Toast.LENGTH_SHORT).show();
+                }
             }
+
         }
 
         @Override

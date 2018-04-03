@@ -15,6 +15,7 @@ import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -331,6 +332,7 @@ public class Utils {
         cutFile = src;
         InternalExplorerActivity.isCutOrCopied = true;
     }
+
 
     public static ArrayList<PastedDetails> paste(Context context, File destination) throws IOException {
         boolean isPasted = false;
