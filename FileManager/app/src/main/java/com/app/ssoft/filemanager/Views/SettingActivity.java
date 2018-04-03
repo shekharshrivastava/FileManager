@@ -83,7 +83,8 @@ public class SettingActivity extends AppCompatActivity {
                                                         Toast.makeText(SettingActivity.this, "Password does'nt match", Toast.LENGTH_SHORT).show();
                                                     }
                                                 }else{
-                                                    Toast.makeText(SettingActivity.this, "Password must be of 4 letters", Toast.LENGTH_SHORT).show();
+                                                    appLockSwitch.setChecked(false);
+                                                    Toast.makeText(SettingActivity.this, "Password must be of 4 numbers", Toast.LENGTH_SHORT).show();
                                                 }
                                             }
                                         })
@@ -91,6 +92,7 @@ public class SettingActivity extends AppCompatActivity {
                                         new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
                                                 dialog.cancel();
+                                                appLockSwitch.setChecked(false);
                                             }
                                         });
 
