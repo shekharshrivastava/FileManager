@@ -1,11 +1,13 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
@@ -45,6 +47,13 @@ public class LockScreenActivity extends AppCompatActivity {
         @Override
         public void onComplete(String pin) {
             Log.d(TAG, "Pin complete: " + pin);
+            if (pin.equalsIgnoreCase("1234")) {
+                Intent intent = new Intent(LockScreenActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }else{
+                Toast.makeText(LockScreenActivity.this,"Incorrect Pin",Toast.LENGTH_SHORT).show();
+            }
         }
 
         @Override

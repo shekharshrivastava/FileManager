@@ -28,6 +28,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class ImageFullScreenActivity extends AppCompatActivity {
 
@@ -221,7 +222,7 @@ public class ImageFullScreenActivity extends AppCompatActivity {
         if (type == null)
             type = "*//*";
 
-        if (type != "*//*") {
+        if (!Objects.equals(type, "*//*")) {
             Uri uri = FileProvider.getUriForFile(ImageFullScreenActivity.this, getApplicationContext().getPackageName(), image);
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(uri, type);

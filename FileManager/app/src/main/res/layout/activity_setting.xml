@@ -17,17 +17,26 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             tools:context="com.app.ssoft.filemanager.Views.SettingActivity">
-
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Security"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"/>
             <Switch
+                android:id="@+id/appLockSwitch"
                 android:textSize="18dp"
+                android:checked="false"
                 android:drawableLeft="@drawable/password_lock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerInParent="true"
-                android:layout_margin="10dp"
-                android:padding="15dp"
+                android:layout_margin="5dp"
+                android:padding="12dp"
+                android:foregroundTint="@color/colorPrimary"
                 android:text="  Set App Lock" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

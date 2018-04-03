@@ -12,6 +12,11 @@ public  class Constants {
 
     public static String AppVersion;
 
+    //Sharepreference value
+    public static String SHARED_PREF_LOCK_MODE = "app_lock_mode";
+    public static String is_locked_enabled = "lockEnabled";
+    public static String SHARED_PREF_SET_PASSWORD = "set_password";
+
 
     public static String getVersionName (Context context) {
         try {
@@ -22,4 +27,6 @@ public  class Constants {
         }
         return  AppVersion;
     }
+
+
 }
