@@ -147,9 +147,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".Views.AboutActivity" />
-        <activity android:name=".Views.LockScreenActivity"></activity>
+        <activity android:name=".Views.LockScreenActivity" />
         <activity android:name=".Views.SettingActivity" />
-        <activity android:name=".Views.ChangePasswordActivity"></activity>
+        <activity android:name=".Views.ChangePasswordActivity" />
+        <activity android:name=".Views.ImagePreviewActivity"></activity>
     </application>
 
 </manifest>

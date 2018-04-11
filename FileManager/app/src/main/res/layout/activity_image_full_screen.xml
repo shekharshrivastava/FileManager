@@ -5,24 +5,38 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000"
     android:orientation="vertical"
     android:weightSum="1"
     tools:context="com.app.ssoft.filemanager.Views.ImageFullScreenActivity">
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:layout_weight="0.9"
+        android:visibility="visible" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="0.1" />
+        android:layout_height="0dp"
+        android:layout_weight="0.9"
+        android:src="@drawable/placeholder"
+        android:visibility="gone" />
 
     <android.support.design.widget.BottomNavigationView
-        android:layout_weight="0.9"
+        android:animateLayoutChanges="true"
         android:id="@+id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-
-        android:background="?android:attr/windowBackground"
-
+        android:layout_height="0dp"
+        android:layout_weight="0.1"
+        android:background="#000"
+        app:itemIconTint="@drawable/nav_color"
+        app:itemTextColor="@drawable/nav_color"
         app:menu="@menu/navigation" />
+
 
 </LinearLayout>

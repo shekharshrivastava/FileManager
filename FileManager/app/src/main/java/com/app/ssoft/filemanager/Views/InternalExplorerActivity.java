@@ -82,6 +82,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private int nr = 0;
     private int selectedPosition;
     private Menu cabMenu;
+    private ArrayList<String> imagesList;
+    private int imagePos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -456,6 +458,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        imagesList = new ArrayList<>();
         File m_isFile = new File(m_path.get(position));
         if (m_isFile.isDirectory()) {
             new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
@@ -473,8 +476,15 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 type = "*//*";
             if (Objects.equals(type, "image/jpeg")) {
                 Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
-                intent.putExtra("imgPath", m_path);
-                intent.putExtra("position", position);
+                for (String imageFiles :
+                        m_path) {
+                    File fileImageType = new File(imageFiles);
+                    if(!fileImageType.isDirectory()) {
+                        imagesList.add(imageFiles);
+                    }
+                }
+                intent.putExtra("imgPath", imagesList);
+                intent.putExtra("position", getImagePosition( m_isFile.getAbsolutePath()));
                 intent.putExtra("imgFile", m_isFile.getAbsolutePath());
                 intent.putExtra("imageName", m_item.get(position));
                 startActivityForResult(intent, RESULT_DELETED);
@@ -786,5 +796,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         return super.onContextItemSelected(item);
 
     }*/
+
+    private int getImagePosition(String category) {
+        imagePos=imagesList.indexOf(category);
+        return imagePos;
+    }
 }
 
