@@ -50,6 +50,7 @@ public class ImageViewActivity extends AppCompatActivity implements ViewPager.On
         toolbar.setTitle(imageName);
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setOnPageChangeListener(this);
+
      /*   CircleIndicator indicator = (CircleIndicator) findViewById(R.id.indicator);
         mPager.setAdapter(new MyAdapter(ImageViewActivity.this, imageArray, imageSelectedPos));
         indicator.setViewPager(mPager);*/

@@ -31,4 +31,12 @@
         android:id="@+id/action_open"
         android:title="Open With"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_lock"
+        android:title="Lock"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_unlock"
+        android:title="Unlock"
+        app:showAsAction="ifRoom" />
 </menu>

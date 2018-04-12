@@ -1,10 +1,12 @@
 package com.app.ssoft.filemanager.Views;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +37,7 @@ public class ListAdapter extends BaseAdapter {
     Context m_context;
     Boolean m_isRoot;
     private Bitmap thumbnailDrawable;
+    private SharedPreferences prefs;
 
     public ListAdapter(Context p_context, List<String> p_item, List<String> p_path, Boolean p_isRoot) {
         m_context = p_context;
@@ -79,7 +82,7 @@ public class ListAdapter extends BaseAdapter {
         if (!m_isRoot && p_position == 0) {
             m_viewHolder.m_cbCheck.setVisibility(View.GONE);
         }
-
+         prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
         m_viewHolder.m_tvFileName.setText(m_item.get(p_position));
 //        String m_filepath = new File(m_path.get(p_position)).getAbsolutePath();
 
@@ -96,6 +99,8 @@ public class ListAdapter extends BaseAdapter {
         } else {
             m_viewHolder.m_ivIcon.setImageResource(R.drawable.doc_folder);
         }*/
+
+
         if (!(new File(m_path.get(p_position)).isDirectory())) {
             if (m_path.get(p_position).endsWith(".pdf")) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.pdf_icon);
@@ -130,7 +135,11 @@ public class ListAdapter extends BaseAdapter {
                         .into(m_viewHolder.m_ivIcon);
             }
         } else {
-            m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
+            if((prefs.getBoolean(m_path.get(p_position),false) == true)){
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_folder);
+            }else{
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
+            }
         }
 
         m_viewHolder.m_tvDate.setText(getLastDate(p_position));

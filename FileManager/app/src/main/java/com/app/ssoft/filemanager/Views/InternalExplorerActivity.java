@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -84,6 +85,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private Menu cabMenu;
     private ArrayList<String> imagesList;
     private int imagePos;
+    private boolean isLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +108,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         new getAllFilesFromInternalStorageTask().execute(internalStorageRoot);
     }
 
-///get directories and files from selected path
+    ///get directories and files from selected path
     public void getDirFromRoot(final String p_rootPath) {
         runOnUiThread(new Runnable() {
             @Override
@@ -400,8 +402,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
 
-
-
     /*    *//*   @Override
        public boolean onPrepareOptionsMenu(Menu menu) {
            this.menu = menu;
@@ -458,55 +458,61 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         imagesList = new ArrayList<>();
         File m_isFile = new File(m_path.get(position));
-        if (m_isFile.isDirectory()) {
-            new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
+
+        isLocked = prefs.getBoolean(m_isFile.getAbsolutePath(), false);
+        if (!isLocked) {
+            if (m_isFile.isDirectory()) {
+                new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
 //            getDirFromRoot(m_isFile.toString());
-        } else {
-            MimeTypeMap map = MimeTypeMap.getSingleton();
-            if (m_isFile.getAbsolutePath().contains(".")) {
-                String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
-                if (extension.equals(".JPG")) {
-                    extension = ".jpeg";
-                }
-                type = map.getMimeTypeFromExtension(extension.replace(".", ""));
-            }
-            if (type == null)
-                type = "*//*";
-            if (Objects.equals(type, "image/jpeg")) {
-                Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
-                for (String imageFiles :
-                        m_path) {
-                    File fileImageType = new File(imageFiles);
-                    if(!fileImageType.isDirectory()) {
-                        imagesList.add(imageFiles);
-                    }
-                }
-                intent.putExtra("imgPath", imagesList);
-                intent.putExtra("position", getImagePosition( m_isFile.getAbsolutePath()));
-                intent.putExtra("imgFile", m_isFile.getAbsolutePath());
-                intent.putExtra("imageName", m_item.get(position));
-                startActivityForResult(intent, RESULT_DELETED);
-            } else if (Objects.equals(type, "video/mp4")) {
-                Intent intent = new Intent(this, VideoPlayerActivity.class);
-                intent.putExtra("path", m_path.get(position));
-                intent.putExtra("title", m_item.get(position));
-                startActivity(intent);
             } else {
-                if (!Objects.equals(type, "*//*")) {
-                    Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    intent.setDataAndType(uri, type);
-                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                MimeTypeMap map = MimeTypeMap.getSingleton();
+                if (m_isFile.getAbsolutePath().contains(".")) {
+                    String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+                    if (extension.equals(".JPG")) {
+                        extension = ".jpeg";
+                    }
+                    type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                }
+                if (type == null)
+                    type = "*//*";
+                if (Objects.equals(type, "image/jpeg")) {
+                    Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
+                    for (String imageFiles :
+                            m_path) {
+                        File fileImageType = new File(imageFiles);
+                        if (!fileImageType.isDirectory()) {
+                            imagesList.add(imageFiles);
+                        }
+                    }
+                    intent.putExtra("imgPath", imagesList);
+                    intent.putExtra("position", getImagePosition(m_isFile.getAbsolutePath()));
+                    intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                    intent.putExtra("imageName", m_item.get(position));
+                    startActivityForResult(intent, RESULT_DELETED);
+                } else if (Objects.equals(type, "video/mp4")) {
+                    Intent intent = new Intent(this, VideoPlayerActivity.class);
+                    intent.putExtra("path", m_path.get(position));
+                    intent.putExtra("title", m_item.get(position));
                     startActivity(intent);
                 } else {
-                    Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                    if (!Objects.equals(type, "*//*")) {
+                        Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(uri, type);
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        startActivity(intent);
+                    } else {
+                        Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                    }
                 }
+
             }
-
+        } else {
+            Toast.makeText(this, "This folder is locked", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -550,6 +556,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 Utils.shareMultipleFiles(InternalExplorerActivity.this, selectedFiles);
                 selectedFiles = new ArrayList<>();
                 mode.finish();
+
                 return true;
 
             case R.id.action_delete:
@@ -646,6 +653,20 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     mode.finish();
                 }
                 break;
+
+            case R.id.action_lock:
+                File lockedSelectedFile = new File(selectedFiles.get(0));
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
+                mode.finish();
+                break;
+
+            case R.id.action_unlock:
+                File unlockedSelectedFile = new File(selectedFiles.get(0));
+                SharedPreferences unlockPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+                unlockPrefs.edit().putBoolean(unlockedSelectedFile.getAbsolutePath(), false).commit();
+                mode.finish();
+                break;
             default:
         }
         return false;
@@ -691,10 +712,10 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
 
     /*
-    *
-    * Old version context menu option
-    *
-    * */
+     *
+     * Old version context menu option
+     *
+     * */
 
    /* @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -798,7 +819,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }*/
 
     private int getImagePosition(String category) {
-        imagePos=imagesList.indexOf(category);
+        imagePos = imagesList.indexOf(category);
         return imagePos;
     }
 }
