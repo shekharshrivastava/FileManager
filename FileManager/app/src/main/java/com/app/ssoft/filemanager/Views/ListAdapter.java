@@ -102,7 +102,9 @@ public class ListAdapter extends BaseAdapter {
 
 
         if (!(new File(m_path.get(p_position)).isDirectory())) {
-            if (m_path.get(p_position).endsWith(".pdf")) {
+            if((prefs.getBoolean(m_path.get(p_position),false) == true)){
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_files);
+            } else if (m_path.get(p_position).endsWith(".pdf")) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.pdf_icon);
             } else if (m_path.get(p_position).endsWith(".txt")) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.txt_icon);
@@ -136,7 +138,7 @@ public class ListAdapter extends BaseAdapter {
             }
         } else {
             if((prefs.getBoolean(m_path.get(p_position),false) == true)){
-                m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_folder);
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_files);
             }else{
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
             }

@@ -1,6 +1,8 @@
 package com.app.ssoft.filemanager.Views;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -22,15 +24,19 @@ import java.util.ArrayList;
  */
 
 public class ViewPagerAdapter extends PagerAdapter {
+    private final SharedPreferences prefs;
     private int pos = 0;
     private ArrayList<String> images;
     private Context context;
     private LayoutInflater layoutInflater;
+    private boolean isLocked;
+
 
     public ViewPagerAdapter(Context context, ArrayList<String> images, int position) {
         this.context = context;
         this.images = images;
         this.pos = position;
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
     @Override
@@ -52,13 +58,21 @@ public class ViewPagerAdapter extends PagerAdapter {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         File file = new File(images.get(position));
         file.getName();
+
+        isLocked = prefs.getBoolean(file.getAbsolutePath(), false);
 //        Utils.setFileImageType(context, new File(images.get(position))).compress(Bitmap.CompressFormat.JPEG, 100, stream);
-        Glide.with(context)
-                .load(file)
-                .asBitmap()
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .error(R.drawable.placeholder)
-                .into(imageView);
+      if(!isLocked) {
+          Glide.with(context)
+                  .load(file)
+                  .asBitmap()
+                  .diskCacheStrategy(DiskCacheStrategy.NONE)
+                  .error(R.drawable.placeholder)
+                  .into(imageView);
+
+      }else {
+
+          imageView.setImageResource(R.drawable.placeholder);
+    }
         ViewPager vp = (ViewPager) container;
         vp.addView(view, 0);
         return view;

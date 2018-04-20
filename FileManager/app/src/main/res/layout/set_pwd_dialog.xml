@@ -1,37 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_root"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="@dimen/logout_dialog_width"
+    android:layout_height="@dimen/logout_dialog_height"
+    android:layout_gravity="center"
     android:orientation="vertical"
-    android:padding="10dp" >
+    android:padding="10dp">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#000"
+        android:layout_marginBottom="10dp"
+        android:text="Please set your password for unlocking App and Folder" />
 
     <EditText
         android:id="@+id/etNewPwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLength="4"
-        android:inputType="numberPassword"
-        android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:maxLines="1"
-        android:hint="New Password"/>
+        android:gravity="center"
+        android:hint="New Password"
+        android:inputType="numberPassword"
+        android:maxLength="4"
+        android:maxLines="1" />
+
     <EditText
         android:id="@+id/etCnfrmPwd"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLength="4"
-        android:inputType="numberPassword"
-        android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:maxLines="1"
-        android:hint="Confirm Password"/>
-
+        android:gravity="center"
+        android:hint="Confirm Password"
+        android:inputType="numberPassword"
+        android:maxLength="4"
+        android:maxLines="1" />
 
 
 </LinearLayout>

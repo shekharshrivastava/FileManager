@@ -4,18 +4,19 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -64,6 +65,8 @@ public class Utils {
     private static File destinationFileName;
     private static FileOutputStream outputStream = null;
     private static ArrayList<PastedDetails> pastedDetailsList;
+    private static SharedPreferences prefs;
+    private static boolean isLocked = false;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -73,7 +76,6 @@ public class Utils {
     private ArrayList<String> m_filesPath;
     private String rootPath;
     private String m_curDir;
-
 
     public static String floatForm(double d) {
         return new DecimalFormat("#.##").format(d);
@@ -222,20 +224,26 @@ public class Utils {
     }
 
 
-    public static boolean deleteMultipleFiles(ArrayList<String> file) {
+    public static boolean deleteMultipleFiles(Context context, ArrayList<String> file) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         for (String f : file) {
+            isLocked = prefs.getBoolean(f, false);
             File file1 = new File(f);
+            if (!isLocked) {
+                if (file1.isDirectory()) {
+                    String[] children = file1.list();
+                    if (children.length > 0) {
+                        for (int i = 0; i < children.length; i++) {
+                            new File(f, children[i]).delete();
+                            isDeleted = file1.delete();
+                        }
+                    } else isDeleted = file1.delete();
+                } else {
+                    isDeleted = file1.delete();
+                }
 
-            if (file1.isDirectory()) {
-                String[] children = file1.list();
-                if (children.length > 0) {
-                    for (int i = 0; i < children.length; i++) {
-                        new File(f, children[i]).delete();
-                        isDeleted = file1.delete();
-                    }
-                } else isDeleted = file1.delete();
             } else {
-                isDeleted = file1.delete();
+                Toast.makeText(context, "Locked file/folder can'nt be deleted", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -289,36 +297,49 @@ public class Utils {
         }
     }
 
-    public static void cutMultipleFiles(ArrayList<String> src) {
+    public static void cutMultipleFiles(Context context, ArrayList<String> src) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         cutFileList = new ArrayList<>();
         for (String fileList : src) {
-            File file = new File(fileList);
-            cutFileList.add(file);
+            isLocked = prefs.getBoolean(fileList, false);
+            if (!isLocked) {
+                File file = new File(fileList);
+                cutFileList.add(file);
+                InternalExplorerActivity.isCutOrCopied = true;
+            }else {
+                Toast.makeText(context, "Locked file/folder can'nt be moved", Toast.LENGTH_SHORT).show();
+            }
+
         }
-        InternalExplorerActivity.isCutOrCopied = true;
     }
 
 
     public static void copyMultipleFile(Context context, ArrayList<String> file) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
         inputStreamsList = new ArrayList<>();
         folderItemList = new ArrayList<>();
         fileNameList = new ArrayList<>();
         try {
             for (String filePath : file) {
-                PasteFile pasteFile = new PasteFile();
-                File src = new File(filePath);
-                if (!src.isDirectory()) {
-                    inputStream = new FileInputStream(src);
-                    pasteFile.setInputStream(inputStream);
-                    pasteFile.setFileName(src.getName());
-                    pasteFile.setSrcPath(src.getAbsoluteFile());
-                    fileNameList.add(pasteFile);
-                    InternalExplorerActivity.isCutOrCopied = true;
+                isLocked = prefs.getBoolean(filePath, false);
+                if (!isLocked){
+                    PasteFile pasteFile = new PasteFile();
+                    File src = new File(filePath);
+                    if (!src.isDirectory()) {
+                        inputStream = new FileInputStream(src);
+                        pasteFile.setInputStream(inputStream);
+                        pasteFile.setFileName(src.getName());
+                        pasteFile.setSrcPath(src.getAbsoluteFile());
+                        fileNameList.add(pasteFile);
+                        InternalExplorerActivity.isCutOrCopied = true;
+                    } else {
+                        inputStream = null;
+                        items = src.listFiles();
+                        folderItemList.add(items);
+                        InternalExplorerActivity.isCutOrCopied = true;
+                    }
                 } else {
-                    inputStream = null;
-                    items = src.listFiles();
-                    folderItemList.add(items);
-                    InternalExplorerActivity.isCutOrCopied = true;
+                    Toast.makeText(context, "Locked file/folder can'nt be copied", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (FileNotFoundException e) {
@@ -663,20 +684,31 @@ public class Utils {
     }
 
     public static void shareMultipleFiles(Context context, ArrayList<String> filePath) {
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_SEND_MULTIPLE);
         intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.");
         files = new ArrayList<Uri>();
         for (String path : filePath /* List of the files you want to send */) {
+            isLocked = prefs.getBoolean(path, false);
             File file = new File(path);
-            String extension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("."));
-            MimeTypeMap map = MimeTypeMap.getSingleton();
-            String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
-            if (type == null)
-                type = "*//*";
-            intent.setType(type); /* This example is sharing jpeg images. */
-            Uri uri = Uri.fromFile(file);
-            files.add(uri);
+            if (!isLocked) {
+                if(!file.isDirectory()) {
+                    String extension = file.getAbsolutePath().substring(file.getAbsolutePath().lastIndexOf("."));
+                    MimeTypeMap map = MimeTypeMap.getSingleton();
+                    String type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                    if (type == null)
+                        type = "*//*";
+                    intent.setType(type); /* This example is sharing jpeg images. */
+                    Uri uri = Uri.fromFile(file);
+                    files.add(uri);
+                }else{
+                    Toast.makeText(context, "Only files will be Shared", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(context, "Locked file can'nt be shared", Toast.LENGTH_SHORT).show();
+            }
         }
 
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);

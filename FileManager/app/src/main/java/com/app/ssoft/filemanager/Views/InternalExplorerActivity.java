@@ -1,6 +1,7 @@
 package com.app.ssoft.filemanager.Views;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,15 +14,18 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
@@ -29,8 +33,12 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.andrognito.pinlockview.IndicatorDots;
+import com.andrognito.pinlockview.PinLockListener;
+import com.andrognito.pinlockview.PinLockView;
 import com.app.ssoft.filemanager.Model.PastedDetails;
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -86,6 +94,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private ArrayList<String> imagesList;
     private int imagePos;
     private boolean isLocked = false;
+    private SharedPreferences pwdSharedPrefs;
+    private SharedPreferences sharedPrefs;
+    private Dialog enterPwdDialog;
+    private PinLockView mPinLockView;
+    private IndicatorDots mIndicatorDots;
+    private ActionMode actionMode;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +118,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         rl_lvListRoot = findViewById(R.id.rl_lvListRoot);
         rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         rl_lvListRoot.setMultiChoiceModeListener(this);
-
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPrefs = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE);
+        pwdSharedPrefs = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE);
         registerForContextMenu(rl_lvListRoot);
         new getAllFilesFromInternalStorageTask().execute(internalStorageRoot);
     }
@@ -458,7 +475,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         imagesList = new ArrayList<>();
         File m_isFile = new File(m_path.get(position));
 
@@ -527,10 +544,28 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         if (selectedFiles.size() > 1) {
             cabMenu.getItem(3).setEnabled(false);
             cabMenu.getItem(5).setEnabled(false);
+            cabMenu.getItem(6).setEnabled(false);
+            cabMenu.getItem(7).setEnabled(false);
         } else {
-            cabMenu.getItem(3).setEnabled(true);
-            cabMenu.getItem(5).setEnabled(true);
+            if(selectedFiles.size() == 1) {
+                isLocked = prefs.getBoolean(selectedFiles.get(0), false);
+                if (isLocked) {
+                    cabMenu.getItem(3).setEnabled(false);
+                    cabMenu.getItem(5).setEnabled(false);
+                    cabMenu.getItem(6).setEnabled(false);
+                    cabMenu.getItem(7).setEnabled(true);
+                } else {
+                    cabMenu.getItem(3).setEnabled(true);
+                    cabMenu.getItem(6).setEnabled(true);
+                    cabMenu.getItem(5).setEnabled(true);
+                    cabMenu.getItem(7).setEnabled(false);
+                }
+            }
+
+
         }
+
+
         mode.setTitle(nr + " Selected");
     }
 
@@ -561,14 +596,14 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
             case R.id.action_delete:
 //                if (selectedFile.exists()) {
-                final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                final AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(
                         InternalExplorerActivity.this);
-                alertDialog.setTitle("Alert");
-                alertDialog.setMessage("Are you sure you want to delete this file ?");
-                alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                alertDialogDelete.setTitle("Alert");
+                alertDialogDelete.setMessage("Are you sure you want to delete this file ?");
+                alertDialogDelete.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        boolean isDeleted = Utils.deleteMultipleFiles(selectedFiles);
+                        boolean isDeleted = Utils.deleteMultipleFiles(InternalExplorerActivity.this,selectedFiles);
                         if (isDeleted == true) {
                             for (String deletedSelectedFiles : selectedFiles) {
                                 File file = new File(deletedSelectedFiles);
@@ -585,13 +620,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                         }
                     }
                 });
-                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                alertDialogDelete.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 });
-                alertDialog.show();
+                alertDialogDelete.show();
                 break;
 //                }
             case R.id.action_copy:
@@ -610,7 +645,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             case R.id.action_cut:
                 actionID = 2;
 //                if (selectedFile.exists()) {
-                Utils.cutMultipleFiles(selectedFiles);
+                Utils.cutMultipleFiles(InternalExplorerActivity.this,selectedFiles);
                 mode.finish();
                 if (isCutOrCopied) {
                     menu.getItem(1).setVisible(true);
@@ -655,17 +690,101 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 break;
 
             case R.id.action_lock:
-                File lockedSelectedFile = new File(selectedFiles.get(0));
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-                prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
-                mode.finish();
+                final File lockedSelectedFile = new File(selectedFiles.get(0));
+
+                if (pwdSharedPrefs.getString(Constants.password_input, null) != null) {
+                    SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE).edit();
+                    editor.putBoolean(Constants.is_locked_enabled, true);
+                    editor.commit();
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                    prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
+                    if(lockedSelectedFile.isDirectory()){
+                        try {
+                            File output = new File(lockedSelectedFile.getAbsolutePath(),".nomedia");
+                            output.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    mode.finish();
+                } else {
+// get prompts.xml view
+                    LayoutInflater li = LayoutInflater.from(InternalExplorerActivity.this);
+                    View promptsView = li.inflate(R.layout.set_pwd_dialog, null);
+                    android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(
+                            InternalExplorerActivity.this);
+
+                    // set prompts.xml to alertdialog builder
+                    alertDialogBuilder.setView(promptsView);
+
+                    final EditText userNewPassword = (EditText) promptsView
+                            .findViewById(R.id.etNewPwd);
+                    final EditText userConfirmPassword = (EditText) promptsView
+                            .findViewById(R.id.etCnfrmPwd);
+                    // set dialog message
+                    alertDialogBuilder
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // get user input and set it to result
+                                            // edit text
+                                            if (userNewPassword.getText().toString().length() == 4) {
+                                                if (userNewPassword.getText().toString().equals(userConfirmPassword.getText().toString())) {
+                                                    SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE).edit();
+                                                    editor.putString(Constants.password_input, userNewPassword.getText().toString());
+                                                    editor.commit();
+                                                    SharedPreferences.Editor prefLockEditor = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE).edit();
+                                                    prefLockEditor.putBoolean(Constants.is_locked_enabled, true);
+                                                    prefLockEditor.commit();
+                                                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                                                    prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
+                                                    if(lockedSelectedFile.isDirectory()){
+                                                        try {
+                                                            File output = new File(lockedSelectedFile.getAbsolutePath(),".nomedia");
+                                                            output.createNewFile();
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                    mode.finish();
+                                                } else {
+                                                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                                                    prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), false).commit();
+                                                    mode.finish();
+                                                    Toast.makeText(InternalExplorerActivity.this, "Password does'nt match", Toast.LENGTH_SHORT).show();
+                                                }
+                                            } else {
+                                                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                                                prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), false).commit();
+                                                mode.finish();
+                                                Toast.makeText(InternalExplorerActivity.this, "Password must be of 4 numbers", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                                            prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), false).commit();
+                                            mode.finish();
+
+                                        }
+                                    });
+
+                    // create alert dialog
+                    android.support.v7.app.AlertDialog alertDialog = alertDialogBuilder.create();
+
+                    // show it
+                    alertDialog.show();
+                }
+
+
                 break;
 
             case R.id.action_unlock:
-                File unlockedSelectedFile = new File(selectedFiles.get(0));
-                SharedPreferences unlockPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-                unlockPrefs.edit().putBoolean(unlockedSelectedFile.getAbsolutePath(), false).commit();
-                mode.finish();
+                showUnlockDialog(mode);
                 break;
             default:
         }
@@ -708,6 +827,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             rl_lvListRoot.setOnItemClickListener(InternalExplorerActivity.this);
             super.onPostExecute(aVoid);
         }
+
     }
 
 
@@ -822,5 +942,68 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         imagePos = imagesList.indexOf(category);
         return imagePos;
     }
+
+    private void showUnlockDialog(ActionMode mode) {
+        actionMode = mode;
+        if (enterPwdDialog == null || !enterPwdDialog.isShowing()) {
+            enterPwdDialog = new Dialog(this);
+            enterPwdDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            enterPwdDialog.setContentView(R.layout.enter_password_dialog);
+            mPinLockView = (PinLockView) enterPwdDialog.findViewById(R.id.pin_lock_view);
+            mIndicatorDots = (IndicatorDots) enterPwdDialog.findViewById(R.id.indicator_dots);
+
+            mPinLockView.attachIndicatorDots(mIndicatorDots);
+            mPinLockView.setPinLockListener(mPinLockListener);
+            //mPinLockView.setCustomKeySet(new int[]{2, 3, 1, 5, 9, 6, 7, 0, 8, 4});
+            //mPinLockView.enableLayoutShuffling();
+
+            mPinLockView.setPinLength(4);
+            mPinLockView.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+            mIndicatorDots.setIndicatorType(IndicatorDots.IndicatorType.FILL_WITH_ANIMATION);
+       /*     ImageView iv_img = (ImageView) enterPwdDialog.findViewById(R.id.iv_info);
+            Button logoutBtnYes = (Button) mPolicyDialog.findViewById(R.id.btn_ok);
+            CustomTextView tv_content1 = (CustomTextView) mPolicyDialog.findViewById(R.id
+                    .tv_content1);
+            tv_content1.setText(getString(R.string.msg_forward_not_allowed));
+            logoutBtnYes.setOnClickListener(this);*/
+            enterPwdDialog.show();
+        }
+    }
+
+    private String TAG = "LOCK SCREEN";
+    private PinLockListener mPinLockListener = new PinLockListener() {
+        @Override
+        public void onComplete(String pin) {
+            Log.d(TAG, "Pin complete: " + pin);
+            if (pwdSharedPrefs.getString(Constants.password_input, null) != null) {
+                if (pin.equals(pwdSharedPrefs.getString(Constants.password_input, null))) {
+                    File unlockedSelectedFile = new File(selectedFiles.get(0));
+                    SharedPreferences unlockPrefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
+                    unlockPrefs.edit().putBoolean(unlockedSelectedFile.getAbsolutePath(), false).commit();
+                    actionMode.finish();
+                    enterPwdDialog.dismiss();
+                    File fdelete = new File(unlockedSelectedFile.getAbsolutePath()+"/.nomedia");
+                    if (fdelete.exists()) {
+                       fdelete.delete();
+                    }
+                } else {
+                    Toast.makeText(InternalExplorerActivity.this, "Incorrect Pin", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        }
+
+        @Override
+        public void onEmpty() {
+            Log.d(TAG, "Pin empty");
+        }
+
+        @Override
+        public void onPinChange(int pinLength, String intermediatePin) {
+            Log.d(TAG, "Pin changed, new length " + pinLength + " with intermediate pin " + intermediatePin);
+        }
+    };
+
 }
 
