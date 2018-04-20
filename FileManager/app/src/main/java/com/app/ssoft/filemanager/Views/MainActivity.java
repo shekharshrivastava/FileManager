@@ -48,7 +48,6 @@ import com.google.android.gms.drive.OpenFileActivityBuilder;
 import com.intentfilter.androidpermissions.PermissionManager;
 
 import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,6 +56,7 @@ import java.util.Iterator;
 
 import at.grabner.circleprogress.CircleProgressView;
 import io.fabric.sdk.android.Fabric;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static java.util.Collections.singleton;
 
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity
     private TextView versionTV;
     private PermissionManager permissionManager;
     private TextView internalTotalSpace;
+    private MaterialTapTargetPrompt materialTapTargetPrompt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
 
         setContentView(R.layout.activity_main);
+
         mAdView = findViewById(R.id.nativeAdView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity
         externalStorageLayout = findViewById(R.id.externalStorageLayout);
         externalStorageSpace = findViewById(R.id.externalStorageSpace);
 
-
+        showTutorial(true);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -851,6 +853,25 @@ public class MainActivity extends AppCompatActivity
 //                    loadImage(imageIndex);
                 }
             }
+        }
+    }
+
+    public void showTutorial(boolean isShowing) {
+        if (isShowing) {
+            new MaterialTapTargetPrompt.Builder(MainActivity.this)
+                    .setTarget(findViewById(R.id.internal_progress_bar))
+                    .setPrimaryText("Storage info")
+                    .setSecondaryText("Tap to view storage")
+                    .setBackgroundColour(getResources().getColor(R.color.colorPrimary))
+                    .setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
+                        @Override
+                        public void onPromptStateChanged(MaterialTapTargetPrompt prompt, int state) {
+                            if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
+                                // User has pressed the prompt target
+                            }
+                        }
+                    })
+                    .show();
         }
     }
 }

@@ -542,23 +542,37 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             selectedFiles.remove((String) m_path.get(position));
         }
         if (selectedFiles.size() > 1) {
-            cabMenu.getItem(3).setEnabled(false);
-            cabMenu.getItem(5).setEnabled(false);
-            cabMenu.getItem(6).setEnabled(false);
-            cabMenu.getItem(7).setEnabled(false);
+            cabMenu.getItem(0).setVisible(true);
+            cabMenu.getItem(1).setVisible(true);
+            cabMenu.getItem(2).setVisible(true);
+            cabMenu.getItem(3).setVisible(false);
+            cabMenu.getItem(4).setVisible(true);
+            cabMenu.getItem(5).setVisible(false);
+            cabMenu.getItem(6).setVisible(false);
+            cabMenu.getItem(7).setVisible(false);
         } else {
             if(selectedFiles.size() == 1) {
                 isLocked = prefs.getBoolean(selectedFiles.get(0), false);
                 if (isLocked) {
-                    cabMenu.getItem(3).setEnabled(false);
-                    cabMenu.getItem(5).setEnabled(false);
-                    cabMenu.getItem(6).setEnabled(false);
+                    cabMenu.getItem(0).setVisible(false);
+                    cabMenu.getItem(1).setVisible(false);
+                    cabMenu.getItem(2).setVisible(false);
+                    cabMenu.getItem(3).setVisible(false);
+                    cabMenu.getItem(4).setVisible(false);
+                    cabMenu.getItem(5).setVisible(false);
+                    cabMenu.getItem(6).setVisible(false);
+                    cabMenu.getItem(7).setVisible(true);
                     cabMenu.getItem(7).setEnabled(true);
                 } else {
-                    cabMenu.getItem(3).setEnabled(true);
+                    cabMenu.getItem(0).setVisible(true);
+                    cabMenu.getItem(1).setVisible(true);
+                    cabMenu.getItem(2).setVisible(true);
+                    cabMenu.getItem(3).setVisible(true);
+                    cabMenu.getItem(4).setVisible(true);
+                    cabMenu.getItem(5).setVisible(true);
+                    cabMenu.getItem(6).setVisible(true);
                     cabMenu.getItem(6).setEnabled(true);
-                    cabMenu.getItem(5).setEnabled(true);
-                    cabMenu.getItem(7).setEnabled(false);
+                    cabMenu.getItem(7).setVisible(false);
                 }
             }
 
@@ -1004,6 +1018,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             Log.d(TAG, "Pin changed, new length " + pinLength + " with intermediate pin " + intermediatePin);
         }
     };
+
 
 }
 
