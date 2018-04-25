@@ -15,8 +15,10 @@ public  class Constants {
     //Sharepreference value
     public static String SHARED_PREF_LOCK_MODE = "app_lock_mode";
     public static String is_locked_enabled = "lockEnabled";
+    public static String is_folder_locked_enabled = "is_folder_Enabled";
     public static String SHARED_PREF_SET_PASSWORD = "set_password";
     public static String password_input = "input_password";
+    public static String SHARED_PREF_FOLDER_LOCK_MODE = "app_folder_lock_mode";
 
 
     public static String getVersionName (Context context) {

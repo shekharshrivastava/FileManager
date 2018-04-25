@@ -119,7 +119,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         rl_lvListRoot.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
         rl_lvListRoot.setMultiChoiceModeListener(this);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPrefs = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE);
+        sharedPrefs = getSharedPreferences(Constants.SHARED_PREF_FOLDER_LOCK_MODE, MODE_PRIVATE);
         pwdSharedPrefs = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE);
         registerForContextMenu(rl_lvListRoot);
         new getAllFilesFromInternalStorageTask().execute(internalStorageRoot);
@@ -707,8 +707,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 final File lockedSelectedFile = new File(selectedFiles.get(0));
 
                 if (pwdSharedPrefs.getString(Constants.password_input, null) != null) {
-                    SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE).edit();
-                    editor.putBoolean(Constants.is_locked_enabled, true);
+                    SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_FOLDER_LOCK_MODE, MODE_PRIVATE).edit();
+                    editor.putBoolean(Constants.is_folder_locked_enabled, true);
                     editor.commit();
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                     prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
@@ -748,8 +748,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                                                     SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE).edit();
                                                     editor.putString(Constants.password_input, userNewPassword.getText().toString());
                                                     editor.commit();
-                                                    SharedPreferences.Editor prefLockEditor = getSharedPreferences(Constants.SHARED_PREF_LOCK_MODE, MODE_PRIVATE).edit();
-                                                    prefLockEditor.putBoolean(Constants.is_locked_enabled, true);
+                                                    SharedPreferences.Editor prefLockEditor = getSharedPreferences(Constants.SHARED_PREF_FOLDER_LOCK_MODE, MODE_PRIVATE).edit();
+                                                    prefLockEditor.putBoolean(Constants.is_folder_locked_enabled, true);
                                                     prefLockEditor.commit();
                                                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                                                     prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
@@ -793,7 +793,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     // show it
                     alertDialog.show();
                 }
-
 
                 break;
 
