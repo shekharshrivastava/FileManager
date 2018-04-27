@@ -108,8 +108,7 @@ public class MainActivity extends AppCompatActivity
         isTutorialCompleted = sharedPrefs.getBoolean(Constants.is_home_app_tour_completed, false);
         mAdView = findViewById(R.id.nativeAdView);
         AdRequest adRequest = new AdRequest.Builder()
-                //        7B739675F49D587BB5D2F85182CECA54 Lenovo k8+
-                .addTestDevice("6F7F2BA04CC72730861A3D1637822707").build();
+                .addTestDevice("7B739675F49D587BB5D2F85182CECA54").build();
         mAdView.loadAd(adRequest);
  /*       AdRequest adRequest = new AdRequest.Builder().build();
         */

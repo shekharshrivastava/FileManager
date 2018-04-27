@@ -112,8 +112,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         loadingIndicator = findViewById(R.id.loading_indicator);
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder()
-//        7B739675F49D587BB5D2F85182CECA54 Lenovo k8+
-                .addTestDevice("6F7F2BA04CC72730861A3D1637822707").build();
+//         Lenovo k8+
+                .addTestDevice("7B739675F49D587BB5D2F85182CECA54").build();
 //        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
