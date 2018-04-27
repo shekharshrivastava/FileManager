@@ -23,7 +23,8 @@
 
     <item
         android:id="@+id/view"
-        android:title="View" />
+        android:title="View"
+        android:visible="false"/>
 
     <item
         android:id="@+id/showFolders"

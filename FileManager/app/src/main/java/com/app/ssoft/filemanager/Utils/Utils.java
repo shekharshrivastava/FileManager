@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.ListView;
@@ -67,6 +68,7 @@ public class Utils {
     private static ArrayList<PastedDetails> pastedDetailsList;
     private static SharedPreferences prefs;
     private static boolean isLocked = false;
+    private static SharedPreferences pwdSharedPrefs;
     private ArrayList<String> m_item;
     private boolean m_isRoot;
     private ArrayList<String> m_hiddenFilesNames;
@@ -201,8 +203,7 @@ public class Utils {
         // directory
 
         File imageFileToShare = new File(filePath);
-
-        Uri uri = Uri.fromFile(imageFileToShare);
+        Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName(), imageFileToShare);
         share.putExtra(Intent.EXTRA_STREAM, uri);
 
         context.startActivity(Intent.createChooser(share, "Share Image!"));
@@ -701,7 +702,7 @@ public class Utils {
                     if (type == null)
                         type = "*//*";
                     intent.setType(type); /* This example is sharing jpeg images. */
-                    Uri uri = Uri.fromFile(file);
+                    Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName(), file);
                     files.add(uri);
                 }else{
                     Toast.makeText(context, "Only files will be Shared", Toast.LENGTH_SHORT).show();
@@ -777,5 +778,8 @@ public class Utils {
         String dateText = df2.format(addedDate);
         return dateText;
     }
+
+
+
 
 }

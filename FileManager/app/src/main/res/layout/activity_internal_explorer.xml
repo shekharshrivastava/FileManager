@@ -29,5 +29,6 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/ad_unit_id" />
+        ads:adUnitId="@string/ad_unit_id"
+        />
 </RelativeLayout>

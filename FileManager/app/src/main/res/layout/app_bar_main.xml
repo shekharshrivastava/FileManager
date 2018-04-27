@@ -234,7 +234,8 @@
                 android:layout_marginRight="20dp"
                 android:background="@color/bs_divider_color" />
 
-            <com.google.android.gms.ads.NativeExpressAdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            <com.google.android.gms.ads.NativeExpressAdView
+                xmlns:ads="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/nativeAdView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

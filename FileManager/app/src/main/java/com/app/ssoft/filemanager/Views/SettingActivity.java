@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,8 +51,8 @@ public class SettingActivity extends AppCompatActivity {
 // get prompts.xml view
                         LayoutInflater li = LayoutInflater.from(SettingActivity.this);
                         View promptsView = li.inflate(R.layout.set_pwd_dialog, null);
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                                SettingActivity.this);
+                        android.app.AlertDialog.Builder alertDialogBuilder = new android.app.AlertDialog.Builder(new ContextThemeWrapper(SettingActivity.this,R.style.myDialogTheme));
+
 
                         // set prompts.xml to alertdialog builder
                         alertDialogBuilder.setView(promptsView);
@@ -97,7 +97,7 @@ public class SettingActivity extends AppCompatActivity {
                                         });
 
                         // create alert dialog
-                        AlertDialog alertDialog = alertDialogBuilder.create();
+                        android.app.AlertDialog alertDialog = alertDialogBuilder.create();
 
                         // show it
                         alertDialog.show();

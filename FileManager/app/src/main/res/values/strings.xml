@@ -11,10 +11,20 @@
     <string name="title_notifications">Notifications</string>
     <string name="ad_mob_app_id">ca-app-pub-4728939752854177~4232043922</string>
     <string name="ad_unit_id"> ca-app-pub-4728939752854177/8839047937</string>
+    <string name="ad_test_unit_id"> ca-app-pub-3940256099942544/6300978111</string>
+
 
 
     <string name="title_activity_splash">SplashActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="str_walkthrough_storage_info">Storage Info</string>
+    <string name="str_walkthrough_storage_info_substring">Category wise  view your device memory usuage</string>
+    <string name="str_walkthrough_internal_storage">Internal Storage</string>
+    <string name="str_walkthrough_internal_storage_substring">Tap here to view your internal storage</string>
+    <string name="str_walkthrough_cancelled">Sorry</string>
+    <string name="str_walkthrough_cancelled_substring">You cancelled the app tour</string>
+    <string name="str_walkthrough_ok">OK</string>
+    <string name="str_walkthrough_long_click_substring">Long click to see multiple options</string>
 
 </resources>

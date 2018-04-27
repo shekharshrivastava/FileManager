@@ -16,10 +16,10 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.print.PrintHelper;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
@@ -27,7 +27,6 @@ import android.widget.Toast;
 
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Utils;
-import com.bogdwellers.pinchtozoom.ImageMatrixTouchHandler;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -147,8 +146,10 @@ public class ImageFullScreenActivity extends AppCompatActivity {
                     Utils.shareImage(ImageFullScreenActivity.this, image.getAbsolutePath());
                     return true;
                 case R.id.navigation_delete:
-                    final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                            ImageFullScreenActivity.this);
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(ImageFullScreenActivity.this,R.style.myDialogTheme));
+
+              /*      final AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                            ImageFullScreenActivity.this);*/
                     alertDialog.setTitle("Alert");
                     alertDialog.setMessage("Are you sure you want to delete this file ?");
                     alertDialog.setPositiveButton("Delete", new DialogInterface.OnClickListener() {

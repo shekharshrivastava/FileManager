@@ -1,12 +1,15 @@
 package com.app.ssoft.filemanager.Views;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,20 +20,26 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app.ssoft.filemanager.R;
+import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by Shekahar.Shrivastava on 18-Jan-18.
  */
 
 public class ListAdapter extends BaseAdapter {
+    private final SharedPreferences sharedPrefs;
     private List<String> m_item;
     private List<String> m_path;
     public ArrayList<Integer> m_selectedItem;
@@ -38,6 +47,9 @@ public class ListAdapter extends BaseAdapter {
     Boolean m_isRoot;
     private Bitmap thumbnailDrawable;
     private SharedPreferences prefs;
+    private TapTargetSequence sequence1;
+    private View m_view;
+    private boolean isTutorialCompleted = false;
 
     public ListAdapter(Context p_context, List<String> p_item, List<String> p_path, Boolean p_isRoot) {
         m_context = p_context;
@@ -45,6 +57,7 @@ public class ListAdapter extends BaseAdapter {
         m_path = p_path;
         m_selectedItem = new ArrayList<Integer>();
         m_isRoot = p_isRoot;
+        sharedPrefs = m_context.getSharedPreferences(Constants.SHARED_PREF_SET_APP_TOUR_, MODE_PRIVATE);
     }
 
     @Override
@@ -64,7 +77,7 @@ public class ListAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int p_position, View p_convertView, ViewGroup p_parent) {
-        View m_view = null;
+        m_view = null;
         ViewHolder m_viewHolder = null;
         if (p_convertView == null) {
             LayoutInflater m_inflater = LayoutInflater.from(m_context);
@@ -82,8 +95,10 @@ public class ListAdapter extends BaseAdapter {
         if (!m_isRoot && p_position == 0) {
             m_viewHolder.m_cbCheck.setVisibility(View.GONE);
         }
-         prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
+        prefs = PreferenceManager.getDefaultSharedPreferences(m_context);
         m_viewHolder.m_tvFileName.setText(m_item.get(p_position));
+        isTutorialCompleted = sharedPrefs.getBoolean(Constants.is_internal_app_tour_completed, false);
+//        showTutorial(isTutorialCompleted);
 //        String m_filepath = new File(m_path.get(p_position)).getAbsolutePath();
 
      /*   int m_lastIndex = new File(m_path.get(p_position)).getAbsolutePath().lastIndexOf(".");
@@ -102,7 +117,7 @@ public class ListAdapter extends BaseAdapter {
 
 
         if (!(new File(m_path.get(p_position)).isDirectory())) {
-            if((prefs.getBoolean(m_path.get(p_position),false) == true)){
+            if ((prefs.getBoolean(m_path.get(p_position), false) == true)) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_files);
             } else if (m_path.get(p_position).endsWith(".pdf")) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.pdf_icon);
@@ -137,9 +152,9 @@ public class ListAdapter extends BaseAdapter {
                         .into(m_viewHolder.m_ivIcon);
             }
         } else {
-            if((prefs.getBoolean(m_path.get(p_position),false) == true)){
+            if ((prefs.getBoolean(m_path.get(p_position), false) == true)) {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.locked_files);
-            }else{
+            } else {
                 m_viewHolder.m_ivIcon.setImageResource(R.drawable.closed_folders);
             }
         }
@@ -204,4 +219,55 @@ public class ListAdapter extends BaseAdapter {
     public int getItemViewType(int position) {
         return position;
     }
+
+    public void showTutorial(boolean isTutorialCompleted) {
+        if (!isTutorialCompleted) {
+            final SharedPreferences.Editor editor = m_context.getSharedPreferences(Constants.SHARED_PREF_SET_APP_TOUR_, MODE_PRIVATE).edit();
+
+            sequence1 = new TapTargetSequence((Activity) m_context)
+                    .targets(
+                            TapTarget.forView(m_view.findViewById(R.id.lr_ivFileIcon),
+                                    m_context.getString(R.string.str_walkthrough_storage_info),
+                                    m_context.getString(R.string.str_walkthrough_long_click_substring))
+                                    .outerCircleColor(R.color.colorPrimary)
+                                    .targetCircleColor(R.color.white)
+                                    .cancelable(true)
+                                    .titleTextColor(R.color.white)
+                                    .textColor(R.color.white)
+                                    .drawShadow(true)
+                                    .id(1)).listener(new TapTargetSequence.Listener() {
+                                                         @Override
+                                                         public void onSequenceFinish() {
+                                                             editor.putBoolean(Constants.is_internal_app_tour_completed, true);
+                                                             editor.commit();
+                                                         }
+
+                                                         @Override
+                                                         public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+
+                                                         }
+
+                                                         @Override
+                                                         public void onSequenceCanceled(TapTarget lastTarget) {
+                                                             new AlertDialog.Builder(m_context)
+                                                                     .setTitle(m_context.getString(R.string.str_walkthrough_cancelled))
+                                                                     .setMessage(m_context.getString(R.string.str_walkthrough_cancelled_substring))
+                                                                     .setPositiveButton(m_context.getString(R.string.str_walkthrough_ok), new DialogInterface.OnClickListener() {
+                                                                         @Override
+                                                                         public void onClick(DialogInterface dialog, int which) {
+                                                                             editor.putBoolean(Constants.is_internal_app_tour_completed, true);
+                                                                             editor.commit();
+                                                                         }
+                                                                     })
+                                                                     .show();
+                                                             ;
+                                                         }
+                                                     }
+                    );
+
+
+            sequence1.start();
+        }
+    }
+
 }

@@ -8,11 +8,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature android:name="android.hardware.usb.host" />
 
     <uses-permission android:name="android.permission.USB_PERMISSION" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"
+    <uses-permission
+        android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
 
     <application
@@ -20,11 +22,10 @@
         android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:largeHeap="true"
+        android:manageSpaceActivity=".Views.ActivityOfMyChoice"
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:manageSpaceActivity=".Views.ActivityOfMyChoice">
-        
+        android:theme="@style/AppTheme">
         <activity
             android:name=".Views.MainActivity"
             android:label="@string/app_name"
@@ -154,9 +155,8 @@
         <activity android:name=".Views.SettingActivity" />
         <activity android:name=".Views.ChangePasswordActivity" />
         <activity android:name=".Views.ImagePreviewActivity" />
-        <activity android:name=".Views.ActivityOfMyChoice"></activity>
-
-
+        <activity android:name=".Views.ActivityOfMyChoice" />
+        <activity android:name=".Views.TutorialActivity"></activity>
     </application>
 
 </manifest>

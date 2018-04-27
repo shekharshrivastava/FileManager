@@ -2,8 +2,10 @@ package com.app.ssoft.filemanager.Views;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -18,6 +20,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -34,6 +37,8 @@ import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
 import com.crashlytics.android.Crashlytics;
+import com.getkeepsafe.taptargetview.TapTarget;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.NativeExpressAdView;
@@ -56,7 +61,6 @@ import java.util.Iterator;
 
 import at.grabner.circleprogress.CircleProgressView;
 import io.fabric.sdk.android.Fabric;
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static java.util.Collections.singleton;
 
@@ -89,7 +93,10 @@ public class MainActivity extends AppCompatActivity
     private TextView versionTV;
     private PermissionManager permissionManager;
     private TextView internalTotalSpace;
-    private MaterialTapTargetPrompt materialTapTargetPrompt;
+
+    private TapTargetSequence sequence1;
+    private SharedPreferences.Editor editor;
+    private boolean isTutorialCompleted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,10 +104,15 @@ public class MainActivity extends AppCompatActivity
         Fabric.with(this, new Crashlytics());
 
         setContentView(R.layout.activity_main);
-
+        SharedPreferences sharedPrefs = getSharedPreferences(Constants.SHARED_PREF_SET_APP_TOUR_, MODE_PRIVATE);
+        isTutorialCompleted = sharedPrefs.getBoolean(Constants.is_home_app_tour_completed, false);
         mAdView = findViewById(R.id.nativeAdView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+                //        7B739675F49D587BB5D2F85182CECA54 Lenovo k8+
+                .addTestDevice("6F7F2BA04CC72730861A3D1637822707").build();
         mAdView.loadAd(adRequest);
+ /*       AdRequest adRequest = new AdRequest.Builder().build();
+        */
         MobileAds.initialize(this, getString(R.string.ad_mob_app_id));
         permissionManager = PermissionManager.getInstance(this);
         permissionManager.checkPermissions(singleton(Manifest.permission.WRITE_EXTERNAL_STORAGE), new PermissionManager.PermissionRequestListener() {
@@ -144,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         externalStorageLayout = findViewById(R.id.externalStorageLayout);
         externalStorageSpace = findViewById(R.id.externalStorageSpace);
 
-        showTutorial(true);
+        showTutorial(isTutorialCompleted);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -856,22 +868,63 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public void showTutorial(boolean isShowing) {
-        if (isShowing) {
-            new MaterialTapTargetPrompt.Builder(MainActivity.this)
-                    .setTarget(findViewById(R.id.internal_progress_bar))
-                    .setPrimaryText("Storage info")
-                    .setSecondaryText("Tap to view storage")
-                    .setBackgroundColour(getResources().getColor(R.color.colorPrimary))
-                    .setPromptStateChangeListener(new MaterialTapTargetPrompt.PromptStateChangeListener() {
-                        @Override
-                        public void onPromptStateChanged(MaterialTapTargetPrompt prompt, int state) {
-                            if (state == MaterialTapTargetPrompt.STATE_FOCAL_PRESSED) {
-                                // User has pressed the prompt target
-                            }
-                        }
-                    })
-                    .show();
+    public void showTutorial(boolean isTutorialCompleted) {
+        if (!isTutorialCompleted) {
+            final SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_SET_APP_TOUR_, MODE_PRIVATE).edit();
+
+            sequence1 = new TapTargetSequence(this)
+                    .targets(
+                            TapTarget.forView(findViewById(R.id.internal_progress_bar),
+                                    getString(R.string.str_walkthrough_storage_info),
+                                    getString(R.string.str_walkthrough_storage_info_substring))
+                                    .outerCircleColor(R.color.colorPrimary)
+                                    .targetCircleColor(R.color.white)
+                                    .cancelable(true)
+                                    .titleTextColor(R.color.white)
+                                    .textColor(R.color.white)
+                                    .drawShadow(true)
+                                    .id(1),
+                            TapTarget.forView(findViewById(R.id.internalStorageLinearLayout),
+                                    getString(R.string.str_walkthrough_internal_storage),
+                                    getString(R.string.str_walkthrough_internal_storage_substring))
+                                    .outerCircleColor(R.color.colorPrimary)
+                                    .targetCircleColor(R.color.white)
+                                    .cancelable(true)
+                                    .titleTextColor(R.color.white)
+                                    .textColor(R.color.white)
+                                    .drawShadow(true)
+                                    .id(1)).listener(new TapTargetSequence.Listener() {
+                                                         @Override
+                                                         public void onSequenceFinish() {
+                                                             editor.putBoolean(Constants.is_home_app_tour_completed, true);
+                                                             editor.commit();
+                                                         }
+
+                                                         @Override
+                                                         public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
+
+                                                         }
+
+                                                         @Override
+                                                         public void onSequenceCanceled(TapTarget lastTarget) {
+                                                             new AlertDialog.Builder(MainActivity.this)
+                                                                     .setTitle(getString(R.string.str_walkthrough_cancelled))
+                                                                     .setMessage(getString(R.string.str_walkthrough_cancelled_substring))
+                                                                     .setPositiveButton(getString(R.string.str_walkthrough_ok), new DialogInterface.OnClickListener() {
+                                                                         @Override
+                                                                         public void onClick(DialogInterface dialog, int which) {
+                                                                             editor.putBoolean(Constants.is_home_app_tour_completed, true);
+                                                                             editor.commit();
+                                                                         }
+                                                                     })
+                                                                     .show();
+                                                             ;
+                                                         }
+                                                     }
+                    );
+
+
+            sequence1.start();
         }
     }
 }

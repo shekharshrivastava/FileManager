@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +41,7 @@ import com.app.ssoft.filemanager.Model.PastedDetails;
 import com.app.ssoft.filemanager.R;
 import com.app.ssoft.filemanager.Utils.Constants;
 import com.app.ssoft.filemanager.Utils.Utils;
+import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.tuyenmonkey.mkloader.MKLoader;
@@ -101,6 +103,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private IndicatorDots mIndicatorDots;
     private ActionMode actionMode;
     private SharedPreferences prefs;
+    private TapTargetSequence sequence1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +111,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         setContentView(R.layout.activity_internal_explorer);
         loadingIndicator = findViewById(R.id.loading_indicator);
         mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder()
+//        7B739675F49D587BB5D2F85182CECA54 Lenovo k8+
+                .addTestDevice("6F7F2BA04CC72730861A3D1637822707").build();
+//        AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
+
+//        adRequest.addTestDevice();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         pref = getApplicationContext().getSharedPreferences("menuPref", 0);
         editor = pref.edit();
@@ -302,7 +310,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
         dialogBuilder.setView(dialogView);
@@ -345,7 +353,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     public void showRenameDialog(final boolean isRenameFile, final File selectedFile, final String editTextValue, String title, String positiveButtonText) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+
+//        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
         dialogBuilder.setView(dialogView);
@@ -446,6 +456,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             menu.getItem(4).setEnabled(true);
             menu.getItem(3).setEnabled(false);
             editor.commit();
+        }else {
+            Toast.makeText(this,"This folder does'nt contains any hidden files",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -610,8 +622,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
             case R.id.action_delete:
 //                if (selectedFile.exists()) {
-                final AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(
-                        InternalExplorerActivity.this);
+                AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+              /*  final AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(
+                        InternalExplorerActivity.this);*/
                 alertDialogDelete.setTitle("Alert");
                 alertDialogDelete.setMessage("Are you sure you want to delete this file ?");
                 alertDialogDelete.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
@@ -633,6 +646,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                             Toast.makeText(InternalExplorerActivity.this, "Error deleting file/folder", Toast.LENGTH_SHORT).show();
                         }
                     }
+
                 });
                 alertDialogDelete.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -725,8 +739,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 // get prompts.xml view
                     LayoutInflater li = LayoutInflater.from(InternalExplorerActivity.this);
                     View promptsView = li.inflate(R.layout.set_pwd_dialog, null);
-                    android.support.v7.app.AlertDialog.Builder alertDialogBuilder = new android.support.v7.app.AlertDialog.Builder(
-                            InternalExplorerActivity.this);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+
 
                     // set prompts.xml to alertdialog builder
                     alertDialogBuilder.setView(promptsView);
@@ -788,7 +802,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                                     });
 
                     // create alert dialog
-                    android.support.v7.app.AlertDialog alertDialog = alertDialogBuilder.create();
+                    AlertDialog alertDialog = alertDialogBuilder.create();
 
                     // show it
                     alertDialog.show();
@@ -1017,7 +1031,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             Log.d(TAG, "Pin changed, new length " + pinLength + " with intermediate pin " + intermediatePin);
         }
     };
-
 
 }
 
