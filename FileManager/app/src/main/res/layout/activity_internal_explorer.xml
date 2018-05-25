@@ -21,6 +21,19 @@
         app:mk_color="@color/colorPrimary"
         app:mk_type="ClassicSpinner" />
 
+    <TextView
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/loading_indicator"
+        android:id="@+id/progress_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:visibility="gone"
+        android:textColor="#000"
+        android:text="Not Started"
+        android:layout_marginBottom="20dp"
+        android:layout_centerInParent="true" />
+
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="match_parent"

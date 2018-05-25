@@ -39,4 +39,8 @@
         android:id="@+id/action_unlock"
         android:title="Unlock"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/zip_file"
+        android:title="Compress"
+        app:showAsAction="ifRoom" />
 </menu>

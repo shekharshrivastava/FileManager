@@ -140,7 +140,10 @@ public class ListAdapter extends BaseAdapter {
                     m_viewHolder.m_ivIcon.setImageDrawable(APKicon);
                 }
 
-            } else {
+            }else if(m_path.get(p_position).endsWith(".zip")){
+                m_viewHolder.m_ivIcon.setImageResource(R.drawable.zip_folder);
+            }
+            else {
 //            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 //            setFileImageType(new File(m_path.get(p_position))).compress(Bitmap.CompressFormat.PNG, 50, stream);
                 Glide.with(m_context)

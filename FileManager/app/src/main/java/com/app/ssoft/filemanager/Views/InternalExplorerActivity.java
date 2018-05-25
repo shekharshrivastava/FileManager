@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.andrognito.pinlockview.IndicatorDots;
@@ -48,11 +50,18 @@ import com.tuyenmonkey.mkloader.MKLoader;
 
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
@@ -104,6 +113,11 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private ActionMode actionMode;
     private SharedPreferences prefs;
     private TapTargetSequence sequence1;
+    private CompressFiles mCompressFiles;
+    private TextView mProgressView;
+    private static final int BUFFER = 2048;
+    private String zipFileName;
+    private File m_isFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +125,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         setContentView(R.layout.activity_internal_explorer);
         loadingIndicator = findViewById(R.id.loading_indicator);
         mAdView = findViewById(R.id.adView);
+        mProgressView = findViewById(R.id.progress_text_view);
         AdRequest adRequest = new AdRequest.Builder()
 //         Lenovo k8+
                 .addTestDevice("7B739675F49D587BB5D2F85182CECA54").build();
@@ -310,7 +325,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     public void showChangeLangDialog(final boolean isRenameFile, final String editTextValue, String title, String positiveButtonText) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this, R.style.myDialogTheme));
         LayoutInflater inflater = getLayoutInflater();
         final View dialogView = inflater.inflate(R.layout.create_folder_dialog, null);
         dialogBuilder.setView(dialogView);
@@ -353,7 +368,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     public void showRenameDialog(final boolean isRenameFile, final File selectedFile, final String editTextValue, String title, String positiveButtonText) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this, R.style.myDialogTheme));
 
 //        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -456,8 +471,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             menu.getItem(4).setEnabled(true);
             menu.getItem(3).setEnabled(false);
             editor.commit();
-        }else {
-            Toast.makeText(this,"This folder does'nt contains any hidden files",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "This folder does'nt contains any hidden files", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -489,7 +504,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
         imagesList = new ArrayList<>();
-        File m_isFile = new File(m_path.get(position));
+        m_isFile = new File(m_path.get(position));
 
         isLocked = prefs.getBoolean(m_isFile.getAbsolutePath(), false);
         if (!isLocked) {
@@ -497,47 +512,74 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 new getAllFilesFromInternalStorageTask().execute(m_isFile.toString());
 //            getDirFromRoot(m_isFile.toString());
             } else {
-                MimeTypeMap map = MimeTypeMap.getSingleton();
-                if (m_isFile.getAbsolutePath().contains(".")) {
+                if (getIntent().getAction() == null) {
+                    MimeTypeMap map = MimeTypeMap.getSingleton();
+                    if (m_isFile.getAbsolutePath().contains(".")) {
+                        String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
+                        if (extension.equalsIgnoreCase(".JPG")) {
+                            extension = ".jpeg";
+                        }
+                        type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                    }
+                    if (type == null)
+                        type = "*//*";
+                    if (Objects.equals(type, "image/jpeg")) {
+                        Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
+                        for (String imageFiles :
+                                m_path) {
+                            File fileImageType = new File(imageFiles);
+                            if (!fileImageType.isDirectory()) {
+                                imagesList.add(imageFiles);
+                            }
+                        }
+                        intent.putExtra("imgPath", imagesList);
+                        intent.putExtra("position", getImagePosition(m_isFile.getAbsolutePath()));
+                        intent.putExtra("imgFile", m_isFile.getAbsolutePath());
+                        intent.putExtra("imageName", m_item.get(position));
+                        startActivityForResult(intent, RESULT_DELETED);
+                    } else if (Objects.equals(type, "video/mp4")) {
+                        Intent intent = new Intent(this, VideoPlayerActivity.class);
+                        intent.putExtra("path", m_path.get(position));
+                        intent.putExtra("title", m_item.get(position));
+                        startActivity(intent);
+                    } else {
+                        try {
+                            if (!Objects.equals(type, "*//*")) {
+                                Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(uri, type);
+                                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                } else {
+                    MimeTypeMap map = MimeTypeMap.getSingleton();
                     String extension = m_isFile.getAbsolutePath().substring(m_isFile.getAbsolutePath().lastIndexOf("."));
-                    if (extension.equals(".JPG")) {
+                    if (extension.equalsIgnoreCase(".JPG")) {
                         extension = ".jpeg";
                     }
                     type = map.getMimeTypeFromExtension(extension.replace(".", ""));
+                    Uri fileUri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
+                    /*String uri = "file://" + m_isFile.getPath();
+                    Uri uploadUri = Uri.parse(uri);*/
+                    Intent uploadIntent = ShareCompat.IntentBuilder.from(this)
+                            .setType(type)
+                            .setStream(fileUri)
+                            .getIntent()
+                            .setPackage("com.google.android.apps.docs");
+                    startActivity(uploadIntent);
+                /*    Uri fileUri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile)
+                    theIntent.setData(fileUri.pat);
+                    setResult(RESULT_OK,theIntent);*/
+                    finish();
                 }
-                if (type == null)
-                    type = "*//*";
-                if (Objects.equals(type, "image/jpeg")) {
-                    Intent intent = new Intent(InternalExplorerActivity.this, ImageFullScreenActivity.class);
-                    for (String imageFiles :
-                            m_path) {
-                        File fileImageType = new File(imageFiles);
-                        if (!fileImageType.isDirectory()) {
-                            imagesList.add(imageFiles);
-                        }
-                    }
-                    intent.putExtra("imgPath", imagesList);
-                    intent.putExtra("position", getImagePosition(m_isFile.getAbsolutePath()));
-                    intent.putExtra("imgFile", m_isFile.getAbsolutePath());
-                    intent.putExtra("imageName", m_item.get(position));
-                    startActivityForResult(intent, RESULT_DELETED);
-                } else if (Objects.equals(type, "video/mp4")) {
-                    Intent intent = new Intent(this, VideoPlayerActivity.class);
-                    intent.putExtra("path", m_path.get(position));
-                    intent.putExtra("title", m_item.get(position));
-                    startActivity(intent);
-                } else {
-                    if (!Objects.equals(type, "*//*")) {
-                        Uri uri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile);
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setDataAndType(uri, type);
-                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        startActivity(intent);
-                    } else {
-                        Toast.makeText(InternalExplorerActivity.this, "No app found to open selected file", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
             }
         } else {
             Toast.makeText(this, "This folder is locked", Toast.LENGTH_SHORT).show();
@@ -563,7 +605,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             cabMenu.getItem(6).setVisible(false);
             cabMenu.getItem(7).setVisible(false);
         } else {
-            if(selectedFiles.size() == 1) {
+            if (selectedFiles.size() == 1) {
                 isLocked = prefs.getBoolean(selectedFiles.get(0), false);
                 if (isLocked) {
                     cabMenu.getItem(0).setVisible(false);
@@ -622,7 +664,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
             case R.id.action_delete:
 //                if (selectedFile.exists()) {
-                AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+                AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this, R.style.myDialogTheme));
               /*  final AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(
                         InternalExplorerActivity.this);*/
                 alertDialogDelete.setTitle("Alert");
@@ -630,7 +672,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                 alertDialogDelete.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        boolean isDeleted = Utils.deleteMultipleFiles(InternalExplorerActivity.this,selectedFiles);
+                        boolean isDeleted = Utils.deleteMultipleFiles(InternalExplorerActivity.this, selectedFiles);
                         if (isDeleted == true) {
                             for (String deletedSelectedFiles : selectedFiles) {
                                 File file = new File(deletedSelectedFiles);
@@ -673,7 +715,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             case R.id.action_cut:
                 actionID = 2;
 //                if (selectedFile.exists()) {
-                Utils.cutMultipleFiles(InternalExplorerActivity.this,selectedFiles);
+                Utils.cutMultipleFiles(InternalExplorerActivity.this, selectedFiles);
                 mode.finish();
                 if (isCutOrCopied) {
                     menu.getItem(1).setVisible(true);
@@ -726,9 +768,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     editor.commit();
                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                     prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
-                    if(lockedSelectedFile.isDirectory()){
+                    if (lockedSelectedFile.isDirectory()) {
                         try {
-                            File output = new File(lockedSelectedFile.getAbsolutePath(),".nomedia");
+                            File output = new File(lockedSelectedFile.getAbsolutePath(), ".nomedia");
                             output.createNewFile();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -739,7 +781,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 // get prompts.xml view
                     LayoutInflater li = LayoutInflater.from(InternalExplorerActivity.this);
                     View promptsView = li.inflate(R.layout.set_pwd_dialog, null);
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this,R.style.myDialogTheme));
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(new ContextThemeWrapper(InternalExplorerActivity.this, R.style.myDialogTheme));
 
 
                     // set prompts.xml to alertdialog builder
@@ -767,9 +809,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                                                     prefLockEditor.commit();
                                                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                                                     prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), true).commit();
-                                                    if(lockedSelectedFile.isDirectory()){
+                                                    if (lockedSelectedFile.isDirectory()) {
                                                         try {
-                                                            File output = new File(lockedSelectedFile.getAbsolutePath(),".nomedia");
+                                                            File output = new File(lockedSelectedFile.getAbsolutePath(), ".nomedia");
                                                             output.createNewFile();
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
@@ -813,6 +855,13 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             case R.id.action_unlock:
                 showUnlockDialog(mode);
                 break;
+            case R.id.zip_file:
+                mCompressFiles = new CompressFiles();
+                mCompressFiles.execute(selectedFiles);
+                mode.finish();
+                break;
+               /* mCompressFiles = new CompressFiles();
+                mCompressFiles.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);*/
             default:
         }
         return false;
@@ -1010,9 +1059,9 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     unlockPrefs.edit().putBoolean(unlockedSelectedFile.getAbsolutePath(), false).commit();
                     actionMode.finish();
                     enterPwdDialog.dismiss();
-                    File fdelete = new File(unlockedSelectedFile.getAbsolutePath()+"/.nomedia");
+                    File fdelete = new File(unlockedSelectedFile.getAbsolutePath() + "/.nomedia");
                     if (fdelete.exists()) {
-                       fdelete.delete();
+                        fdelete.delete();
                     }
                 } else {
                     Toast.makeText(InternalExplorerActivity.this, "Incorrect Pin", Toast.LENGTH_SHORT).show();
@@ -1032,5 +1081,100 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         }
     };
 
+    //zip() will be called from this AsyncTask as this is long task.
+    private class CompressFiles extends AsyncTask<ArrayList, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(ArrayList... arrayLists) {
+            File file = Utils.getOutputZipFile(Calendar.getInstance().getTime() + ".zip", rootPath);
+
+
+            if (file != null) {
+                zipFileName = file.getAbsolutePath();
+
+                if (arrayLists[0].size() > 0) {
+                    zip(zipFileName, arrayLists[0]);
+                }
+            }
+
+            return true;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            loadingIndicator.setVisibility(View.VISIBLE);
+            mProgressView.setVisibility(View.VISIBLE);
+            try {
+                mProgressView.setText("0%");
+            } catch (Exception ignored) {
+            }
+        }
+
+
+        public void publish(ArrayList<String>list,int filesCompressionCompleted) {
+            int totalNumberOfFiles = list.size();
+            publishProgress((100 * filesCompressionCompleted) / totalNumberOfFiles);
+        }
+
+        protected void onProgressUpdate(Integer... progress) {
+
+            try {
+                mProgressView.setText(Integer.toString(progress[0]) + "% ");
+            } catch (Exception ignored) {
+                ignored.printStackTrace();
+            }
+        }
+
+        protected void onPostExecute(Boolean flag) {
+            loadingIndicator.setVisibility(View.GONE);
+            mProgressView.setVisibility(View.GONE);
+            Log.d("COMPRESS_TASK", "COMPLETED");
+            mProgressView.setText("100 % ");
+            mProgressView.setVisibility(View.GONE);
+            if (flag) {
+                File zipFile = new File(zipFileName);
+                m_item.add(zipFile.getName());
+                m_path.add(zipFile.getPath());
+                m_listAdapter.notifyDataSetChanged();
+            }
+            Toast.makeText(getApplicationContext(), "Zipping Completed", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //Function will get the call from compress function
+    public void setCompressProgress(ArrayList<String>files,int filesCompressionCompleted) {
+        mCompressFiles.publish(files,filesCompressionCompleted);
+    }
+
+    //Zipping function
+    public void zip(String zipFilePath, ArrayList<String> mFilePathList) {
+        try {
+            BufferedInputStream origin;
+            FileOutputStream dest = new FileOutputStream(zipFilePath);
+            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+
+            byte data[] = new byte[BUFFER];
+
+            for (int i = 0; i < mFilePathList.size(); i++) {
+
+                setCompressProgress(mFilePathList,i + 1);
+
+                FileInputStream fi = new FileInputStream(mFilePathList.get(i));
+                origin = new BufferedInputStream(fi, BUFFER);
+                ZipEntry entry = new ZipEntry(mFilePathList.get(i).substring(mFilePathList.get(i).lastIndexOf("/") + 1));
+                out.putNextEntry(entry);
+                int count;
+                while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                    out.write(data, 0, count);
+                }
+                origin.close();
+            }
+
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
 

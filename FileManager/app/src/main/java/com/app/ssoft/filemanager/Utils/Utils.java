@@ -79,6 +79,7 @@ public class Utils {
     private String rootPath;
     private String m_curDir;
 
+
     public static String floatForm(double d) {
         return new DecimalFormat("#.##").format(d);
     }
@@ -781,5 +782,18 @@ public class Utils {
 
 
 
+
+    public static File getOutputZipFile(String fileName,String rootPath) {
+
+        File mediaStorageDir = new File(rootPath);
+
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null;
+            }
+        }
+
+        return new File(mediaStorageDir.getPath() + File.separator + fileName);
+    }
 
 }
