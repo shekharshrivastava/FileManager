@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/appName"
         android:gravity="center"
-        android:text="File Manager"
+        android:text="Secured Explorer"
         android:textSize="20dp"
         android:layout_marginTop="5dp"
         android:layout_below="@id/appIconIV"

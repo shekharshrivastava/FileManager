@@ -56,12 +56,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class InternalExplorerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, AbsListView.MultiChoiceModeListener {
     private String m_root = Environment.getExternalStorageDirectory().getPath();
@@ -118,6 +124,16 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     private static final int BUFFER = 2048;
     private String zipFileName;
     private File m_isFile;
+    private final static String ALGO_RANDOM_NUM_GENERATOR = "SHA1PRNG";
+    private final static String ALGO_SECRET_KEY_GENERATOR = "AES";
+    private final static int IV_LENGTH = 16;
+    private File outFile_dec;
+    private File outFile;
+    private SecretKey key;
+    private byte[] keyData;
+    private SecretKeySpec key2;
+    private byte[] iv;
+    private IvParameterSpec paramSpec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -146,6 +162,16 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         pwdSharedPrefs = getSharedPreferences(Constants.SHARED_PREF_SET_PASSWORD, MODE_PRIVATE);
         registerForContextMenu(rl_lvListRoot);
         new getAllFilesFromInternalStorageTask().execute(internalStorageRoot);
+        try {
+             key = KeyGenerator.getInstance(ALGO_SECRET_KEY_GENERATOR).generateKey();
+           keyData = key.getEncoded();
+             key2 = new SecretKeySpec(keyData, 0, keyData.length, ALGO_SECRET_KEY_GENERATOR);
+          iv = new byte[IV_LENGTH];
+            SecureRandom.getInstance(ALGO_RANDOM_NUM_GENERATOR).nextBytes(iv);
+             paramSpec = new IvParameterSpec(iv);
+        } catch (Exception ex) {
+
+        }
     }
 
     ///get directories and files from selected path
@@ -572,8 +598,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     Intent uploadIntent = ShareCompat.IntentBuilder.from(this)
                             .setType(type)
                             .setStream(fileUri)
-                            .getIntent()
-                            .setPackage("com.google.android.apps.docs");
+                            .getIntent();
+//                            .setPackage("com.google.android.apps.docs");
                     startActivity(uploadIntent);
                 /*    Uri fileUri = FileProvider.getUriForFile(InternalExplorerActivity.this, getApplicationContext().getPackageName(), m_isFile)
                     theIntent.setData(fileUri.pat);
@@ -617,6 +643,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     cabMenu.getItem(6).setVisible(false);
                     cabMenu.getItem(7).setVisible(true);
                     cabMenu.getItem(7).setEnabled(true);
+                    cabMenu.getItem(8).setVisible(false);
                 } else {
                     cabMenu.getItem(0).setVisible(true);
                     cabMenu.getItem(1).setVisible(true);
@@ -627,6 +654,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     cabMenu.getItem(6).setVisible(true);
                     cabMenu.getItem(6).setEnabled(true);
                     cabMenu.getItem(7).setVisible(false);
+                    cabMenu.getItem(8).setVisible(true);
                 }
             }
 
@@ -761,6 +789,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
             case R.id.action_lock:
                 final File lockedSelectedFile = new File(selectedFiles.get(0));
+                outFile = new File(lockedSelectedFile.getAbsolutePath().substring(0, lockedSelectedFile.getAbsolutePath().lastIndexOf("/"))+"/"+lockedSelectedFile.getName());
 
                 if (pwdSharedPrefs.getString(Constants.password_input, null) != null) {
                     SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREF_FOLDER_LOCK_MODE, MODE_PRIVATE).edit();
@@ -776,8 +805,18 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                             e.printStackTrace();
                         }
                     }
-                    mode.finish();
-                } else {
+                    else {
+                       /* try {
+                            Encrypter.encrypt(key, paramSpec,
+                                    new FileInputStream(lockedSelectedFile), new FileOutputStream(outFile,false));
+                        }catch (Exception ex){
+                            ex.printStackTrace();
+                        }
+                    }*/
+
+                        mode.finish();
+                    }
+                }else {
 // get prompts.xml view
                     LayoutInflater li = LayoutInflater.from(InternalExplorerActivity.this);
                     View promptsView = li.inflate(R.layout.set_pwd_dialog, null);
@@ -816,8 +855,15 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                                                         } catch (IOException e) {
                                                             e.printStackTrace();
                                                         }
-                                                    }
-                                                    mode.finish();
+                                                    }/*else {
+                                                        try {
+                                                            Encrypter.encrypt(key2, paramSpec,
+                                                                    new FileInputStream(lockedSelectedFile), new FileOutputStream(outFile_dec));
+                                                        }catch (Exception ex){
+                                                            ex.printStackTrace();
+                                                        }
+                                                        mode.finish();
+                                                    }*/
                                                 } else {
                                                     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                                                     prefs.edit().putBoolean(lockedSelectedFile.getAbsolutePath(), false).commit();
@@ -1048,6 +1094,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     private String TAG = "LOCK SCREEN";
+
     private PinLockListener mPinLockListener = new PinLockListener() {
         @Override
         public void onComplete(String pin) {
@@ -1057,12 +1104,20 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
                     File unlockedSelectedFile = new File(selectedFiles.get(0));
                     SharedPreferences unlockPrefs = PreferenceManager.getDefaultSharedPreferences(InternalExplorerActivity.this);
                     unlockPrefs.edit().putBoolean(unlockedSelectedFile.getAbsolutePath(), false).commit();
+                    outFile_dec = new File(unlockedSelectedFile.getAbsolutePath().substring(0, unlockedSelectedFile.getAbsolutePath().lastIndexOf("/"))+"/"+unlockedSelectedFile.getName());
+
                     actionMode.finish();
                     enterPwdDialog.dismiss();
                     File fdelete = new File(unlockedSelectedFile.getAbsolutePath() + "/.nomedia");
                     if (fdelete.exists()) {
                         fdelete.delete();
                     }
+                   /* try {
+                        Encrypter.decrypt(key2, paramSpec,
+                                new FileInputStream(unlockedSelectedFile.getAbsolutePath()), new FileOutputStream(outFile_dec));
+                    }catch (Exception ex){
+                        ex.printStackTrace();
+                    }*/
                 } else {
                     Toast.makeText(InternalExplorerActivity.this, "Incorrect Pin", Toast.LENGTH_SHORT).show();
                 }
@@ -1112,7 +1167,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
         }
 
 
-        public void publish(ArrayList<String>list,int filesCompressionCompleted) {
+        public void publish(ArrayList<String> list, int filesCompressionCompleted) {
             int totalNumberOfFiles = list.size();
             publishProgress((100 * filesCompressionCompleted) / totalNumberOfFiles);
         }
@@ -1143,8 +1198,8 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
     }
 
     //Function will get the call from compress function
-    public void setCompressProgress(ArrayList<String>files,int filesCompressionCompleted) {
-        mCompressFiles.publish(files,filesCompressionCompleted);
+    public void setCompressProgress(ArrayList<String> files, int filesCompressionCompleted) {
+        mCompressFiles.publish(files, filesCompressionCompleted);
     }
 
     //Zipping function
@@ -1158,7 +1213,7 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
 
             for (int i = 0; i < mFilePathList.size(); i++) {
 
-                setCompressProgress(mFilePathList,i + 1);
+                setCompressProgress(mFilePathList, i + 1);
 
                 FileInputStream fi = new FileInputStream(mFilePathList.get(i));
                 origin = new BufferedInputStream(fi, BUFFER);
@@ -1176,5 +1231,6 @@ public class InternalExplorerActivity extends AppCompatActivity implements Adapt
             e.printStackTrace();
         }
     }
+
 }
 
