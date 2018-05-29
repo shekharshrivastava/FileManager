@@ -32,7 +32,7 @@
         android:layout_below="@+id/appName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Version - 1.0.6"
+        android:text="Version - 1.0.7"
         android:layout_marginTop="5dp"
         android:textStyle="bold"
         android:textColor="#000"
